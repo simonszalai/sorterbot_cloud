@@ -148,7 +148,6 @@
             
   <div class="section" id="module-src.vectorizer">
 <span id="welcome-to-sorterbot-vectorizer-s-documentation"></span><h1>Welcome to SorterBot Vectorizer’s documentation!<a class="headerlink" href="#module-src.vectorizer" title="Permalink to this headline">¶</a></h1>
-<p>vectorizer.py</p>
 <p>Vectorizer module is intended to load files from disk and calculate feature vectors from them.
 These feature vectors are used later for clustering. Vectorizer is built on PyTorch/Torchvision.
 Any model from torchvision.models can be used for vectorization.</p>
@@ -162,33 +161,64 @@ Implements an override for the __getitem__ method, which is called when the
 
 <dl class="class">
 <dt id="src.vectorizer.Vectorizer">
-<em class="property">class </em><code class="sig-prename descclassname">src.vectorizer.</code><code class="sig-name descname">Vectorizer</code><span class="sig-paren">(</span><em class="sig-param">model_name, input_dimensions, output_layer='avgpool', mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225], batchsize=1024, num_workers=4</em><span class="sig-paren">)</span><a class="headerlink" href="#src.vectorizer.Vectorizer" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">src.vectorizer.</code><code class="sig-name descname">Vectorizer</code><span class="sig-paren">(</span><em class="sig-param">model_name, input_dimensions, output_layer='avgpool', output_length=512, stats={'mean': [0.485, 0.456, 0.406], 'std': [0.229, 0.224, 0.225]}, batch_size=1024, num_workers=4</em><span class="sig-paren">)</span><a class="headerlink" href="#src.vectorizer.Vectorizer" title="Permalink to this definition">¶</a></dt>
 <dd><p>This class initiates the chosen neural network, loads the specified images,
 and computes feature vectors from them. The computation is executed in batches
-to increase effeciency.</p>
+to increase efficiency.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>model_name</strong> (<em>str</em>) – Name of the neural network architecture to be used for vectorization.
-Has to be one of the available models of <a class="reference external" href="https://pytorch.org/docs/stable/torchvision/models.html">torchvision.models</a>.</p></li>
+Has to be one of the available models of
+<a class="reference external" href="https://pytorch.org/docs/stable/torchvision/models.html">torchvision.models</a>.</p></li>
 <li><p><strong>input_dimensions</strong> (<em>tuple</em>) – Dimensions of the input tensor required by the network architecture.
 The processed images will be resized to these dimensions. Networks
 usually require square-shaped images.</p></li>
-<li><p><strong>output_layer</strong> (<em>str</em>) – Name of the layer in the neural net</p></li>
+<li><p><strong>output_layer</strong> (<em>str</em><em>, </em><em>optional</em>) – The layer of interest’s name in the neural net. The specified layer’s outputs
+are the vectors, which will be copied from the network and returned as results.
+To get a model summary with names, simply print the model, like: <code class="docutils literal notranslate"><span class="pre">print(model)</span></code></p></li>
+<li><p><strong>output_length</strong> (<em>int</em><em>, </em><em>optional</em>) – The length of the output vector.</p></li>
+<li><p><strong>mean</strong> (<em>dict</em><em>, </em><em>optional</em>) – Dict with 2 keys: <code class="docutils literal notranslate"><span class="pre">mean</span></code> and <code class="docutils literal notranslate"><span class="pre">std</span></code>. The corresponding values are both lists
+of 3 elements representing the 3 color channels of images. Specify here the
+means and standard deviations of the training set on which the used model was trained.
+Defaults to ImageNet stats.</p></li>
+<li><p><strong>batch_size</strong> (<em>int</em><em>, </em><em>optional</em>) – Specifies how many images a batch should contain. Use a higher number, preferably a
+power of 2 for faster processing. Keep in mind that one batch has to fit in memory
+at once.</p></li>
+<li><p><strong>num_workers</strong> (<em>int</em><em>, </em><em>optional</em>) – User by PyTorch’s DataLoader to determine how many subprocesses to use for data
+loading. Use 0 to load everything on the main process, use a higher number for
+parallel loading.</p></li>
 </ul>
 </dd>
 </dl>
-<div class="admonition seealso">
-<p class="admonition-title">See also</p>
-<dl class="simple">
-<dt><code class="xref py py-class docutils literal notranslate"><span class="pre">torchvision.models</span></code></dt><dd><p>Relationship (optional).</p>
-</dd>
-</dl>
-</div>
 <dl class="method">
 <dt id="src.vectorizer.Vectorizer.load_data">
 <code class="sig-name descname">load_data</code><span class="sig-paren">(</span><em class="sig-param">data_path</em><span class="sig-paren">)</span><a class="headerlink" href="#src.vectorizer.Vectorizer.load_data" title="Permalink to this definition">¶</a></dt>
-<dd><p>asdasda</p>
+<dd><p>Loads images from disk.</p>
+<p>This function first creates a dataset using ImageFolderWithPaths, which is an
+extension of PyTorch’s <a class="reference external" href="https://pytorch.org/docs/stable/torchvision/datasets.html#imagefolder">ImageFolder</a>,
+then it creates a dataloader.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>data_path</strong> (<em>str</em>) – Specifies the location of the images to be loaded. Given the way ImageFolder works,
+the images has to be in another folder inside the specified folder. The name of that
+folder would be the label for training, but in case of inference, it’s irrelevant.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="src.vectorizer.Vectorizer.start">
+<code class="sig-name descname">start</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.vectorizer.Vectorizer.start" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function runs the inference on the loaded pictures using the previously selected model.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><strong>full_data</strong> – Array of shape [n, l + 1], where n is the number of images (or batch_size, if )</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>numpy.ndarray</p>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>

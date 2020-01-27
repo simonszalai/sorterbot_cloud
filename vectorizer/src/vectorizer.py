@@ -134,7 +134,8 @@ class Vectorizer:
         Returns
         -------
         full_data : numpy.ndarray
-            Array of shape [n, l + 1], where n is the number of images (or batch_size, if )
+            Array of shape [n, l + 1], where n is the number of images and l is the length of the
+            result vectors. The first column includes the image name, that accounts for the +1.
         """
         # Create np array to hold results with precalculated dimensions for efficient stacking
         results = np.zeros((0, self.output_length + 1))  # len(self.dataset)
