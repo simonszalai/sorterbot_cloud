@@ -21,9 +21,10 @@ class ImageFolderWithPaths(datasets.ImageFolder):
     `dataloader` accesses an item from the `dataset`
 
     """
+
     def __getitem__(self, index):
         # Get what ImageFolder normally returns
-        original_tuple = super(ImageFolderWithPaths, self).__getitem__(index)
+        original_tuple = super().__getitem__(index)
         # Get image path
         path = self.imgs[index][0]
         # Make a new tuple that includes the original data plus the path
@@ -69,17 +70,20 @@ class Vectorizer:
         parallel loading.
 
     """
+
     def __init__(
             self,
             model_name,
             input_dimensions,
             output_layer="avgpool",
             output_length=512,
-            stats={"mean": [0.485, 0.456, 0.406], "std": [0.229, 0.224, 0.225]},
+            stats=None,
             batch_size=1024,
             num_workers=4):
-        # QUESTION: When I print a model summary, avgpool is like this: (avgpool): AdaptiveAvgPool2d(output_size=(1, 1))
-        # What does output_size(1,1) means if the output of the layer is of shape (1,512)?
+
+        # Assign stats mutable default value here to avoid unexpected behavior
+        if stats is None:
+            stats = {"mean": [0.485, 0.456, 0.406], "std": [0.229, 0.224, 0.225]}
 
         # Store parameters
         self.batch_size = batch_size
@@ -122,6 +126,7 @@ class Vectorizer:
             the images has to be in another folder inside the specified folder. The name of that
             folder would be the label for training, but in case of inference, it's irrelevant.
         """
+
         self.dataset = ImageFolderWithPaths(data_path, self.data_transforms)
         self.dataloader = torch.utils.data.DataLoader(
             self.dataset, batch_size=self.batch_size, shuffle=False, num_workers=self.num_workers
@@ -137,10 +142,9 @@ class Vectorizer:
             Array of shape [n, l + 1], where n is the number of images and l is the length of the
             result vectors. The first column includes the image name, that accounts for the +1.
         """
-        # Create np array to hold results with precalculated dimensions for efficient stacking
-        results = np.zeros((0, self.output_length + 1))  # len(self.dataset)
 
-        # Loop through batches
+        # Loop through batches and accumulate results
+        results = []
         for inputs, labels, paths in self.dataloader:
             # Get filenames from paths
             paths = [path.rsplit("/", 1)[-1] for path in paths]
@@ -161,7 +165,6 @@ class Vectorizer:
             # Run inference
             self.model(inputs)
 
-            # Remove hook
             hook.remove()
 
             # Column stack vectors with paths
@@ -169,13 +172,12 @@ class Vectorizer:
 
             # Print time spent
             time_total = time.time() - start_time
-            time_per_img_in_ms = round(time_total * 1000 / inputs.shape[0], 2)
-            print(f"{len(inputs)} image vectorized @ {time_per_img_in_ms}ms / image ({round(time_total, 2)}s total)")
+            time_per_img_in_ms = time_total * 1000 / inputs.shape[0]
+            print(f"{len(inputs)} image vectorized @ {time_per_img_in_ms:.2f}ms / image ({time_total:.2f}s total)")
 
-            # Vertical stack batch results to results
-            results = np.vstack((results, batch_results))  # TODO: probably inefficient way of accumulating results, fancy indexing instead?
+            results.append(batch_results)
 
-        return results
+        return np.concatenate(results)
 
 
 vectorizer = Vectorizer(model_name="resnet18", input_dimensions=(224, 224), batch_size=45)
