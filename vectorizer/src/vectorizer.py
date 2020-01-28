@@ -181,6 +181,6 @@ class Vectorizer:
 
 
 vectorizer = Vectorizer(model_name="resnet18", input_dimensions=(224, 224), batch_size=45)
-vectorizer.load_data('../../images')
+vectorizer.load_data('/vectorizer/images')
 results = vectorizer.start()
 print(results.shape)
