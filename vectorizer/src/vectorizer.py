@@ -146,8 +146,8 @@ class Vectorizer:
         # Loop through batches and accumulate results
         results = []
         for inputs, labels, paths in self.dataloader:
-            # Get filenames from paths
-            filenames = [os.path.basename(path) for path in paths]
+            # Get filenames and object names from paths
+            filenames = [f"{self.dataset.classes[label]}/{os.path.basename(path)}" for label, path in zip(labels, paths)]
 
             # Start timer
             start_time = time.time()
