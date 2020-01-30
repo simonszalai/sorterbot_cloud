@@ -147,7 +147,7 @@ class Vectorizer:
         results = []
         for inputs, labels, paths in self.dataloader:
             # Get filenames from paths
-            paths = [path.rsplit("/", 1)[-1] for path in paths]
+            paths = [os.path.basename(path) for path in paths]
 
             # Start timer
             start_time = time.time()

@@ -1,6 +1,0 @@
-{
-  "python.linting.flake8Enabled": true,
-  "python.linting.enabled": true,
-  "python.pythonPath": "/Users/simonszalai/.pyenv/versions/3.7.6/bin/python",
-  "restructuredtext.confPath": "${workspaceFolder}/vectorizer/docs"
-}

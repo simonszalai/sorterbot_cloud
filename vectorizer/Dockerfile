@@ -1,5 +1,4 @@
 FROM python:3.7
-WORKDIR /
 RUN mkdir /vectorizer
 WORKDIR /vectorizer
 COPY ./requirements.txt /vectorizer/requirements.txt
