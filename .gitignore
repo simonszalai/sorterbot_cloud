@@ -1,6 +1,7 @@
 .DS_Store
 .vscode
 
+images
 vectorizer/images
 vectorizer/src/__pycache__/
 vectorizer/docs/_build/

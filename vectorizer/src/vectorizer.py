@@ -139,16 +139,15 @@ class Vectorizer:
 
         Returns
         -------
-        full_data : numpy.ndarray
-            Array of shape [n, l + 1], where n is the number of images and l is the length of the
-            result vectors. The first column includes the image name, that accounts for the +1.
+        results : list
+            List of dicts containing filename and resulting vector for each image.
         """
 
         # Loop through batches and accumulate results
         results = []
         for inputs, labels, paths in self.dataloader:
             # Get filenames from paths
-            paths = [os.path.basename(path) for path in paths]
+            filenames = [os.path.basename(path) for path in paths]
 
             # Start timer
             start_time = time.time()
@@ -168,8 +167,10 @@ class Vectorizer:
 
             hook.remove()
 
-            # Column stack vectors with paths
-            batch_results = np.column_stack((paths, vectors))
+            # Create result dict of filename and vector
+            batch_results = []
+            for filename, vector in zip(filenames, vectors):
+                batch_results.append({"filename": filename, "vector": vector.numpy().tolist()})
 
             # Print time spent
             time_total = time.time() - start_time
@@ -178,10 +179,4 @@ class Vectorizer:
 
             results.append(batch_results)
 
-        return np.concatenate(results)
-
-
-vectorizer = Vectorizer(model_name="resnet18", input_dimensions=(224, 224), batch_size=45)
-vectorizer.load_data('/vectorizer/images')
-results = vectorizer.start()
-print(results.shape)
+        return results
