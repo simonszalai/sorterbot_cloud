@@ -5,6 +5,7 @@ Any model from torchvision.models can be used for vectorization.
 
 """
 
+import os
 import time
 import numpy as np
 
