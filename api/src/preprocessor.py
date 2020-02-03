@@ -9,6 +9,7 @@ import os
 import boto3
 from PIL import Image
 from pathlib import Path
+from dotenv import load_dotenv
 
 
 class PreProcessor:
@@ -25,7 +26,9 @@ class PreProcessor:
     """
 
     def __init__(self, base_path, bucket_name):
-        self.s3 = boto3.resource("s3")
+        load_dotenv()
+        session = boto3.Session(aws_access_key_id=os.getenv("AWS_ACCESS_KEY_ID"), aws_secret_access_key=os.getenv("AWS_SECRET_ACCESS_KEY"))
+        self.s3 = session.resource("s3")
         self.base_path = base_path
         self.bucket_name = bucket_name
 
