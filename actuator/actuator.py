@@ -21,11 +21,11 @@ camera.capture("/home/pi/Desktop/image8.jpg")
 print("Camera shutting down...")
 camera.stop_preview()
 
-# Instantiate AWS S3
+# Instantiate AWS s3
 s3 = boto3.resource("s3")
 
 # Upload file
-print("Uploading file to S3...")
+print("Uploading file to s3...")
 s3.Bucket("sorterbot").upload_file("/home/pi/Desktop/image8.jpg", "image8.jpg")
 print("File uploaded!")
 

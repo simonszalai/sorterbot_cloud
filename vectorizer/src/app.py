@@ -5,12 +5,13 @@ from vectorizer import Vectorizer
 from preprocessor import PreProcessor
 
 
-base_path = "/home/simon/dev/sorterbot/images"
+# base_path = "/home/simon/dev/sorterbot/images"
+base_path = "/Users/simonszalai/dev/sorterbot/images"
 
 app = Flask(__name__)
 
 vectorizer = Vectorizer(model_name="resnet18", input_dimensions=(224, 224), batch_size=45)
-preprocessor = PreProcessor(base_path)
+preprocessor = PreProcessor(base_path=base_path, bucket_name="sorterbot")
 
 
 @app.route("/vectorize", methods=["POST"])
@@ -23,7 +24,27 @@ def vectorize():
                     {
                         "id": 0,
                         "type": "item",
-                        "dims": {
+                        "bbox_dims": {
+                            "x": 0.5423,
+                            "y": 0.2457,
+                            "w": 0.0457,
+                            "h": 0.0247
+                        }
+                    },
+                    {
+                        "id": 1,
+                        "type": "item",
+                        "bbox_dims": {
+                            "x": 0.5423,
+                            "y": 0.2457,
+                            "w": 0.0457,
+                            "h": 0.0247
+                        }
+                    },
+                    {
+                        "id": 2,
+                        "type": "item",
+                        "bbox_dims": {
                             "x": 0.5423,
                             "y": 0.2457,
                             "w": 0.0457,
@@ -37,7 +58,7 @@ def vectorize():
                     {
                         "id": 1,
                         "type": "item",
-                        "dims": {
+                        "bbox_dims": {
                             "x": 0.5423,
                             "y": 0.2457,
                             "w": 0.0457,
@@ -50,10 +71,7 @@ def vectorize():
 
         for image in images:
             preprocessor.download_image(image["image_name"])
-            for obj in image["objects"]:
-                if obj["type"] != "item":
-                    return
-                preprocessor.crop_image(image["image_name"], obj["id"], obj["dims"])
+            preprocessor.crop_all_objects(image["image_name"], image["objects"])
 
         vectorizer.load_data(os.path.join(base_path, "cropped"))
         results = vectorizer.start()
