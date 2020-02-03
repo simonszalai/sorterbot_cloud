@@ -2,7 +2,7 @@
 .vscode
 images
 
-# Vectorizer
-vectorizer/images
-vectorizer/src/__pycache__/
-vectorizer/docs/_build/
+# API
+api/docs/_build/
+api/src/__pycache__/
+api/src/.env
