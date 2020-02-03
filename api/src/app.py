@@ -12,6 +12,7 @@ from vectorizer import Vectorizer
 from preprocessor import PreProcessor
 
 
+host = "0.0.0.0"
 port = 6000
 # base_path = "/home/simon/dev/sorterbot/images"
 base_path = "/Users/simonszalai/dev/sorterbot/images"
@@ -146,9 +147,8 @@ def compute_clusters():
         clusters = [int(cluster) for cluster in clusters]
         results = zip(filenames, clusters)
 
-        # return jsonify({"filenames": filenames, "clusters": list(clusters)})
         return jsonify({"results": [{"filename": result[0], "cluster": result[1]} for result in results]})
 
 
 if __name__ == "__main__":
-    app.run(port=port, debug=True)
+    app.run(host=host, port=port, debug=True)

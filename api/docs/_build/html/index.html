@@ -1,0 +1,278 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Welcome to SorterBot Vectorizer’s documentation! &mdash; SorterBot Vectorizer  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="#" class="icon icon-home"> SorterBot Vectorizer
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <!-- Local TOC -->
+              <div class="local-toc"><ul>
+<li><a class="reference internal" href="#">Welcome to SorterBot Vectorizer’s documentation!</a></li>
+<li><a class="reference internal" href="#indices-and-tables">Indices and tables</a></li>
+</ul>
+</div>
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="#">SorterBot Vectorizer</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="#">Docs</a> &raquo;</li>
+        
+      <li>Welcome to SorterBot Vectorizer’s documentation!</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/index.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-src.vectorizer">
+<span id="welcome-to-sorterbot-vectorizer-s-documentation"></span><h1>Welcome to SorterBot Vectorizer’s documentation!<a class="headerlink" href="#module-src.vectorizer" title="Permalink to this headline">¶</a></h1>
+<p>Vectorizer module is intended to load files from disk and calculate feature vectors from them.
+These feature vectors are used later for clustering. Vectorizer is built on PyTorch/Torchvision.
+Any model from torchvision.models can be used for vectorization.</p>
+<dl class="class">
+<dt id="src.vectorizer.ImageFolderWithPaths">
+<em class="property">class </em><code class="sig-prename descclassname">src.vectorizer.</code><code class="sig-name descname">ImageFolderWithPaths</code><span class="sig-paren">(</span><em class="sig-param">root</em>, <em class="sig-param">transform=None</em>, <em class="sig-param">target_transform=None</em>, <em class="sig-param">loader=&lt;function default_loader&gt;</em>, <em class="sig-param">is_valid_file=None</em><span class="sig-paren">)</span><a class="headerlink" href="#src.vectorizer.ImageFolderWithPaths" title="Permalink to this definition">¶</a></dt>
+<dd><p>Extends torchvision.datasets.ImageFolder to add image paths to the dataset.
+Implements an override for the __getitem__ method, which is called when the
+<cite>dataloader</cite> accesses an item from the <cite>dataset</cite></p>
+</dd></dl>
+
+<dl class="class">
+<dt id="src.vectorizer.Vectorizer">
+<em class="property">class </em><code class="sig-prename descclassname">src.vectorizer.</code><code class="sig-name descname">Vectorizer</code><span class="sig-paren">(</span><em class="sig-param">model_name, input_dimensions, output_layer='avgpool', output_length=512, stats={'mean': [0.485, 0.456, 0.406], 'std': [0.229, 0.224, 0.225]}, batch_size=1024, num_workers=4</em><span class="sig-paren">)</span><a class="headerlink" href="#src.vectorizer.Vectorizer" title="Permalink to this definition">¶</a></dt>
+<dd><p>This class initiates the chosen neural network, loads the specified images,
+and computes feature vectors from them. The computation is executed in batches
+to increase efficiency.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>model_name</strong> (<em>str</em>) – Name of the neural network architecture to be used for vectorization.
+Has to be one of the available models of
+<a class="reference external" href="https://pytorch.org/docs/stable/torchvision/models.html">torchvision.models</a>.</p></li>
+<li><p><strong>input_dimensions</strong> (<em>tuple</em>) – Dimensions of the input tensor required by the network architecture.
+The processed images will be resized to these dimensions. Networks
+usually require square-shaped images.</p></li>
+<li><p><strong>output_layer</strong> (<em>str</em><em>, </em><em>optional</em>) – The layer of interest’s name in the neural net. The specified layer’s outputs
+are the vectors, which will be copied from the network and returned as results.
+To get a model summary with names, simply print the model, like: <code class="docutils literal notranslate"><span class="pre">print(model)</span></code></p></li>
+<li><p><strong>output_length</strong> (<em>int</em><em>, </em><em>optional</em>) – The length of the output vector.</p></li>
+<li><p><strong>mean</strong> (<em>dict</em><em>, </em><em>optional</em>) – Dict with 2 keys: <code class="docutils literal notranslate"><span class="pre">mean</span></code> and <code class="docutils literal notranslate"><span class="pre">std</span></code>. The corresponding values are both lists
+of 3 elements representing the 3 color channels of images. Specify here the
+means and standard deviations of the training set on which the used model was trained.
+Defaults to ImageNet stats.</p></li>
+<li><p><strong>batch_size</strong> (<em>int</em><em>, </em><em>optional</em>) – Specifies how many images a batch should contain. Use a higher number, preferably a
+power of 2 for faster processing. Keep in mind that one batch has to fit in memory
+at once.</p></li>
+<li><p><strong>num_workers</strong> (<em>int</em><em>, </em><em>optional</em>) – User by PyTorch’s DataLoader to determine how many subprocesses to use for data
+loading. Use 0 to load everything on the main process, use a higher number for
+parallel loading.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="method">
+<dt id="src.vectorizer.Vectorizer.load_data">
+<code class="sig-name descname">load_data</code><span class="sig-paren">(</span><em class="sig-param">data_path</em><span class="sig-paren">)</span><a class="headerlink" href="#src.vectorizer.Vectorizer.load_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Loads images from disk.</p>
+<p>This function first creates a dataset using ImageFolderWithPaths, which is an
+extension of PyTorch’s <a class="reference external" href="https://pytorch.org/docs/stable/torchvision/datasets.html#imagefolder">ImageFolder</a>,
+then it creates a dataloader.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>data_path</strong> (<em>str</em>) – Specifies the location of the images to be loaded. Given the way ImageFolder works,
+the images has to be in another folder inside the specified folder. The name of that
+folder would be the label for training, but in case of inference, it’s irrelevant.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="src.vectorizer.Vectorizer.start">
+<code class="sig-name descname">start</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.vectorizer.Vectorizer.start" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function runs the inference on the loaded pictures using the previously selected model.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><strong>full_data</strong> – Array of shape [n, l + 1], where n is the number of images (or batch_size, if )</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>numpy.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<div class="toctree-wrapper compound">
+</div>
+</div>
+<div class="section" id="indices-and-tables">
+<h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this headline">¶</a></h1>
+<ul class="simple">
+<li><p><a class="reference internal" href="genindex.html"><span class="std std-ref">Index</span></a></p></li>
+<li><p><a class="reference internal" href="py-modindex.html"><span class="std std-ref">Module Index</span></a></p></li>
+<li><p><a class="reference internal" href="search.html"><span class="std std-ref">Search Page</span></a></p></li>
+</ul>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2020, Simon Szalai
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
