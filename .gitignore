@@ -1,4 +1,6 @@
 .DS_Store
+.vscode
+images
 
 # Vectorizer
 vectorizer/images
