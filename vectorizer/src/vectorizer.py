@@ -7,7 +7,6 @@ Any model from torchvision.models can be used for vectorization.
 
 import os
 import time
-import numpy as np
 
 import torch
 import torchvision.models as vision_models
@@ -139,25 +138,30 @@ class Vectorizer:
 
         Returns
         -------
-        results : list
-            List of dicts containing filename and resulting vector for each image.
+        filenames : list
+            List of filenames of cropped images. Also contains the name of the original image and corresponds
+            to the location of the image in the 'cropped' folder.
+        vectors : list
+            List of resulting vectors.
+
         """
 
         # Loop through batches and accumulate results
-        results = []
+        filenames = []
+        vectors = []
         for inputs, labels, paths in self.dataloader:
             # Get filenames and object names from paths
-            filenames = [f"{self.dataset.classes[label]}/{os.path.basename(path)}" for label, path in zip(labels, paths)]
+            batch_filenames = [f"{self.dataset.classes[label]}/{os.path.basename(path)}" for label, path in zip(labels, paths)]
 
             # Start timer
             start_time = time.time()
 
             # Create zero-filled vectors to store results
-            vectors = torch.zeros((inputs.shape[0], self.output_length))
+            batch_vectors = torch.zeros((inputs.shape[0], self.output_length))
 
             # Define function to copy outputs of a layer
             def copy_data(model, input, output):
-                vectors.copy_(output.data.squeeze())
+                batch_vectors.copy_(output.data.squeeze())
 
             # Register copy function to the specified layer
             hook = self.layer.register_forward_hook(copy_data)
@@ -167,16 +171,15 @@ class Vectorizer:
 
             hook.remove()
 
-            # Create result dict of filename and vector
-            batch_results = []
-            for filename, vector in zip(filenames, vectors):
-                batch_results.append({"filename": filename, "vector": vector.numpy().tolist()})
-
             # Print time spent
             time_total = time.time() - start_time
             time_per_img_in_ms = time_total * 1000 / inputs.shape[0]
             print(f"{len(inputs)} image vectorized @ {time_per_img_in_ms:.2f}ms / image ({time_total:.2f}s total)")
 
-            results.append(batch_results)
+            # Append batch filenames to global filenames list
+            filenames.append(*batch_filenames)
 
-        return results
+            # Append batch vectors to global vector list and convert tensors to lists
+            vectors.append(*[batch_vector.numpy().tolist() for batch_vector in batch_vectors])
+
+        return filenames, vectors

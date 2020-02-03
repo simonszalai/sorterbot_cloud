@@ -81,6 +81,11 @@ class PreProcessor:
             List of dicts containing keys `id`, `type` and `bbox_dims`. `type` is the type of the recognized object
             (`item` or `container`), for details on `id` and `bbox_dims` see documentation of `crop_object` method.
 
+        Returns
+        -------
+        n_containers : int
+            Number of recognized containers on the current image
+
         """
         # Construct absolute path for current image
         img_path = os.path.join(self.base_path, "original", image_name)
@@ -93,15 +98,20 @@ class PreProcessor:
 
         print(f"Cropping objects in {image_name}...")
 
+        n_containers = 0
         for obj in objects:
-            # Crop only items, not containers
-            if obj["type"] != "item":
-                return
-            self.crop_object(img_folder, img, obj["id"], obj["bbox_dims"])
+            if obj["type"] == "item":
+                # Crop only items, not containers
+                self.crop_object(img_folder, img, obj["id"], obj["bbox_dims"])
+            elif obj["type"] == "container":
+                # Increment container counter
+                n_containers += 1
 
         print(f"Cropping objects in {image_name} finished!")
 
         img.close()
+
+        return n_containers
 
     def crop_object(self, img_folder, img, id, bbox_dims):
         """
