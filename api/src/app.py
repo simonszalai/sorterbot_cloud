@@ -11,6 +11,7 @@ from sklearn.cluster import KMeans
 from detectron import Detectron
 from vectorizer import Vectorizer
 from preprocessor import PreProcessor
+from postgres import Postgres
 
 
 host = "0.0.0.0"
@@ -20,14 +21,19 @@ base_path = "/Users/simonszalai/dev/sorterbot/images"
 
 app = Flask(__name__)
 
-detectron = Detectron(config_file="COCO-InstanceSegmentation/mask_rcnn_R_50_FPN_3x.yaml")
+detectron = Detectron(base_path=base_path, config_file="COCO-Detection/faster_rcnn_R_50_FPN_3x.yaml")
 preprocessor = PreProcessor(base_path=base_path, bucket_name="sorterbot")
 vectorizer = Vectorizer(model_name="resnet18", input_dimensions=(224, 224), batch_size=1)
+db = Postgres()
 
 
 @app.route("/run_locator", methods=["POST"])
 def run_locator():
-    results = detectron.predict("../images/000000001503.jpg")
+    db.open()
+    db.create_table()
+    results = detectron.predict("000000001503.jpg")
+    db.insert_results(results)
+    db.close()
 
     return 'ok'
 

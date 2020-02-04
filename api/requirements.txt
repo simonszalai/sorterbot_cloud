@@ -2,6 +2,7 @@ Cython==0.29.14
 Flask==1.1.1
 boto3==1.11.9
 opencv-python==4.2.0.32
+psycopg2-binary==2.8.4
 python-dotenv==0.10.5
 pyyaml==5.1
 scikit-learn==0.22.1
