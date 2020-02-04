@@ -4,5 +4,5 @@ images
 
 # API
 api/docs/_build/
-api/src/__pycache__/
+api/src/__pycache__
 api/src/.env

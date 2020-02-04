@@ -8,6 +8,7 @@ import os
 from flask import Flask, request, jsonify
 from sklearn.cluster import KMeans
 
+from detectron import Detectron
 from vectorizer import Vectorizer
 from preprocessor import PreProcessor
 
@@ -19,8 +20,16 @@ base_path = "/Users/simonszalai/dev/sorterbot/images"
 
 app = Flask(__name__)
 
+detectron = Detectron(config_file="COCO-InstanceSegmentation/mask_rcnn_R_50_FPN_3x.yaml")
 preprocessor = PreProcessor(base_path=base_path, bucket_name="sorterbot")
 vectorizer = Vectorizer(model_name="resnet18", input_dimensions=(224, 224), batch_size=1)
+
+
+@app.route("/run_locator", methods=["POST"])
+def run_locator():
+    results = detectron.predict("../images/000000001503.jpg")
+    print(results)
+    return 'ok'
 
 
 @app.route("/compute_clusters", methods=["POST"])
