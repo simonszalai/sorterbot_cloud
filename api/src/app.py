@@ -28,7 +28,7 @@ vectorizer = Vectorizer(model_name="resnet18", input_dimensions=(224, 224), batc
 @app.route("/run_locator", methods=["POST"])
 def run_locator():
     results = detectron.predict("../images/000000001503.jpg")
-    print(results)
+
     return 'ok'
 
 
