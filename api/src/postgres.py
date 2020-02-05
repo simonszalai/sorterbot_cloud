@@ -1,25 +1,24 @@
 import os
 import psycopg2
 from psycopg2.extras import execute_values
-from dotenv import load_dotenv
 
 
 class Postgres:
     def open(self):
         try:
             self.connection = psycopg2.connect(
-                user = os.getenv("DB_USER"),
-                password = os.getenv("DB_PASSWORD"),
-                host = os.getenv("DB_HOST"),
-                port = os.getenv("DB_PORT"),
-                database = os.getenv("DB_NAME")
+                user=os.getenv("DB_USER"),
+                password=os.getenv("DB_PASSWORD"),
+                host=os.getenv("DB_HOST"),
+                port=os.getenv("DB_PORT"),
+                database=os.getenv("DB_NAME")
             )
             self.connection.autocommit = True
 
             self.cursor = self.connection.cursor()
 
         except (Exception, psycopg2.Error) as error:
-            print ("Error while connecting to PostgreSQL", error)
+            print("Error while connecting to PostgreSQL", error)
 
     def create_table(self, table_name="sorterbot"):
         # Since postgres converts table names to lowercase, this is needed to avoid unexpected behavior
@@ -32,7 +31,6 @@ class Postgres:
         if table_exists:
             print(f"Table '{table_name}' already exists, skipping table creation...")
             return
-
 
         create_table_query = f"""
             CREATE TABLE {table_name} (
@@ -66,17 +64,18 @@ class Postgres:
         # Get column names and later retrieve values by name so we don't depend on magic indices
         col_names = [col.name for col in self.cursor.description]
 
-        return [{
-            "id": row[col_names.index("id")],
-            "type": row[col_names.index("class")],
-            "bbox_dims": {
-                "x1": row[col_names.index("rel_x1")],
-                "y1": row[col_names.index("rel_y1")],
-                "x2": row[col_names.index("rel_x2")],
-                "y2": row[col_names.index("rel_y2")]
-            }
-         } for row in rows]
-
+        return [
+            {
+                "id": row[col_names.index("id")],
+                "type": row[col_names.index("class")],
+                "bbox_dims": {
+                    "x1": row[col_names.index("rel_x1")],
+                    "y1": row[col_names.index("rel_y1")],
+                    "x2": row[col_names.index("rel_x2")],
+                    "y2": row[col_names.index("rel_y2")]
+                }
+            } for row in rows
+        ]
 
     def close(self):
         self.cursor.close()

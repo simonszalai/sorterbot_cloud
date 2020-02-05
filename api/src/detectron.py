@@ -4,7 +4,6 @@ from detectron2 import model_zoo
 from detectron2.engine import DefaultPredictor
 from detectron2.config import get_cfg
 from detectron2.utils.logger import setup_logger
-from detectron2.structures import BoxMode
 
 from postgres import Postgres
 
@@ -56,6 +55,6 @@ class Detectron:
         boxes = outputs["instances"].pred_boxes
         classes = outputs["instances"].pred_classes
 
-        boxes_as_relative = [abs_to_rel(box, cl) for box, cl in zip(boxes, classes)]
+        boxes_as_relative = [abs_to_rel(box, cl) for box, cl in zip(boxes, classes)]  # TODO use map instead?
 
         return boxes_as_relative

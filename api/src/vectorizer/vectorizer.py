@@ -12,6 +12,9 @@ import torch
 import torchvision.models as vision_models
 import torchvision.transforms as transforms
 import torchvision.datasets as datasets
+from sklearn.cluster import KMeans
+
+from preprocessor import PreProcessor
 
 
 class ImageFolderWithPaths(datasets.ImageFolder):
@@ -73,6 +76,7 @@ class Vectorizer:
 
     def __init__(
             self,
+            base_path,
             model_name,
             input_dimensions,
             output_layer="avgpool",
@@ -81,14 +85,18 @@ class Vectorizer:
             batch_size=1024,
             num_workers=4):
 
-        # Assign stats mutable default value here to avoid unexpected behavior
+        # Assign mutable default value here to avoid unexpected behavior
         if stats is None:
             stats = {"mean": [0.485, 0.456, 0.406], "std": [0.229, 0.224, 0.225]}
 
         # Store parameters
+        self.base_path = base_path
         self.batch_size = batch_size
         self.num_workers = num_workers
         self.output_length = output_length
+
+        # Init PreProcessor
+        self.preprocessor = PreProcessor(base_path=base_path)
 
         # Retrieve selected model
         model_factory = getattr(vision_models, model_name)
@@ -111,6 +119,25 @@ class Vectorizer:
             ]
         )
 
+    def run(self, bucket_name, images):
+        # Create dataset for vectorization
+        self.load_data(os.path.join(self.base_path, "cropped"))
+
+        # Download and crop images around bounding boxes
+        n_containers = self.preprocessor.run(bucket_name, images)
+
+        # Run vectorizer
+        filenames, vectors = self.compute_vectors()
+
+        # Compute clusters
+        clusters = KMeans(n_clusters=n_containers).fit_predict(vectors)
+
+        # Convert numpy int32 to int so they are JSON serializable
+        clusters = [int(cluster) for cluster in clusters]
+        results = zip(filenames, clusters)
+
+        return [{"filename": result[0], "cluster": result[1]} for result in results]
+
     def load_data(self, data_path):
         """
         Loads images from disk.
@@ -132,7 +159,7 @@ class Vectorizer:
             self.dataset, batch_size=self.batch_size, shuffle=False, num_workers=self.num_workers
         )
 
-    def start(self):
+    def compute_vectors(self):
         """
         This function runs the inference on the loaded pictures using the previously selected model.
 

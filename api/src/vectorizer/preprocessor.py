@@ -9,7 +9,6 @@ import os
 import boto3
 from PIL import Image
 from pathlib import Path
-from dotenv import load_dotenv
 
 
 class PreProcessor:
@@ -25,23 +24,38 @@ class PreProcessor:
 
     """
 
-    def __init__(self, base_path, bucket_name):
-        load_dotenv()
+    def __init__(self, base_path):
         session = boto3.Session(aws_access_key_id=os.getenv("AWS_ACCESS_KEY_ID"), aws_secret_access_key=os.getenv("AWS_SECRET_ACCESS_KEY"))
         self.s3 = session.resource("s3")
         self.base_path = base_path
-        self.bucket_name = bucket_name
 
         # Create folder for original images if it doesn't exist
         Path(os.path.join(self.base_path, "original")).mkdir(parents=True, exist_ok=True)
 
-    def download_image(self, image_name):
+    def run(self, bucket_name, images):
+        n_containers = 0
+        for image in images:
+            # Download image
+            self.download_image(bucket_name, image["image_name"])
+
+            # Crop all items and count containers
+            n_containers_of_image = self.crop_all_objects(image["image_name"], image["objects"])
+
+            # Accumulate container count across images
+            n_containers += n_containers_of_image
+
+        return n_containers
+
+    def download_image(self, bucket_name, image_name):
         """
         This method downloads images from s3. To avoid unneccessary downloads, images are only
         downloaded if they are missing or corrupted.
 
         Parameters
         ----------
+        bukcet_name : str
+            Name of the s3 bucket where images are stored. Corresponds to Session ID.
+
         image_name : str
             Name of the image in the s3 bucket to be downloaded.
 
@@ -57,7 +71,7 @@ class PreProcessor:
 
         if not os.path.isfile(img_path):
             print(f"Original image '{image_name}' does not exist on disk, downloading from s3...")
-            self.s3.Bucket(self.bucket_name).download_file(image_name, img_path)
+            self.s3.Bucket(bucket_name).download_file(image_name, img_path)
             print(f"Original image '{image_name}' is successfully downloaded!")
         else:
             try:
@@ -67,7 +81,7 @@ class PreProcessor:
                 print(f"Original image '{image_name}' already exists on disk and it is valid, skipping download.")
             except:
                 print(f"Original image '{image_name}' already exists on disk, but it is corrupted, downloading again from s3...")
-                self.s3.Bucket(self.bucket_name).download_file(image_name, img_path)
+                self.s3.Bucket(bucket_name).download_file(image_name, img_path)
 
         return img_path
 
