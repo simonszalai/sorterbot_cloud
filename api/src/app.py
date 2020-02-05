@@ -4,102 +4,64 @@ A Flask application to expose the vectorizer functionality as a REST API endpoin
 """
 
 
-import os
-from flask import Flask, request, jsonify
-from sklearn.cluster import KMeans
+from flask import Flask, request
+from dotenv import load_dotenv
 
 from detectron import Detectron
-from vectorizer import Vectorizer
-from preprocessor import PreProcessor
+from vectorizer.vectorizer import Vectorizer
 from postgres import Postgres
 
 
-host = "0.0.0.0"
-port = 6000
 # base_path = "/home/simon/dev/sorterbot/images"
 base_path = "/Users/simonszalai/dev/sorterbot/images"
 
 app = Flask(__name__)
 
+load_dotenv()
+
+postgres = Postgres()
 detectron = Detectron(base_path=base_path, config_file="COCO-Detection/faster_rcnn_R_50_FPN_3x.yaml")
-preprocessor = PreProcessor(base_path=base_path, bucket_name="sorterbot")
-vectorizer = Vectorizer(model_name="resnet18", input_dimensions=(224, 224), batch_size=1)
-db = Postgres()
+vectorizer = Vectorizer(base_path=base_path, model_name="resnet18", input_dimensions=(224, 224), batch_size=1)
 
 
-
-def compute_clusters():
-    images = [
-        {
-            "image_name": "IMG_20190630_082354.jpg",
-            "objects": [
-                {
-                    "id": 0,
-                    "type": "item",
-                    "bbox_dims": {
-                        "x": 0.5423,
-                        "y": 0.2457,
-                        "w": 0.0457,
-                        "h": 0.0247
-                    }
-                }
-            ]
-        }
-    ]
-
-    n_containers = 0
-    for image in images:
-        # Download image
-        preprocessor.download_image(image["image_name"])
-
-        # Crop all items and count containers
-        n_containers_of_image = preprocessor.crop_all_objects(image["image_name"], image["objects"])
-
-        # Accumulate container count across images
-        n_containers += n_containers_of_image
-
-    # Create dataset for vectorization
-    vectorizer.load_data(os.path.join(base_path, "cropped"))
-
-    # Run vectorizer
-    filenames, vectors = vectorizer.start()
-
-    # Compute clusters
-    clusters = KMeans(n_clusters=n_containers).fit_predict(vectors)
-
-    # Convert numpy int32 to int so they are JSON serializable
-    clusters = [int(cluster) for cluster in clusters]
-    results = zip(filenames, clusters)
-
-    return jsonify({"results": [{"filename": result[0], "cluster": result[1]} for result in results]})
-
-
-@app.route("/run_locator", methods=["POST"])
-def run_locator():
+@app.route("/process_image", methods=["POST"])
+def process_image():
     # Retrieve query parameters from the request
-    img_name = request.args.get("image_name")
     session_id = request.args.get("session_id")
+    img_name = request.args.get("image_name")
+    is_final = request.args.get("is_final")
 
-    db.open()
-    db.create_table(table_name=session_id)
+    # Open postgres connection and create table for current session if it does not exist yet
+    postgres.open()
+    postgres.create_table(table_name=session_id)
+
+    # Run detectron to get bounding boxes
     results = detectron.predict(img_name=img_name)
-    db.insert_results(results)
 
-    unique_images = db.get_unique_images()
-    images_with_objects = []
-    for image in unique_images:
-        images_with_objects.append({
-            "image_name": image,
-            "objects": db.get_objects_of_image(image)
-        })
+    # Insert bounding box locations to postgres
+    postgres.insert_results(results)
 
-    print(images_with_objects)
+    if is_final:
+        # Get list of unique image names in current session
+        unique_images = postgres.get_unique_images()
 
+        # Get objects belonging to each unique image from postgres
+        images_with_objects = []
+        for image_name in unique_images:
+            images_with_objects.append({
+                "image_name": image_name,
+                "objects": postgres.get_objects_of_image(image_name=image_name)
+            })
 
-    db.close()
+        # Terminate postgres connection as it's no longer needed
+        postgres.close()
+
+        # Run vectorizer to assign each object to a cluster
+        pairings = vectorizer.run(bucket_name=session_id, images=images_with_objects)
+        print(pairings)
 
     return 'ok'
 
 
 if __name__ == "__main__":
-    app.run(host=host, port=port, debug=True)
+    app.run(host="0.0.0.0", port=6000, debug=True)
