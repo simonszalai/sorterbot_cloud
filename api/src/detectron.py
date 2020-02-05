@@ -57,6 +57,5 @@ class Detectron:
         classes = outputs["instances"].pred_classes
 
         boxes_as_relative = [abs_to_rel(box, cl) for box, cl in zip(boxes, classes)]
-        print(boxes_as_relative)
 
         return boxes_as_relative
