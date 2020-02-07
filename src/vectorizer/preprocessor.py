@@ -6,6 +6,7 @@ the recognized objects from the original images.
 
 
 import os
+from utils.logger import logger
 import boto3
 from PIL import Image
 from pathlib import Path
@@ -17,17 +18,17 @@ class PreProcessor:
 
     Parameters
     ----------
-    base_path : str
+    base_img_path : str
         Absolute path where the downloaded images should be stored. Inside this folder, appropriate
         subfolders will be automatically created for the original images (named "original") and the
         cropped images (named "cropped").
 
     """
 
-    def __init__(self, base_path):
+    def __init__(self, base_img_path):
         session = boto3.Session(aws_access_key_id=os.getenv("AWS_ACCESS_KEY_ID"), aws_secret_access_key=os.getenv("AWS_SECRET_ACCESS_KEY"))
         self.s3 = session.resource("s3")
-        self.base_path = base_path
+        self.base_img_path = base_img_path
 
     def run(self, bucket_name, images):
         n_containers = 0
@@ -64,20 +65,20 @@ class PreProcessor:
         """
 
         # Construct absolute path for current image
-        img_path = os.path.join(self.base_path, "original", image_name)
+        img_path = os.path.join(self.base_img_path, "original", image_name)
 
         if not os.path.isfile(img_path):
-            print(f"Original image '{image_name}' does not exist on disk, downloading from s3...")
+            logger.info(f"Original image '{image_name}' does not exist on disk, downloading from s3...")
             self.s3.Bucket(bucket_name).download_file(image_name, img_path)
-            print(f"Original image '{image_name}' is successfully downloaded!")
+            logger.info(f"Original image '{image_name}' is successfully downloaded!")
         else:
             try:
                 im = Image.open(img_path)
                 im.verify()
                 im.close()
-                print(f"Original image '{image_name}' already exists on disk and it is valid, skipping download.")
+                logger.info(f"Original image '{image_name}' already exists on disk and it is valid, skipping download.")
             except:
-                print(f"Original image '{image_name}' already exists on disk, but it is corrupted, downloading again from s3...")
+                logger.warning(f"Original image '{image_name}' already exists on disk, but it is corrupted, downloading again from s3...")
                 self.s3.Bucket(bucket_name).download_file(image_name, img_path)
 
         return img_path
@@ -102,19 +103,18 @@ class PreProcessor:
 
         """
         # Construct absolute path for current image
-        img_path = os.path.join(self.base_path, "original", image_name)
+        img_path = os.path.join(self.base_img_path, "original", image_name)
 
         # Create folder with image name if it doesn't exist
-        img_folder = os.path.join(self.base_path, "cropped", image_name)
+        img_folder = os.path.join(self.base_img_path, "cropped", image_name)
         Path(img_folder).mkdir(parents=True, exist_ok=True)
 
         img = Image.open(img_path)
 
-        print(f"Cropping objects in {image_name}...")
+        logger.info(f"Cropping objects in {image_name}...")
 
         n_containers = 0
         for obj in objects:
-            print(obj)
             if obj["type"] == "container":
                 # Increment container counter
                 n_containers += 1
@@ -122,7 +122,7 @@ class PreProcessor:
                 # Crop only items, not containers
                 self.crop_object(img_folder, img, obj["id"], obj["bbox_dims"])
 
-        print(f"Cropping objects in {image_name} finished!")
+        logger.info(f"Cropping objects in {image_name} finished!")
 
         img.close()
 
@@ -168,4 +168,4 @@ class PreProcessor:
         # Save cropped image
         cropped_name = f"item_{id}.jpg"
         cropped_img.save(os.path.join(img_folder, cropped_name))
-        print(f"    Cropped image '{cropped_name}' saved!")
+        logger.info(f"Cropped image '{cropped_name}' saved!")

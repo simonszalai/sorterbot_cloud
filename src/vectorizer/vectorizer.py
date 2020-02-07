@@ -7,6 +7,7 @@ Any model from torchvision.models can be used for vectorization.
 
 import os
 import time
+from utils.logger import logger
 
 import torch
 import torchvision.models as vision_models
@@ -76,7 +77,7 @@ class Vectorizer:
 
     def __init__(
             self,
-            base_path,
+            base_img_path,
             model_name,
             input_dimensions,
             output_layer="avgpool",
@@ -90,13 +91,13 @@ class Vectorizer:
             stats = {"mean": [0.485, 0.456, 0.406], "std": [0.229, 0.224, 0.225]}
 
         # Store parameters
-        self.base_path = base_path
+        self.base_img_path = base_img_path
         self.batch_size = batch_size
         self.num_workers = num_workers
         self.output_length = output_length
 
         # Init PreProcessor
-        self.preprocessor = PreProcessor(base_path=base_path)
+        self.preprocessor = PreProcessor(base_img_path=base_img_path)
 
         # Retrieve selected model
         model_factory = getattr(vision_models, model_name)
@@ -126,10 +127,10 @@ class Vectorizer:
         # Handle case if no containers were found
         if not n_containers:
             # raise Exception("No containers were found!")
-            n_containers = 1 # TEMPORARY
+            n_containers = 1  # TEMPORARY
 
         # Create dataset for vectorization
-        self.load_data(os.path.join(self.base_path, "cropped"))
+        self.load_data(os.path.join(self.base_img_path, "cropped"))
 
         # Run vectorizer
         filenames, vectors = self.compute_vectors()
@@ -206,12 +207,12 @@ class Vectorizer:
             # Print time spent
             time_total = time.time() - start_time
             time_per_img_in_ms = time_total * 1000 / inputs.shape[0]
-            print(f"{len(inputs)} image vectorized @ {time_per_img_in_ms:.2f}ms / image ({time_total:.2f}s total)")
+            logger.info(f"{len(inputs)} image vectorized @ {time_per_img_in_ms:.2f}ms / image ({time_total:.2f}s total)")
 
             # Append batch filenames to global filenames list
-            filenames.append(*batch_filenames)
+            filenames += batch_filenames
 
             # Append batch vectors to global vector list and convert tensors to lists
-            vectors.append(*[batch_vector.numpy().tolist() for batch_vector in batch_vectors])
+            vectors += [batch_vector.numpy().tolist() for batch_vector in batch_vectors]
 
         return filenames, vectors

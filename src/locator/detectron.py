@@ -9,10 +9,10 @@ from utils.postgres import Postgres
 
 
 class Detectron:
-    def __init__(self, base_path, config_file, threshold=0.5):
+    def __init__(self, base_img_path, config_file, threshold=0.5):
         self.db = Postgres()
 
-        self.base_path = base_path
+        self.base_img_path = base_img_path
         self.config_file = config_file
         self.threshold = threshold
 
@@ -30,7 +30,7 @@ class Detectron:
         setup_logger()
 
     def predict(self, img_name):
-        img = cv2.imread(os.path.join(self.base_path, "original", img_name))
+        img = cv2.imread(os.path.join(self.base_img_path, "original", img_name))
 
         outputs = self.predictor(img)
 

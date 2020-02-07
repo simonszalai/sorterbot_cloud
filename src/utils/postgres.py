@@ -1,4 +1,5 @@
 import os
+from utils.logger import logger
 import psycopg2
 from psycopg2.extras import execute_values
 
@@ -18,7 +19,7 @@ class Postgres:
             self.cursor = self.connection.cursor()
 
         except (Exception, psycopg2.Error) as error:
-            print("Error while connecting to PostgreSQL", error)
+            logger.error("Error while connecting to PostgreSQL", error)
 
     def create_table(self, table_name="sorterbot"):
         # Since postgres converts table names to lowercase, this is needed to avoid unexpected behavior
@@ -29,7 +30,7 @@ class Postgres:
         table_exists = self.cursor.fetchone()[0]
         
         if table_exists:
-            print(f"Table '{table_name}' already exists, skipping table creation...")
+            logger.info(f"Table '{table_name}' already exists, skipping table creation...")
             return
 
         create_table_query = f"""
@@ -80,4 +81,4 @@ class Postgres:
     def close(self):
         self.cursor.close()
         self.connection.close()
-        print("PostgreSQL connection is closed")
+        logger.info("PostgreSQL connection is closed")

@@ -1,26 +1,44 @@
 
 import os
+import logging
+from yaml import load, Loader, YAMLError
 from pathlib import Path
 from dotenv import load_dotenv
 
 from locator.detectron import Detectron
 from vectorizer.vectorizer import Vectorizer
 from utils.postgres import Postgres
+from utils.logger import logger
 
 
 class Main:
     def __init__(self):
         # Load envirnoment vectorizer from .env in project root
         load_dotenv()
+        logger.info('ASD')
+
+        # Parse config.yaml
+        with open("config.yaml", 'r') as stream:
+            try:
+                config = load(stream, Loader)
+            except YAMLError as error:
+                logger.error("Error while opening config.yaml ", error)
+
+        # Construct base_img_path by moving 2 levels up from the current file's location
+        self.base_img_path = os.path.abspath(os.path.join(os.path.abspath(__file__), "../../images"))
 
         # Create folders for original and cropped images if they do not exist
-        self.base_path = os.path.abspath(os.path.join(os.getcwd(), "images"))
-        Path(os.path.join(self.base_path, "original")).mkdir(parents=True, exist_ok=True)
-        Path(os.path.join(self.base_path, "cropped")).mkdir(parents=True, exist_ok=True)
+        Path(os.path.join(self.base_img_path, "original")).mkdir(parents=True, exist_ok=True)
+        Path(os.path.join(self.base_img_path, "cropped")).mkdir(parents=True, exist_ok=True)
 
         self.postgres = Postgres()
-        self.detectron = Detectron(base_path=self.base_path, config_file="COCO-Detection/faster_rcnn_R_50_FPN_3x.yaml")
-        self.vectorizer = Vectorizer(base_path=self.base_path, model_name="resnet18", input_dimensions=(224, 224), batch_size=1)
+        self.detectron = Detectron(base_img_path=self.base_img_path, config_file=config["DETECTRON_MODEL"])
+        self.vectorizer = Vectorizer(
+            base_img_path=self.base_img_path,
+            model_name=config["VECTORIZER"]["MODEL"],
+            input_dimensions=config["VECTORIZER"]["INPUT_DIMS"],
+            batch_size=config["VECTORIZER"]["BATCH_SIZE"]
+        )
 
     def process_image(self, session_id, img_name, is_final=0):
         # Open postgres connection and create table for current session if it does not exist yet
