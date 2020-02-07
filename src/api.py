@@ -3,8 +3,9 @@ A Flask application to expose the `/process_image` REST API endpoint.
 
 """
 
+import json
+from flask import Flask, Response, request
 from main import Main
-from flask import Flask, request
 
 app = Flask(__name__)
 main = Main()
@@ -33,15 +34,16 @@ def process_image():
     session_id = request.args.get("session_id")
     image_name = request.args.get("image_name")
     is_final = request.args.get("is_final")
-
+    
     # Detect objects on image and save bounding boxes to the database
     main.process_image(session_id, image_name)
 
     # If the image is the last of a session, crop and vectorize all objects in current session
     if is_final:
-        main.vectorize_session_images()
-
-    return 'ok'
+        pairings = main.vectorize_session_images()
+        return Response(json.dumps(pairings), status=200, mimetype='application/json')
+    else:
+        return Response(f"'{image_name}' of session '{session_id}' successfully processed!", status=200, mimetype='application/text')
 
 
 if __name__ == "__main__":

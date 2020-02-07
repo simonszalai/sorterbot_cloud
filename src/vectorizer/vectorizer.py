@@ -150,7 +150,7 @@ class Vectorizer:
         # Handle case if no containers were found
         if not n_containers:
             # raise Exception("No containers were found!")
-            n_containers = 1  # TEMPORARY
+            n_containers = 2  # TEMPORARY
 
         # Create dataset for vectorization
         self.load_data(os.path.join(self.base_img_path, "cropped"))

@@ -106,7 +106,6 @@ class Main:
                 "image_name": image_name,
                 "objects": self.postgres.get_objects_of_image(image_name=image_name)
             })
-
         # Terminate postgres connection as it's no longer needed
         self.postgres.close()
 
