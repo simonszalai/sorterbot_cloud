@@ -7,7 +7,6 @@ the recognized objects from the original images.
 
 import os
 from utils.logger import logger
-import boto3
 from PIL import Image
 from pathlib import Path
 
@@ -26,16 +25,28 @@ class PreProcessor:
     """
 
     def __init__(self, base_img_path):
-        session = boto3.Session(aws_access_key_id=os.getenv("AWS_ACCESS_KEY_ID"), aws_secret_access_key=os.getenv("AWS_SECRET_ACCESS_KEY"))
-        self.s3 = session.resource("s3")
         self.base_img_path = base_img_path
 
-    def run(self, bucket_name, images):
+    def run(self, images):
+        """
+        This method coordinates the preprocessing. It loops though the provided list of images and
+        crops all recognized objects from the image.
+
+        Parameters
+        ----------
+        images : list
+            List of dicts containing `image_name` and `objects` keys. The `objects` value is the return
+            value of `postgres.get_objects_of_image()` function.
+
+        Returns
+        -------
+        n_containers : int
+            Number of objects classified as containers. Used as number of clusters by K-Means algorithm.
+
+        """
+
         n_containers = 0
         for image in images:
-            # Download image
-            self.download_image(bucket_name, image["image_name"])
-
             # Crop all items and count containers
             n_containers_of_image = self.crop_all_objects(image["image_name"], image["objects"])
 
@@ -43,45 +54,6 @@ class PreProcessor:
             n_containers += n_containers_of_image
 
         return n_containers
-
-    def download_image(self, bucket_name, image_name):
-        """
-        This method downloads images from s3. To avoid unneccessary downloads, images are only
-        downloaded if they are missing or corrupted.
-
-        Parameters
-        ----------
-        bukcet_name : str
-            Name of the s3 bucket where images are stored. Corresponds to Session ID.
-
-        image_name : str
-            Name of the image in the s3 bucket to be downloaded.
-
-        Returns
-        -------
-        img_path : str
-            Absolute path of the downloaded image.
-
-        """
-
-        # Construct absolute path for current image
-        img_path = os.path.join(self.base_img_path, "original", image_name)
-
-        if not os.path.isfile(img_path):
-            logger.info(f"Original image '{image_name}' does not exist on disk, downloading from s3...")
-            self.s3.Bucket(bucket_name).download_file(image_name, img_path)
-            logger.info(f"Original image '{image_name}' is successfully downloaded!")
-        else:
-            try:
-                im = Image.open(img_path)
-                im.verify()
-                im.close()
-                logger.info(f"Original image '{image_name}' already exists on disk and it is valid, skipping download.")
-            except:
-                logger.warning(f"Original image '{image_name}' already exists on disk, but it is corrupted, downloading again from s3...")
-                self.s3.Bucket(bucket_name).download_file(image_name, img_path)
-
-        return img_path
 
     def crop_all_objects(self, image_name, objects):
         """
@@ -102,6 +74,7 @@ class PreProcessor:
             Number of recognized containers on the current image
 
         """
+
         # Construct absolute path for current image
         img_path = os.path.join(self.base_img_path, "original", image_name)
 
@@ -146,10 +119,9 @@ class PreProcessor:
             Object id (unique within an original image) of the recognized object.
             The cropped image will be saved with a name like the following: item_<id>.ext
         bbox_dims : dict
-            Bounding box dimensions to be used for cropping. The dict should contain the following keys: `w` (width),
-            `h` (height), `x` (x coordinate of bounding box center) and `y` (y coordinate of bounding box center).
-            All values are floats between 0 and 1, representing relative distances to the original image's appropriate
-            dimensions.
+            Bounding box dimensions to be used for cropping. The dict should contain the following keys: `x1` and `y1`
+            representing the coordinates of the top left, while `x2` and `y2` representing the coordinates of the
+            bottom right corner of the bounding box. All values are floats between 0 and 1, representing relative distances.
 
         """
 

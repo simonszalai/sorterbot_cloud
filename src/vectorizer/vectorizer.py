@@ -45,6 +45,10 @@ class Vectorizer:
 
     Parameters
     ----------
+    base_img_path : str
+        Absolute path where the downloaded images should be stored. Inside this folder, appropriate
+        subfolders will be automatically created for the original images (named "original") and the
+        cropped images (named "cropped").
     model_name : str
         Name of the neural network architecture to be used for vectorization.
         Has to be one of the available models of
@@ -59,7 +63,7 @@ class Vectorizer:
         To get a model summary with names, simply print the model, like: ``print(model)``
     output_length : int, optional
         The length of the output vector.
-    mean : dict, optional
+    stats : dict, optional
         Dict with 2 keys: ``mean`` and ``std``. The corresponding values are both lists
         of 3 elements representing the 3 color channels of images. Specify here the
         means and standard deviations of the training set on which the used model was trained.
@@ -120,9 +124,28 @@ class Vectorizer:
             ]
         )
 
-    def run(self, bucket_name, images):
+    def run(self, images):
+        """
+        This method coordinates the process of vectorization. First, it run's the preprocessor
+        to crop the bounding boxes from the original images, then runs the vectorizer on the cropped
+        images and finally clusters the resulting vectors.
+
+        Parameters
+        ----------
+        images : list
+            List of dicts containing `image_name` and `objects` keys. The `objects` value is the return
+            value of `postgres.get_objects_of_image()` function.
+
+        Returns
+        -------
+        results : list
+            List of dicts containing `filename` and `cluster` keys. The filename includes the original image's name
+            and the recognized object's id, the cluster is the index of the cluster to which the particular object belongs.
+
+        """
+
         # Download and crop images around bounding boxes
-        n_containers = self.preprocessor.run(bucket_name, images)
+        n_containers = self.preprocessor.run(images)
 
         # Handle case if no containers were found
         if not n_containers:
@@ -140,9 +163,9 @@ class Vectorizer:
 
         # Convert numpy int32 to int so they are JSON serializable
         clusters = [int(cluster) for cluster in clusters]
-        results = zip(filenames, clusters)
+        results = [{"filename": result[0], "cluster": result[1]} for result in zip(filenames, clusters)]
 
-        return [{"filename": result[0], "cluster": result[1]} for result in results]
+        return results
 
     def load_data(self, data_path):
         """
