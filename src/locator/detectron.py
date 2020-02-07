@@ -5,7 +5,7 @@ from detectron2.engine import DefaultPredictor
 from detectron2.config import get_cfg
 from detectron2.utils.logger import setup_logger
 
-from postgres import Postgres
+from utils.postgres import Postgres
 
 
 class Detectron:
@@ -30,9 +30,10 @@ class Detectron:
         setup_logger()
 
     def predict(self, img_name):
-        img = cv2.imread(os.path.join(self.base_path, "original",  img_name))
+        img = cv2.imread(os.path.join(self.base_path, "original", img_name))
+
         outputs = self.predictor(img)
-        # print(outputs)
+
         img_height = outputs["instances"].image_size[0]
         img_width = outputs["instances"].image_size[1]
 

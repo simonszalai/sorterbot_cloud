@@ -14,7 +14,7 @@ import torchvision.transforms as transforms
 import torchvision.datasets as datasets
 from sklearn.cluster import KMeans
 
-from preprocessor import PreProcessor
+from vectorizer.preprocessor import PreProcessor
 
 
 class ImageFolderWithPaths(datasets.ImageFolder):
@@ -120,11 +120,16 @@ class Vectorizer:
         )
 
     def run(self, bucket_name, images):
-        # Create dataset for vectorization
-        self.load_data(os.path.join(self.base_path, "cropped"))
-
         # Download and crop images around bounding boxes
         n_containers = self.preprocessor.run(bucket_name, images)
+
+        # Handle case if no containers were found
+        if not n_containers:
+            # raise Exception("No containers were found!")
+            n_containers = 1 # TEMPORARY
+
+        # Create dataset for vectorization
+        self.load_data(os.path.join(self.base_path, "cropped"))
 
         # Run vectorizer
         filenames, vectors = self.compute_vectors()

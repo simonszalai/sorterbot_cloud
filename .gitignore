@@ -3,7 +3,7 @@
 images
 
 # API
-api/docs/_build/
-api/src/__pycache__
-api/src/.env
-api/detectron2_repo
+docs/_build/
+*.pyc
+**/__pycache__
+**/.env

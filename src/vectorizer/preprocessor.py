@@ -29,9 +29,6 @@ class PreProcessor:
         self.s3 = session.resource("s3")
         self.base_path = base_path
 
-        # Create folder for original images if it doesn't exist
-        Path(os.path.join(self.base_path, "original")).mkdir(parents=True, exist_ok=True)
-
     def run(self, bucket_name, images):
         n_containers = 0
         for image in images:
@@ -117,12 +114,13 @@ class PreProcessor:
 
         n_containers = 0
         for obj in objects:
-            if obj["type"] == "item":
-                # Crop only items, not containers
-                self.crop_object(img_folder, img, obj["id"], obj["bbox_dims"])
-            elif obj["type"] == "container":
+            print(obj)
+            if obj["type"] == "container":
                 # Increment container counter
                 n_containers += 1
+            else:  # elif obj["type"] == "item": TEMPORARY for testing
+                # Crop only items, not containers
+                self.crop_object(img_folder, img, obj["id"], obj["bbox_dims"])
 
         print(f"Cropping objects in {image_name} finished!")
 
@@ -158,15 +156,11 @@ class PreProcessor:
         # Get image width and height in pixels
         total_w, total_h = img.size
 
-        # Get bounding box width and height in pixels
-        bbox_w_px = int(total_w * bbox_dims["w"])
-        bbox_h_px = int(total_h * bbox_dims["h"])
-
         # Get bounding box corner coordinates in pixels
-        left   = int(total_w * bbox_dims["x"]) - bbox_w_px / 2
-        right  = int(total_w * bbox_dims["x"]) + bbox_w_px / 2
-        top    = int(total_h * bbox_dims["y"]) - bbox_h_px / 2
-        bottom = int(total_h * bbox_dims["y"]) + bbox_h_px / 2
+        left   = int(total_w * float(bbox_dims["x1"]))
+        right  = int(total_w * float(bbox_dims["x2"]))
+        top    = int(total_h * float(bbox_dims["y1"]))
+        bottom = int(total_h * float(bbox_dims["y2"]))
 
         # Crop image around bounding box
         cropped_img = img.crop((left, top, right, bottom))
