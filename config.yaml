@@ -1,0 +1,8 @@
+DETECTRON:
+  MODEL_CONFIG: "COCO-Detection/faster_rcnn_R_50_FPN_3x.yaml"
+  THRESHOLD: 0.5
+VECTORIZER:
+  MODEL: "resnet18"
+  INPUT_DIMS: !!python/tuple [224,224]
+  BATCH_SIZE: 512
+
