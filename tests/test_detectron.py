@@ -1,7 +1,7 @@
 import os
 import pytest
 from locator.detectron import Detectron
-from expected_values import exp_val_detectron
+from mock_data import exp_val_detectron
 
 
 class TestDetectron:

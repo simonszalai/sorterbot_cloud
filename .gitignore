@@ -1,6 +1,7 @@
 .DS_Store
 .vscode
 images
+tests/test_images/cropped
 
 # API
 docs/_build/

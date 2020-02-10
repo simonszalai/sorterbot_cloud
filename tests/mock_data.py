@@ -1,3 +1,10 @@
+"""
+List of tuples, where:
+    tuple[0]: image name
+    tuple[1]: Detector's expected output after processing images specified by image_name.
+
+"""
+
 exp_val_detectron = [
     (
         "000000000139.jpg",
@@ -8,5 +15,30 @@ exp_val_detectron = [
     ), (
         "000000003156.jpg",
         [{'image_name': '000000003156.jpg', 'class': 0, 'rel_x1': 0.0138, 'rel_y1': 0.0127, 'rel_x2': 0.9027, 'rel_y2': 1.0}, {'image_name': '000000003156.jpg', 'class': 61, 'rel_x1': 0.7637, 'rel_y1': 0.3876, 'rel_x2': 1.0, 'rel_y2': 0.8801}, {'image_name': '000000003156.jpg', 'class': 61, 'rel_x1': 0.5354, 'rel_y1': 0.5735, 'rel_x2': 0.9962, 'rel_y2': 0.9646}, {'image_name': '000000003156.jpg', 'class': 26, 'rel_x1': 0.1549, 'rel_y1': 0.8363, 'rel_x2': 0.3934, 'rel_y2': 0.9983}]  # noqa: E501
+    ),
+]
+
+
+"""
+List of tuples, where:
+    tuple[0]: image name
+    tuple[1]: Dict containing id, type and bounding box dimensions as relative coorindates. Mocks outputs of Detectron. Bbox coordinates represent top left and bottom right quarters.  # noqa: E501
+    tuple[2]: MD5 hashes of the top left and bottom right quarters of the original images, respectively. To be compared with the output of vectorizer.
+
+"""
+
+sample_preprocessor = [
+    (
+        "000000000139.jpg",
+        [{'id': 0, 'type': 1, 'bbox_dims': {'x1': '0', 'y1': '0', 'x2': '0.5', 'y2': '0.5'}}, {'id': 1, 'type': 1, 'bbox_dims': {'x1': '0.5', 'y1': '0.5', 'x2': '1', 'y2': '1'}}, {'id': 2, 'type': 'container'}],  # noqa: E501
+        ("6b9646dc57d44dfe50744bf880e26f9e", "42c756903069dc53b4aa90cece907519")
+    ), (
+        "000000002153.jpg",
+        [{'id': 0, 'type': 1, 'bbox_dims': {'x1': '0', 'y1': '0', 'x2': '0.5', 'y2': '0.5'}}, {'id': 1, 'type': 1, 'bbox_dims': {'x1': '0.5', 'y1': '0.5', 'x2': '1', 'y2': '1'}}, {'id': 2, 'type': 'container'}],  # noqa: E501
+        ("9849c0663f46b49bcc6be7323d665ca0", "9203e8ed212f6ac38e072202ae6b851d")
+    ), (
+        "000000003156.jpg",
+        [{'id': 0, 'type': 1, 'bbox_dims': {'x1': '0', 'y1': '0', 'x2': '0.5', 'y2': '0.5'}}, {'id': 1, 'type': 1, 'bbox_dims': {'x1': '0.5', 'y1': '0.5', 'x2': '1', 'y2': '1'}}, {'id': 2, 'type': 'container'}],  # noqa: E501
+        ("d9559fc17c3838287e13650e2bb1b417", "13c942eba8ecf32b6ddc8d3b9b5590fd")
     ),
 ]
