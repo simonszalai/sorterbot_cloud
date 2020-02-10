@@ -90,6 +90,6 @@ class Detectron:
         boxes = outputs["instances"].pred_boxes
         classes = outputs["instances"].pred_classes
 
-        boxes_as_relative = map(abs_to_rel, boxes, classes)
+        boxes_as_relative = [abs_to_rel(box, cl) for box, cl in zip(boxes, classes)]
 
         return boxes_as_relative
