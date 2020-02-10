@@ -77,7 +77,6 @@ class Main:
 
         # Run detectron to get bounding boxes
         results = self.detectron.predict(image_name=image_name)
-        print(results)
 
         # TODO: duplicate checking
 
