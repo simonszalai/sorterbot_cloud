@@ -20,5 +20,5 @@ docker run -p 6000:6000 -v /Users/simonszalai/dev/sorterbot_cloud:/sorterbot_clo
 ### Run Tests
 From folder 'src'
 ```
-python3 -m pytest
+python3 -m pytest ../tests -v
 ```
