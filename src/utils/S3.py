@@ -63,7 +63,7 @@ class S3:
                 im.verify()
                 im.close()
                 logger.info(f"Original image '{image_name}' already exists on disk and it is valid, skipping download.")
-            except:
+            except Exception:
                 logger.warning(f"Original image '{image_name}' already exists on disk, but it is corrupted, downloading again from s3...")
                 self.s3.Bucket(bucket_name).download_file(image_name, img_path)
 
