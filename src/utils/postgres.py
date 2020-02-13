@@ -29,8 +29,8 @@ class Postgres:
 
             self.cursor = self.connection.cursor()
 
-        except (Exception, psycopg2.Error) as error:
-            logger.error("Error while connecting to PostgreSQL", error)
+        except psycopg2.Error as error:
+            raise Exception(f"Error while connecting to PostgreSQL: {error.pgerror}") from error
 
     def create_table(self, table_name="sorterbot"):
         """
@@ -44,30 +44,35 @@ class Postgres:
 
         """
 
-        # Since postgres converts table names to lowercase, this is needed to avoid unexpected behavior
-        self.table_name = table_name.lower()
+        try:
+            # Since postgres converts table names to lowercase, this is needed to avoid unexpected behavior
+            self.table_name = table_name.lower()
 
-        check_table_query = f"SELECT EXISTS(SELECT * FROM information_schema.tables WHERE table_name='{table_name}');"
-        self.cursor.execute(check_table_query)
-        table_exists = self.cursor.fetchone()[0]
+            check_table_query = f"SELECT EXISTS(SELECT * FROM information_schema.tables WHERE table_name='{table_name}');"
+            self.cursor.execute(check_table_query)
+            table_exists = self.cursor.fetchone()[0]
 
-        if table_exists:
-            logger.info(f"Table '{table_name}' already exists, skipping table creation...")
-            return
+            if table_exists:
+                logger.info(f"Table '{table_name}' already exists, skipping table creation...")
+                return
 
-        create_table_query = f"""
-            CREATE TABLE {table_name} (
-                id SERIAL PRIMARY KEY,
-                image_name TEXT,
-                class TEXT,
-                rel_x1 TEXT,
-                rel_y1 TEXT,
-                rel_x2 TEXT,
-                rel_y2 TEXT
-            );
-        """
+            create_table_query = f"""
+                CREATE TABLE {table_name} (
+                    id SERIAL PRIMARY KEY,
+                    image_name TEXT,
+                    class TEXT,
+                    rel_x1 TEXT,
+                    rel_y1 TEXT,
+                    rel_x2 TEXT,
+                    rel_y2 TEXT
+                );
+            """
 
-        self.cursor.execute(create_table_query)
+            self.cursor.execute(create_table_query)
+
+        except psycopg2.Error as error:
+            logger.exception(error)
+            raise Exception(f"Error while creating table in PostgreSQL: {error.pgerror}") from error
 
     def insert_results(self, results):
         """
@@ -79,10 +84,12 @@ class Postgres:
             List of dict's containing the following keys: `image_name`, `class`, `rel_x1`, `rel_y1`, `rel_x2`, `rel_y2`.
 
         """
-
-        insert_query = f"INSERT INTO {self.table_name} (image_name, class, rel_x1, rel_y1, rel_x2, rel_y2) VALUES %s;"
-        results_as_tuple = [(res["image_name"], res["class"], res["rel_x1"], res["rel_y1"], res["rel_x2"], res["rel_y2"]) for res in results]
-        execute_values(self.cursor, insert_query, results_as_tuple)
+        try:
+            insert_query = f"INSERT INTO {self.table_name} (image_name, class, rel_x1, rel_y1, rel_x2, rel_y2) VALUES %s;"
+            results_as_tuple = [(res["image_name"], res["class"], res["rel_x1"], res["rel_y1"], res["rel_x2"], res["rel_y2"]) for res in results]
+            execute_values(self.cursor, insert_query, results_as_tuple)
+        except psycopg2.Error as error:
+            raise Exception(f"Error while inserting data to PostgreSQL: {error.pgerror}") from error
 
     def get_unique_images(self):
         """
@@ -94,11 +101,13 @@ class Postgres:
             List of strings containing unique image names.
 
         """
-
-        get_unique_images_query = f"SELECT DISTINCT image_name FROM {self.table_name};"
-        self.cursor.execute(get_unique_images_query)
-        unique_images = self.cursor.fetchall()
-        unique_images = [image[0] for image in unique_images]
+        try:
+            get_unique_images_query = f"SELECT DISTINCT image_name FROM {self.table_name};"
+            self.cursor.execute(get_unique_images_query)
+            unique_images = self.cursor.fetchall()
+            unique_images = [image[0] for image in unique_images]
+        except psycopg2.Error as error:
+            raise Exception(f"Error while getting unique images from PostgreSQL: {error.pgerror}") from error
 
         return unique_images
 
@@ -119,25 +128,28 @@ class Postgres:
 
         """
 
-        get_objects_query = f"SELECT * FROM {self.table_name} WHERE image_name='{image_name}'"
-        self.cursor.execute(get_objects_query)
-        rows = self.cursor.fetchall()
+        try:
+            get_objects_query = f"SELECT * FROM {self.table_name} WHERE image_name='{image_name}'"
+            self.cursor.execute(get_objects_query)
+            rows = self.cursor.fetchall()
 
-        # Get column names and later retrieve values by name so we don't depend on magic indices
-        col_names = [col.name for col in self.cursor.description]
+            # Get column names and later retrieve values by name so we don't depend on magic indices
+            col_names = [col.name for col in self.cursor.description]
 
-        objects_of_image = [
-            {
-                "id": row[col_names.index("id")],
-                "type": row[col_names.index("class")],
-                "bbox_dims": {
-                    "x1": row[col_names.index("rel_x1")],
-                    "y1": row[col_names.index("rel_y1")],
-                    "x2": row[col_names.index("rel_x2")],
-                    "y2": row[col_names.index("rel_y2")]
-                }
-            } for row in rows
-        ]
+            objects_of_image = [
+                {
+                    "id": row[col_names.index("id")],
+                    "type": row[col_names.index("class")],
+                    "bbox_dims": {
+                        "x1": row[col_names.index("rel_x1")],
+                        "y1": row[col_names.index("rel_y1")],
+                        "x2": row[col_names.index("rel_x2")],
+                        "y2": row[col_names.index("rel_y2")]
+                    }
+                } for row in rows
+            ]
+        except psycopg2.Error as error:
+            raise Exception(f"Error while getting objects of image from PostgreSQL") from error
 
         return objects_of_image
 
@@ -145,7 +157,9 @@ class Postgres:
         """
         Closes the postgres connection.
         """
-
-        self.cursor.close()
-        self.connection.close()
-        logger.info("PostgreSQL connection is closed")
+        try:
+            self.cursor.close()
+            self.connection.close()
+            logger.info("PostgreSQL connection is closed")
+        except psycopg2.Error as error:
+            raise Exception(f"Error while closing PostgreSQL connection: {error.pgerror}") from error

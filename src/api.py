@@ -5,7 +5,9 @@ A Flask application to expose the `/process_image` REST API endpoint.
 
 import json
 from flask import Flask, Response, request
+
 from main import Main
+from utils.helpers import is_session_id_invalid
 
 app = Flask(__name__)
 main = Main()
@@ -34,6 +36,10 @@ def process_image():
     session_id = request.args.get("session_id")
     image_name = request.args.get("image_name")
     is_final = request.args.get("is_final")
+
+    sess_id_invalid = is_session_id_invalid(session_id)
+    if sess_id_invalid:
+        raise Exception(f"Session ID ({session_id}) is invalid: {sess_id_invalid}")
     
     # Detect objects on image and save bounding boxes to the database
     main.process_image(session_id, image_name)
