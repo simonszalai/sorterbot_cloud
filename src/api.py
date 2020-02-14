@@ -49,7 +49,7 @@ def process_image():
         pairings = main.vectorize_session_images()
         return Response(json.dumps(pairings), status=200, mimetype='application/json')
     else:
-        return Response(f"'{image_name}' of session '{session_id}' successfully processed!", status=200, mimetype='application/text')
+        return Response(json.dumps({"result": f"'{image_name}' of session '{session_id}' successfully processed!"}), status=200, mimetype='application/json')
 
 
 if __name__ == "__main__":
