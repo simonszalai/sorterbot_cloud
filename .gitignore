@@ -2,8 +2,9 @@
 .vscode
 images
 tests/test_images/cropped
+.coverage
+.pytest_cache
 
-# API
 docs/_build/
 *.pyc
 **/__pycache__
