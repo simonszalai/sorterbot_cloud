@@ -32,6 +32,6 @@ jobs:
         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
     - name: Unit tests with PyTest
       run: |
-        pip install pytest
-        pip install pytest-cov
-        pytest tests -v --cov=vectorizer.vectorizer --cov=vectorizer.preprocessor --cov=locator.detectron
+        pip install pytest pytest-cov
+        cd src
+        python -m pytest ../tests -v --cov=vectorizer.vectorizer --cov=vectorizer.preprocessor --cov=locator.detectron
