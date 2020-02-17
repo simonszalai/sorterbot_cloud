@@ -3,6 +3,7 @@ import sys
 import json
 import pytest
 
+print(os.path.abspath('src'))
 sys.path.append(os.path.abspath('src'))
 from vectorizer.vectorizer import Vectorizer  # noqa: E402
 
