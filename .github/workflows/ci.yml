@@ -34,4 +34,4 @@ jobs:
       run: |
         pip install pytest
         pip install pytest-cov
-        python -m pytest ../tests -v --cov=vectorizer.vectorizer --cov=vectorizer.preprocessor --cov=locator.detectron
+        python -m pytest tests -v --cov=vectorizer.vectorizer --cov=vectorizer.preprocessor --cov=locator.detectron
