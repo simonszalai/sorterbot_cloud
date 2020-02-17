@@ -1,9 +1,11 @@
 import os
+import sys
 import pytest
 import hashlib
-
-from vectorizer.preprocessor import PreProcessor
 from mock_data import sample_preprocessor
+
+sys.path.append(os.path.abspath('src'))
+from vectorizer.preprocessor import PreProcessor  # noqa: E402
 
 
 class TestPreprocessor:

@@ -1,8 +1,10 @@
 import os
+import sys
 import json
 import pytest
 
-from vectorizer.vectorizer import Vectorizer
+sys.path.append(os.path.abspath('src'))
+from vectorizer.vectorizer import Vectorizer  # noqa: E402
 
 
 class TestVectorizer:

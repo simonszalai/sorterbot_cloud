@@ -20,7 +20,7 @@ docker run -p 6000:6000 -v /Users/simonszalai/dev/sorterbot_cloud:/sorterbot_clo
 ### Run Tests
 From folder 'src'
 ```
-python3 -m pytest ../tests -v \
+pytest tests -v \
   --cov=vectorizer.vectorizer \
   --cov=vectorizer.preprocessor \
   --cov=locator.detectron
