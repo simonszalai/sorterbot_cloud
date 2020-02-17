@@ -44,5 +44,4 @@ jobs:
       run: |
         pip install pytest pytest-cov
         export PYTHONPATH=$PYTHONPATH:$(pwd)/src
-        cp src/locator/config/faster_rcnn_R_50_FPN_3x.yaml ../detectron2/configs/COCO-Detection/faster_rcnn_R_50_FPN_3x.yaml
         pytest tests -v --cov=vectorizer.vectorizer --cov=vectorizer.preprocessor --cov=locator.detectron

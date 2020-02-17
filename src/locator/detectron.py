@@ -44,6 +44,7 @@ class Detectron:
         self.cfg = get_cfg()
         self.cfg.merge_from_file(model_zoo.get_config_file(self.model_config))
         self.cfg.MODEL.ROI_HEADS.SCORE_THRESH_TEST = self.threshold
+        self.cfg.MODEL.DEVICE = "cpu"
 
         # Get pretrained weights
         self.cfg.MODEL.WEIGHTS = model_zoo.get_checkpoint_url(self.model_config)
