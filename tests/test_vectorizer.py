@@ -2,8 +2,8 @@ import os
 import sys
 import json
 import pytest
+import numpy as np
 
-print(os.path.abspath('src'))
 sys.path.append(os.path.abspath('src'))
 from vectorizer.vectorizer import Vectorizer  # noqa: E402
 
@@ -23,4 +23,6 @@ class TestVectorizer:
         with open(vectors_path, "r") as f:
             expected_vectors = json.load(f)
 
-        assert vectors == expected_vectors
+        abs_difference = np.absolute(np.array(vectors) - np.array(expected_vectors))
+
+        assert (abs_difference < 0.0001).all()
