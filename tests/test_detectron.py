@@ -8,9 +8,9 @@ from locator.detectron import Detectron  # noqa: E402
 
 
 class TestDetectron:
-    @pytest.fixture(autouse=True, scope='function')  # QUESTION: with scope='class', I get the error:  AttributeError: 'TestDetectron' object has no attribute 'detectron'. Why?  # noqa: E501
-    def init(self):
-        self.detectron = Detectron(
+    @classmethod
+    def setup_class(cls):
+        cls.detectron = Detectron(
             base_img_path=os.path.abspath(os.path.join(os.path.abspath(__file__), "../test_images")),
             model_config="COCO-Detection/faster_rcnn_R_50_FPN_3x.yaml",
             threshold=0.5
