@@ -4,7 +4,7 @@ A deep learning project to control a robotic arm which can place small metallic 
 ### Run API locally
 From root folder
 ```
-python3 src/api.py
+python3 src/main.py
 ```
 
 ### Build Docker Image
@@ -15,6 +15,7 @@ docker build -t sorterbot_cloud .
 ### Run Docker Image
 ```
 docker run -p 6000:6000 -v /Users/simonszalai/dev/sorterbot_cloud:/sorterbot_cloud --shm-size 8G sorterbot_cloud:latest
+sudo docker run -p 6000:6000 -v /home/simon/dev/sorterbot_cloud:/sorterbot_cloud --shm-size 8G sorterbot_cloud:latest
 ```
 
 ### Run Tests
