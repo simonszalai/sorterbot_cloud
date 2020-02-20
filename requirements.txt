@@ -1,3 +1,10 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:0616381fdc6beb05eb72506c516befa8d89a74c6fd1f0f32d3603d31c26c716e
-size 177
+Cython==0.29.14
+Flask==1.1.1
+boto3==1.11.9
+opencv-python==4.2.0.32
+psycopg2-binary==2.8.4
+python-dotenv==0.10.5
+pyyaml==5.1
+scikit-learn==0.22.1
+torch==1.4.0
+torchvision==0.5.0
