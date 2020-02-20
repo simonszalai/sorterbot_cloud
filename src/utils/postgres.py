@@ -18,13 +18,7 @@ class Postgres:
         """
 
         try:
-            self.connection = psycopg2.connect(
-                user=os.getenv("DB_USER"),
-                password=os.getenv("DB_PASSWORD"),
-                host=os.getenv("DB_HOST"),
-                port=os.getenv("DB_PORT"),
-                database=os.getenv("DB_NAME")
-            )
+            self.connection = psycopg2.connect(os.getenv("PG_CONN"))
             self.connection.autocommit = True
 
             self.cursor = self.connection.cursor()
