@@ -1,18 +1,15 @@
 import os
-import sys
 import json
-import pytest
 import numpy as np
 
-sys.path.append(os.path.abspath('src'))
-from vectorizer.vectorizer import Vectorizer  # noqa: E402
+from vectorizer.vectorizer import Vectorizer
 
 
 class TestVectorizer:
-    @pytest.fixture(autouse=True, scope='function')
-    def init(self):
-        self.base_img_path = os.path.abspath(os.path.join(os.path.abspath(__file__), "../test_images/vectorizable"))
-        self.vectorizer = Vectorizer(base_img_path=self.base_img_path, model_name="resnet18", input_dimensions=(224, 224), batch_size=512)
+    @classmethod
+    def setup_class(cls):
+        cls.base_img_path = os.path.abspath(os.path.join(os.path.abspath(__file__), "../test_images/vectorizable"))
+        cls.vectorizer = Vectorizer(base_img_path=cls.base_img_path, model_name="resnet18", input_dimensions=(224, 224), batch_size=512)
 
     def test_vectorize(self):
         self.vectorizer.load_data(self.base_img_path)

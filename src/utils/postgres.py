@@ -10,7 +10,7 @@ from psycopg2.extras import execute_values
 
 
 class Postgres:
-    def open(self):
+    def open(self, db_name):
         """
         This method opens a connection to the database using connection credentials provided as
         environment variables.
@@ -18,10 +18,20 @@ class Postgres:
         """
 
         try:
-            self.connection = psycopg2.connect(os.getenv("PG_CONN"))
+            self.connection = psycopg2.connect(os.getenv("PG_CONN"))# + "/" + db_name)
             self.connection.autocommit = True
-
             self.cursor = self.connection.cursor()
+
+            self.cursor.execute(f"SELECT 1 FROM pg_catalog.pg_database WHERE datname = '{db_name}'")
+            exists = self.cursor.fetchone()
+            if not exists:
+                logger.info(f"Database '{db_name}' does not exists, creating...")
+                self.cursor.execute(f"CREATE DATABASE {db_name}")
+            else:
+                logger.info(f"Database '{db_name}' already exists.")
+                self.connection = psycopg2.connect(os.getenv("PG_CONN") + "/" + db_name)
+                self.connection.autocommit = True
+                self.cursor = self.connection.cursor()
 
         except psycopg2.Error as error:
             raise Exception(f"Error while connecting to PostgreSQL: {error.pgerror}") from error

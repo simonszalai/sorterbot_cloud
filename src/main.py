@@ -39,7 +39,7 @@ class Main:
         Path(os.path.join(self.base_img_path, "original")).mkdir(parents=True, exist_ok=True)
         Path(os.path.join(self.base_img_path, "cropped")).mkdir(parents=True, exist_ok=True)
 
-        self.postgres = Postgres()
+        self.postgres = Postgres(db_name="sorterbot")
         self.s3 = S3(base_img_path=self.base_img_path)
         self.detectron = Detectron(
             base_img_path=self.base_img_path,

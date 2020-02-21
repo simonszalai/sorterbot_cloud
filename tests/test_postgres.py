@@ -3,16 +3,14 @@ import pytest
 import hashlib
 from mock_data import sample_preprocessor
 
-from vectorizer.preprocessor import PreProcessor
+from utils.postgres import Postgres
 
 
-class TestPreprocessor:
+class TestPostgres:
     @classmethod
     def setup_class(cls):
-        cls.base_img_path = os.path.abspath(os.path.join(os.path.abspath(__file__), "../test_images"))
-        cls.preprocessor = PreProcessor(base_img_path=cls.base_img_path)
+        cls.postgres = Postgres()
 
-    @pytest.mark.parametrize('image_name, objects, checksums', sample_preprocessor)
     def test_crop_all_objects(self, image_name, objects, checksums):
         n_containers_of_image = self.preprocessor.crop_all_objects(image_name, objects)
 

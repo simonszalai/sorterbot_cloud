@@ -1,10 +1,8 @@
 import os
-import sys
 import pytest
 from mock_data import exp_val_detectron
 
-sys.path.append(os.path.abspath('src'))
-from locator.detectron import Detectron  # noqa: E402
+from locator.detectron import Detectron
 
 
 class TestDetectron:
