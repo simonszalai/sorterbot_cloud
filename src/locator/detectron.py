@@ -13,8 +13,6 @@ from detectron2.engine import DefaultPredictor
 from detectron2.config import get_cfg
 from detectron2.utils.logger import setup_logger
 
-from utils.postgres import Postgres
-
 
 class Detectron:
     """
@@ -34,8 +32,6 @@ class Detectron:
     """
 
     def __init__(self, base_img_path, model_config, threshold=0.5):
-        self.db = Postgres()
-
         self.base_img_path = base_img_path
         self.model_config = model_config
         self.threshold = threshold
