@@ -14,7 +14,7 @@ docker build -t sorterbot_cloud .
 
 ### Run Docker Image
 ```
-docker run -p 6000:6000 -v /Users/simonszalai/dev/sorterbot_cloud:/sorterbot_cloud --shm-size 8G sorterbot_cloud:latest
+docker run -p 6000:6000 -v /Users/simon/dev/sorterbot_cloud:/sorterbot_cloud --shm-size 8G sorterbot_cloud:latest
 sudo docker run -p 6000:6000 -v /home/simon/dev/sorterbot_cloud:/sorterbot_cloud --shm-size 8G sorterbot_cloud:latest
 ```
 
