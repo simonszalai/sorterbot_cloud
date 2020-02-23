@@ -42,3 +42,20 @@ sample_preprocessor = [
         ("d9559fc17c3838287e13650e2bb1b417", "13c942eba8ecf32b6ddc8d3b9b5590fd")
     ),
 ]
+
+
+"""
+List of dict's containing the following keys: `image_name`, `class`, `rel_x1`, `rel_y1`, `rel_x2`, `rel_y2`.
+
+"""
+
+sample_data_for_postgres = [
+    ({'image_name': 'sample_image_1.jpg', 'class': 0, 'rel_x1': 0.6386, 'rel_y1': 0.3704, 'rel_x2': 0.7272, 'rel_y2': 0.6959}),
+    ({'image_name': 'sample_image_1.jpg', 'class': 56, 'rel_x1': 0.4585, 'rel_y1': 0.5197, 'rel_x2': 0.5492, 'rel_y2': 0.7404}),
+    ({'image_name': 'sample_image_2.jpg', 'class': 62, 'rel_x1': 0.0095, 'rel_y1': 0.3893, 'rel_x2': 0.2427, 'rel_y2': 0.6275}),
+    ({'image_name': 'sample_image_3.jpg', 'class': 56, 'rel_x1': 0.5738, 'rel_y1': 0.5102, 'rel_x2': 0.6872, 'rel_y2': 0.7449})
+]
+
+exprected_unique_images = ['sample_image_2.jpg', 'sample_image_3.jpg', 'sample_image_1.jpg']
+
+expected_objects_of_image_1 = [{'id': 1, 'type': '0', 'bbox_dims': {'x1': '0.6386', 'y1': '0.3704', 'x2': '0.7272', 'y2': '0.6959'}}, {'id': 2, 'type': '56', 'bbox_dims': {'x1': '0.4585', 'y1': '0.5197', 'x2': '0.5492', 'y2': '0.7404'}}]  # noqa: E501
