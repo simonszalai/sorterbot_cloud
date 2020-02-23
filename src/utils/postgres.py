@@ -10,33 +10,40 @@ from psycopg2.extras import execute_values
 
 
 class Postgres:
-    def open(self, db_name):
+    def __init__(self, db_name):
+        self.db_name = db_name
+
+    def open(self):
         """
-        This method opens a connection to the database using connection credentials provided as
-        environment variables.
+        This method first checks if a database with the provided name exists, and if it does, opens a connection to it
+        using connection string provided as an environment variable. If the database does not exist, it will be created.
 
         """
 
         try:
-            self.connection = psycopg2.connect(os.getenv("PG_CONN"))# + "/" + db_name)
+            # First connect to the default maintenance database
+            self.connection = psycopg2.connect(os.getenv("PG_CONN"))
             self.connection.autocommit = True
             self.cursor = self.connection.cursor()
 
-            self.cursor.execute(f"SELECT 1 FROM pg_catalog.pg_database WHERE datname = '{db_name}'")
+            # Check if a database exists with the provided name
+            self.cursor.execute(f"SELECT 1 FROM pg_catalog.pg_database WHERE datname = '{self.db_name}'")
             exists = self.cursor.fetchone()
+
+            # Create the database if it doesn't exist or connect to it if it does
             if not exists:
-                logger.info(f"Database '{db_name}' does not exists, creating...")
-                self.cursor.execute(f"CREATE DATABASE {db_name}")
+                logger.info(f"Database '{self.db_name}' does not exists, creating...")
+                self.cursor.execute(f"CREATE DATABASE {self.db_name}")
             else:
-                logger.info(f"Database '{db_name}' already exists.")
-                self.connection = psycopg2.connect(os.getenv("PG_CONN") + "/" + db_name)
+                logger.info(f"Database '{self.db_name}' already exists.")
+                self.connection = psycopg2.connect(os.getenv("PG_CONN") + "/" + self.db_name)
                 self.connection.autocommit = True
                 self.cursor = self.connection.cursor()
 
         except psycopg2.Error as error:
             raise Exception(f"Error while connecting to PostgreSQL: {error.pgerror}") from error
 
-    def create_table(self, table_name="sorterbot"):
+    def create_table(self, table_name):
         """
         This method creates a new table with a given name in the database if it does not exist yet. A separate
         table should be created for each session.
