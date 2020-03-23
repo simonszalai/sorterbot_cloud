@@ -10,5 +10,6 @@ phases:
       - pip install 'git+https://github.com/cocodataset/cocoapi.git#subdirectory=PythonAPI'
       - pip install detectron2 -f https://dl.fbaipublicfiles.com/detectron2/wheels/cpu/index.html
       - pip install -e src/
-      - pip install pytest pytest-cov
+      - pip install pytest pytest-cov git-lfs
+      - python -m git_lfs
       - pytest tests -v --cov=vectorizer.vectorizer --cov=vectorizer.preprocessor --cov=locator.detectron
