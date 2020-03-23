@@ -59,3 +59,5 @@ sample_data_for_postgres = [
 exprected_unique_images = ['sample_image_2.jpg', 'sample_image_3.jpg', 'sample_image_1.jpg']
 
 expected_objects_of_image_1 = [{'id': 1, 'type': '0', 'bbox_dims': {'x1': '0.6386', 'y1': '0.3704', 'x2': '0.7272', 'y2': '0.6959'}}, {'id': 2, 'type': '56', 'bbox_dims': {'x1': '0.4585', 'y1': '0.5197', 'x2': '0.5492', 'y2': '0.7404'}}]  # noqa: E501
+
+expected_main_results = [{'filename': 'corrupted_image.jpg/item_1.jpg', 'cluster': 1}, {'filename': 'corrupted_image.jpg/item_2.jpg', 'cluster': 1}, {'filename': 'corrupted_image.jpg/item_3.jpg', 'cluster': 1}, {'filename': 'corrupted_image.jpg/item_4.jpg', 'cluster': 1}, {'filename': 'corrupted_image.jpg/item_5.jpg', 'cluster': 1}, {'filename': 'corrupted_image.jpg/item_6.jpg', 'cluster': 1}, {'filename': 'missing_image.jpg/item_10.jpg', 'cluster': 0}, {'filename': 'missing_image.jpg/item_7.jpg', 'cluster': 0}, {'filename': 'missing_image.jpg/item_8.jpg', 'cluster': 0}, {'filename': 'missing_image.jpg/item_9.jpg', 'cluster': 0}]  # noqa: E501
