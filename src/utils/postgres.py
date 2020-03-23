@@ -34,11 +34,10 @@ class Postgres:
             if not exists:
                 logger.info(f"Database '{self.db_name}' does not exists, creating...")
                 self.cursor.execute(f"CREATE DATABASE {self.db_name}")
+                self.reconnect_to_db(db_name=self.db_name)
             else:
                 logger.info(f"Database '{self.db_name}' already exists.")
-                self.connection = psycopg2.connect(os.getenv("PG_CONN") + "/" + self.db_name)
-                self.connection.autocommit = True
-                self.cursor = self.connection.cursor()
+                self.reconnect_to_db(db_name=self.db_name)
 
         except psycopg2.Error as error:
             raise Exception(f"Error while connecting to PostgreSQL: {error.pgerror}") from error
@@ -85,6 +84,22 @@ class Postgres:
             logger.exception(error)
             raise Exception(f"Error while creating table in PostgreSQL: {error.pgerror}") from error
 
+    def reconnect_to_db(self, db_name):
+        """
+        Closes connection to current database and reconnects to the one specified.
+
+        Parameters
+        ----------
+        db_name : str
+            Name of the database to connect to.
+
+        """
+
+        self.close()
+        self.connection = psycopg2.connect(os.getenv("PG_CONN") + "/" + db_name)
+        self.connection.autocommit = True
+        self.cursor = self.connection.cursor()
+
     def insert_results(self, results):
         """
         This method inserts the result from the object recognition to the database.
@@ -95,6 +110,7 @@ class Postgres:
             List of dict's containing the following keys: `image_name`, `class`, `rel_x1`, `rel_y1`, `rel_x2`, `rel_y2`.
 
         """
+
         try:
             insert_query = f"INSERT INTO {self.table_name} (image_name, class, rel_x1, rel_y1, rel_x2, rel_y2) VALUES %s;"
             results_as_tuple = [(res["image_name"], res["class"], res["rel_x1"], res["rel_y1"], res["rel_x2"], res["rel_y2"]) for res in results]
@@ -112,6 +128,7 @@ class Postgres:
             List of strings containing unique image names.
 
         """
+
         try:
             get_unique_images_query = f"SELECT DISTINCT image_name FROM {self.table_name};"
             self.cursor.execute(get_unique_images_query)
