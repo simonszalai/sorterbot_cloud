@@ -1,14 +1,14 @@
 FROM python:3.7
 RUN mkdir /sorterbot_cloud
+
 COPY ./requirements.txt /sorterbot_cloud/requirements.txt
-RUN pip3 install cython
 RUN pip3 install -r /sorterbot_cloud/requirements.txt
 RUN pip3 install 'git+https://github.com/cocodataset/cocoapi.git#subdirectory=PythonAPI'
+RUN pip3 install detectron2 -f https://dl.fbaipublicfiles.com/detectron2/wheels/cpu/index.html
 
-RUN git clone https://github.com/facebookresearch/detectron2.git
-WORKDIR /detectron2
-RUN pip3 install -e .
-COPY ./src/locator/config/faster_rcnn_R_50_FPN_3x.yaml /detectron2/configs/COCO-Detection/faster_rcnn_R_50_FPN_3x.yaml
+COPY ./src /sorterbot_cloud/src
+COPY ./tests /sorterbot_cloud/tests
+COPY ./config.yaml /sorterbot_cloud/config.yaml
 
 WORKDIR /sorterbot_cloud
 

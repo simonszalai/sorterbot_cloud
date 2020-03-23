@@ -6,6 +6,7 @@ Any model from torchvision.models can be used for vectorization.
 """
 
 import os
+import ssl
 import time
 from utils.logger import logger
 
@@ -16,6 +17,10 @@ import torchvision.datasets as datasets
 from sklearn.cluster import KMeans
 
 from vectorizer.preprocessor import PreProcessor
+
+
+# To avoid SSL certificate error when downloading PyTorch model
+ssl._create_default_https_context = ssl._create_unverified_context
 
 
 class ImageFolderWithPaths(datasets.ImageFolder):

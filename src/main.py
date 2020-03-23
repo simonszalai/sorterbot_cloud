@@ -20,8 +20,16 @@ class Main:
     Main class for controlling image processing. When instantiated, it loads all neccessary environment
     variables and config files and instantiates all needed modules.
 
+    Parameters
+    ----------
+    db_name : str
+        Name of the postgres database to be created. Should be different for test and production.
+    base_img_path : str
+        Location where the downloaded images should be stored.
+
     """
-    def __init__(self):
+
+    def __init__(self, db_name, base_img_path):
         # Load envirnoment vectorizer from .env in project root
         load_dotenv()
 
@@ -32,14 +40,13 @@ class Main:
             except YAMLError as error:
                 logger.error("Error while opening config.yaml ", error)
 
-        # Construct base_img_path by moving 2 levels up from the current file's location
-        self.base_img_path = os.path.abspath(os.path.join(os.path.abspath(__file__), "../../images"))
+        self.base_img_path = base_img_path
 
         # Create folders for original and cropped images if they do not exist
         Path(os.path.join(self.base_img_path, "original")).mkdir(parents=True, exist_ok=True)
         Path(os.path.join(self.base_img_path, "cropped")).mkdir(parents=True, exist_ok=True)
 
-        self.postgres = Postgres()
+        self.postgres = Postgres(db_name=db_name)
         self.s3 = S3(base_img_path=self.base_img_path)
         self.detectron = Detectron(
             base_img_path=self.base_img_path,
@@ -83,6 +90,8 @@ class Main:
         # Insert bounding box locations to postgres
         self.postgres.insert_results(results)
 
+        self.postgres.close()
+
     def vectorize_session_images(self):
         """
         This method is to be executed after the last image of a session is processed. It gets a list of unique
@@ -96,6 +105,8 @@ class Main:
 
         """
 
+        self.postgres.open()
+
         # Get list of unique image names in current session
         unique_images = self.postgres.get_unique_images()
 
@@ -106,7 +117,7 @@ class Main:
                 "image_name": image_name,
                 "objects": self.postgres.get_objects_of_image(image_name=image_name)
             })
-        # Terminate postgres connection as it's no longer needed
+
         self.postgres.close()
 
         # Run vectorizer to assign each object to a cluster

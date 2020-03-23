@@ -13,8 +13,6 @@ from detectron2.engine import DefaultPredictor
 from detectron2.config import get_cfg
 from detectron2.utils.logger import setup_logger
 
-from utils.postgres import Postgres
-
 
 class Detectron:
     """
@@ -34,8 +32,6 @@ class Detectron:
     """
 
     def __init__(self, base_img_path, model_config, threshold=0.5):
-        self.db = Postgres()
-
         self.base_img_path = base_img_path
         self.model_config = model_config
         self.threshold = threshold
@@ -44,6 +40,7 @@ class Detectron:
         self.cfg = get_cfg()
         self.cfg.merge_from_file(model_zoo.get_config_file(self.model_config))
         self.cfg.MODEL.ROI_HEADS.SCORE_THRESH_TEST = self.threshold
+        self.cfg.MODEL.DEVICE = "cpu"
 
         # Get pretrained weights
         self.cfg.MODEL.WEIGHTS = model_zoo.get_checkpoint_url(self.model_config)
@@ -90,6 +87,6 @@ class Detectron:
         boxes = outputs["instances"].pred_boxes
         classes = outputs["instances"].pred_classes
 
-        boxes_as_relative = map(abs_to_rel, boxes, classes)
+        boxes_as_relative = [abs_to_rel(box, cl) for box, cl in zip(boxes, classes)]
 
         return boxes_as_relative

@@ -23,7 +23,7 @@ class S3:
     """
 
     def __init__(self, base_img_path):
-        session = boto3.Session(aws_access_key_id=os.getenv("AWS_ACCESS_KEY_ID"), aws_secret_access_key=os.getenv("AWS_SECRET_ACCESS_KEY"))
+        session = boto3.Session(aws_access_key_id=os.getenv("AMAZON_ACCESS_KEY_ID"), aws_secret_access_key=os.getenv("AMAZON_SECRET_ACCESS_KEY"))
         self.s3 = session.resource("s3")
         self.base_img_path = base_img_path
 
@@ -63,7 +63,7 @@ class S3:
                 im.verify()
                 im.close()
                 logger.info(f"Original image '{image_name}' already exists on disk and it is valid, skipping download.")
-            except:
+            except Exception:
                 logger.warning(f"Original image '{image_name}' already exists on disk, but it is corrupted, downloading again from s3...")
                 self.s3.Bucket(bucket_name).download_file(image_name, img_path)
 
