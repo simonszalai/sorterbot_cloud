@@ -1,0 +1,14 @@
+version: 0.1
+phases:
+  install:
+    runtime-versions:
+      python: 3.7
+  pre_build:
+    commands:
+      - python -m pip install --upgrade pip
+      - pip install -r requirements.txt
+      - pip install 'git+https://github.com/cocodataset/cocoapi.git#subdirectory=PythonAPI'
+      - pip install detectron2 -f https://dl.fbaipublicfiles.com/detectron2/wheels/cpu/index.html
+      - pip install -e src/
+      - pip install pytest pytest-cov
+      - pytest tests -v --cov=vectorizer.vectorizer --cov=vectorizer.preprocessor --cov=locator.detectron
