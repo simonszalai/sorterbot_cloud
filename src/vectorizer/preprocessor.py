@@ -13,14 +13,13 @@ from pathlib import Path
 
 class PreProcessor:
     """
-    This class sets up the s3 client (boto3) and provides methods to download and crop images.
+    This class provides methods to crop images.
 
     Parameters
     ----------
     base_img_path : str
-        Absolute path where the downloaded images should be stored. Inside this folder, appropriate
-        subfolders will be automatically created for the original images (named "original") and the
-        cropped images (named "cropped").
+        Absolute path where the downloaded images are stored. Inside this folder, appropriate
+        subfolder will be automatically created for the cropped images (named "cropped").
 
     """
 
