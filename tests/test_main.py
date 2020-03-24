@@ -49,9 +49,13 @@ class TestMain:
     def teardown_class(cls):
         # Close connection to test database
         cls.main.postgres.close()
-
-        # Open another connection to maintenenace database so test database can be dropped
+        print("closed")
+        # Open another connection to maintenance database so test database can be dropped
         cls.main.postgres = Postgres(db_name="postgres")
+        print("created")
         cls.main.postgres.open()
+        print("opened")
         cls.main.postgres.cursor.execute(f"DROP DATABASE IF EXISTS {cls.db_name};")
+        print("executed")
         cls.main.postgres.close()
+        print("closed again")
