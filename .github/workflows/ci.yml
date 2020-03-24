@@ -40,6 +40,10 @@ jobs:
   #   runs-on: ubuntu-latest
   #   steps:
     - name: Unit tests with PyTest
+      env:
+        AMAZON_ACCESS_KEY_ID: ${{ secrets.AMAZON_ACCESS_KEY_ID }}
+        AMAZON_SECRET_ACCESS_KEY: ${{ secrets.AMAZON_SECRET_ACCESS_KEY }}
+        PG_CONN: ${{ secrets.PG_CONN }}
       run: |
         pip install pytest pytest-cov
         export PYTHONPATH=$PYTHONPATH:$(pwd)/src

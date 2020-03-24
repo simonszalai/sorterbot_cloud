@@ -9,13 +9,13 @@ from utils.S3 import S3
 class TestS3:
     @classmethod
     def setup_class(cls):
-        cls.base_img_path = os.path.abspath(os.path.join(os.path.abspath(__file__), "../../images"))
+        # Construct test_images path and create temporary directory for testing
+        cls.test_images_path = os.path.abspath(os.path.join(os.path.abspath(__file__), "..", "test_images"))
+        cls.tmp_path = os.path.abspath(os.path.join(os.path.abspath(__file__), "..", "..", "images/test_tmp"))
+        os.makedirs(cls.tmp_path, exist_ok=True)
 
-        # Create temporary directory for testing
-        cls.tmp_path = os.path.join(cls.base_img_path, "test_tmp")
-
-        # Copy 2 images (valid and corrupted) to temp dir for testing
-        shutil.copytree(os.path.join(cls.base_img_path, "test"), os.path.join(cls.tmp_path, "original"))
+        # Download 2 images (valid and corrupted) to temp dir for testing
+        shutil.copytree(os.path.join(cls.test_images_path, "test-s3"), os.path.join(cls.tmp_path, "original"))
 
         # Init S3 with temp path
         cls.s3 = S3(base_img_path=cls.tmp_path)
