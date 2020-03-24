@@ -45,6 +45,8 @@ def process_image():
     # Detect objects on image and save bounding boxes to the database
     main.process_image(session_id, image_name)
 
+    main.postgres.close()
+
     # If the image is the last of a session, crop and vectorize all objects in current session
     if is_final:
         pairings = main.vectorize_session_images()
