@@ -90,8 +90,6 @@ class Main:
         # Insert bounding box locations to postgres
         self.postgres.insert_results(results)
 
-        self.postgres.close()
-
     def vectorize_session_images(self):
         """
         This method is to be executed after the last image of a session is processed. It gets a list of unique
