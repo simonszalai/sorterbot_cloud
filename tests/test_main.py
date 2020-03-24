@@ -17,8 +17,8 @@ class TestMain:
 
         cls.main = Main(db_name=cls.db_name, base_img_path=cls.tmp_path)
 
-        # Make sure there are no leftover entries from previous run
-        cls.main.postgres.cursor.execute(f"DROP TABLE IF EXISTS {cls.table_name};")
+        # # Make sure there are no leftover entries from previous run
+        # cls.main.postgres.cursor.execute(f"DROP TABLE IF EXISTS {cls.table_name};")
 
     @pytest.mark.parametrize("image_name", ["valid_image.jpg", "corrupted_image.jpg", "missing_image.jpg"])
     def test_process_image(self, image_name):
