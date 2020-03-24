@@ -30,6 +30,10 @@ class Postgres:
             self.cursor.execute(f"SELECT 1 FROM pg_catalog.pg_database WHERE datname = '{self.db_name}'")
             exists = self.cursor.fetchone()
 
+            # Don't do anything if attempting to connect to maintenance database
+            if self.db_name == "postgres":
+                return
+
             # Create the database if it doesn't exist or connect to it if it does
             if not exists:
                 logger.info(f"Database '{self.db_name}' does not exists, creating...")
