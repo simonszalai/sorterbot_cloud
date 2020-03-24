@@ -17,6 +17,9 @@ class TestMain:
 
         cls.main = Main(db_name=cls.db_name, base_img_path=cls.tmp_path)
 
+        # Make sure there are no leftover entries from previous run
+        cls.main.postgres.cursor.execute(f"DROP TABLE IF EXISTS {cls.table_name};")
+
     @pytest.mark.parametrize("image_name", ["valid_image.jpg", "corrupted_image.jpg", "missing_image.jpg"])
     def test_process_image(self, image_name):
         self.main.process_image(session_id="sorterbot_test_bucket", image_name=image_name)
@@ -49,13 +52,9 @@ class TestMain:
     def teardown_class(cls):
         # Close connection to test database
         cls.main.postgres.close()
-        print("closed")
+
         # Open another connection to maintenance database so test database can be dropped
         cls.main.postgres = Postgres(db_name="postgres")
-        print("created")
         cls.main.postgres.open()
-        print("opened")
         cls.main.postgres.cursor.execute(f"DROP DATABASE IF EXISTS {cls.db_name};")
-        print("executed")
         cls.main.postgres.close()
-        print("closed again")
