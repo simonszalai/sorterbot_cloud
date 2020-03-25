@@ -27,15 +27,15 @@
       "environment": [
         {
           "name": "AMAZON_ACCESS_KEY_ID",
-          "value": "arn:aws:ssm:eu-central-1:526640104985:parameter/AMAZON_ACCESS_KEY_ID"
+          "valueFrom": "arn:aws:ssm:eu-central-1:526640104985:parameter/AMAZON_ACCESS_KEY_ID"
         },
         {
           "name": "AMAZON_SECRET_ACCESS_KEY",
-          "value": "arn:aws:ssm:eu-central-1:526640104985:parameter/AMAZON_SECRET_ACCESS_KEY"
+          "valueFrom": "arn:aws:ssm:eu-central-1:526640104985:parameter/AMAZON_SECRET_ACCESS_KEY"
         },
         {
           "name": "PG_CONN",
-          "value": "arn:aws:ssm:eu-central-1:526640104985:parameter/PG_CONN"
+          "valueFrom": "arn:aws:ssm:eu-central-1:526640104985:parameter/PG_CONN"
         }
       ],
       "resourceRequirements": null,
