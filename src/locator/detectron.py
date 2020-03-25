@@ -43,7 +43,7 @@ class Detectron:
         self.cfg.MODEL.DEVICE = "cpu"
 
         # Get pretrained weights
-        self.cfg.MODEL.WEIGHTS = model_zoo.get_checkpoint_url(self.model_config)
+        self.cfg.MODEL.WEIGHTS = "/detectron_custom_weights/model.pth"
 
         # Create predictor
         self.predictor = DefaultPredictor(self.cfg)

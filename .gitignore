@@ -1,6 +1,7 @@
 .DS_Store
 .vscode
 images
+aws_credentials
 tests/test_images/cropped
 .coverage
 .pytest_cache
