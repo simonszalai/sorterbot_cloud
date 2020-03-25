@@ -47,15 +47,12 @@ class S3:
 
         """
 
-        # Replace "_" to "-" since s3 bucket names cannot contain underscores
-        bucket_name = session_id.replace("_", "-")
-
         # Construct absolute path for current image
         img_path = os.path.join(self.base_img_path, "original", image_name)
 
         if not os.path.isfile(img_path):
             logger.info(f"Original image '{image_name}' does not exist on disk, downloading from s3...")
-            self.s3.Bucket(bucket_name).download_file(image_name, img_path)
+            self.s3.Bucket("sorterbot").download_file(f"{session_id}/{image_name}", img_path)
             logger.info(f"Original image '{image_name}' is successfully downloaded!")
         else:
             try:
@@ -65,6 +62,6 @@ class S3:
                 logger.info(f"Original image '{image_name}' already exists on disk and it is valid, skipping download.")
             except Exception:
                 logger.warning(f"Original image '{image_name}' already exists on disk, but it is corrupted, downloading again from s3...")
-                self.s3.Bucket(bucket_name).download_file(image_name, img_path)
+                self.s3.Bucket("sorterbot").download_file(f"{session_id}/{image_name}", img_path)
 
         return img_path
