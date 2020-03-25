@@ -24,7 +24,7 @@
       "command": [],
       "linuxParameters": null,
       "cpu": 0,
-      "environment": [
+      "secrets": [
         {
           "name": "AMAZON_ACCESS_KEY_ID",
           "valueFrom": "arn:aws:ssm:eu-central-1:526640104985:parameter/AMAZON_ACCESS_KEY_ID"
@@ -43,7 +43,6 @@
       "dnsServers": null,
       "mountPoints": [],
       "workingDirectory": null,
-      "secrets": null,
       "dockerSecurityOptions": null,
       "memory": null,
       "memoryReservation": null,

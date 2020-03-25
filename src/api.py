@@ -49,8 +49,12 @@ def process_image():
 
     # If the image is the last of a session, crop and vectorize all objects in current session
     if is_final:
-        pairings = main.vectorize_session_images()
-        return Response(json.dumps(pairings), status=200, mimetype='application/json')
+        images_with_objects, pairings = main.vectorize_session_images()
+        res = {
+            "objects": images_with_objects,
+            "pairings": pairings
+        }
+        return Response(json.dumps(res), status=200, mimetype='application/json')
     else:
         return Response(json.dumps({"result": f"'{image_name}' of session '{session_id}' successfully processed!"}), status=200, mimetype='application/json')
 

@@ -121,4 +121,4 @@ class Main:
         # Run vectorizer to assign each object to a cluster
         pairings = self.vectorizer.run(images=images_with_objects)
 
-        return pairings
+        return images_with_objects, pairings
