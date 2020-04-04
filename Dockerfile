@@ -21,7 +21,7 @@ RUN aws configure set region eu-central-1
 RUN curl https://download.pytorch.org/models/resnet18-5c106cde.pth --output /root/.cache/torch/checkpoints/resnet18-5c106cde.pth --create-dirs
 
 # Download custom trained weights for Detectron from s3
-RUN --mount=type=secret,id=aws_credentials,dst=/root/.aws/credentials aws s3 cp s3://sorterbot-weights/model_final.pth /detectron_custom_weights/model.pth
+RUN --mount=type=secret,id=aws_credentials,dst=/root/.aws/credentials aws s3 cp s3://sorterbot-weights/model_final2.pth /detectron_custom_weights/model_final.pth
 
 # Copy source code
 COPY ./src /sorterbot_cloud/src
