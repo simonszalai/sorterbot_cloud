@@ -74,11 +74,13 @@ class Postgres:
                 CREATE TABLE {table_name} (
                     id SERIAL PRIMARY KEY,
                     image_name TEXT,
-                    class TEXT,
-                    rel_x1 TEXT,
-                    rel_y1 TEXT,
-                    rel_x2 TEXT,
-                    rel_y2 TEXT
+                    image_width SMALLINT,
+                    image_height SMALLINT,
+                    class SMALLINT,
+                    x1 SMALLINT,
+                    y1 SMALLINT,
+                    x2 SMALLINT,
+                    y2 SMALLINT
                 );
             """
 
@@ -111,16 +113,27 @@ class Postgres:
         Parameters
         ----------
         results : list
-            List of dict's containing the following keys: `image_name`, `class`, `rel_x1`, `rel_y1`, `rel_x2`, `rel_y2`.
+            List of dict's containing the following keys: `image_name`, `image_width`, `image_height`, `class`, `x1`, `y1`, `x2`, `y2`.
 
         """
 
         try:
-            insert_query = f"INSERT INTO {self.table_name} (image_name, class, rel_x1, rel_y1, rel_x2, rel_y2) VALUES %s;"
-            results_as_tuple = [(res["image_name"], res["class"], res["rel_x1"], res["rel_y1"], res["rel_x2"], res["rel_y2"]) for res in results]
+            insert_query = f"INSERT INTO {self.table_name} (image_name, image_width, image_height, class, x1, y1, x2, y2) VALUES %s;"
+            results_as_tuple = [(
+                res["image_name"],
+                int(res["image_width"]),
+                int(res["image_height"]),
+                int(res["class"]),
+                int(res["x1"]),
+                int(res["y1"]),
+                int(res["x2"]),
+                int(res["y2"])
+            ) for res in results]
             execute_values(self.cursor, insert_query, results_as_tuple)
         except psycopg2.Error as error:
-            raise Exception(f"Error while inserting data to PostgreSQL: {error.pgerror}") from error
+            exc = Exception(f"Error while inserting data to PostgreSQL: {error.pgerror}")
+            logger.error(exc)
+            raise exc from error
 
     def get_unique_images(self):
         """
@@ -171,12 +184,13 @@ class Postgres:
             objects_of_image = [
                 {
                     "id": row[col_names.index("id")],
-                    "type": row[col_names.index("class")],
+                    "class": row[col_names.index("class")],
+                    "img_dims": (row[col_names.index("image_width")], row[col_names.index("image_height")]),
                     "bbox_dims": {
-                        "x1": row[col_names.index("rel_x1")],
-                        "y1": row[col_names.index("rel_y1")],
-                        "x2": row[col_names.index("rel_x2")],
-                        "y2": row[col_names.index("rel_y2")]
+                        "x1": row[col_names.index("x1")],
+                        "y1": row[col_names.index("y1")],
+                        "x2": row[col_names.index("x2")],
+                        "y2": row[col_names.index("y2")]
                     }
                 } for row in rows
             ]
@@ -192,6 +206,5 @@ class Postgres:
         try:
             self.cursor.close()
             self.connection.close()
-            logger.info("PostgreSQL connection is closed")
         except psycopg2.Error as error:
             raise Exception(f"Error while closing PostgreSQL connection: {error.pgerror}") from error

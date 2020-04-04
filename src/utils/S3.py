@@ -48,7 +48,10 @@ class S3:
         """
 
         # Construct absolute path for current image
-        img_path = os.path.join(self.base_img_path, "original", image_name)
+        img_path = os.path.join(self.base_img_path, session_id, "original", image_name)
+
+        # Create folder if needed
+        os.makedirs(os.path.dirname(img_path), exist_ok=True)
 
         if not os.path.isfile(img_path):
             logger.info(f"Original image '{image_name}' does not exist on disk, downloading from s3...")
