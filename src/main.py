@@ -4,6 +4,7 @@ Main module responsible for orchestrating image processing.
 """
 
 import os
+import traceback
 from yaml import load, Loader, YAMLError
 from pathlib import Path
 from dotenv import load_dotenv
@@ -13,6 +14,7 @@ from vectorizer.vectorizer import Vectorizer
 from utils.postgres import Postgres
 from utils.logger import logger
 from utils.S3 import S3
+from utils.coord_conversion import object_to_polar, filter_duplicates
 
 
 class Main:
@@ -22,14 +24,12 @@ class Main:
 
     Parameters
     ----------
-    db_name : str
-        Name of the postgres database to be created. Should be different for test and production.
     base_img_path : str
         Location where the downloaded images should be stored.
 
     """
 
-    def __init__(self, db_name, base_img_path):
+    def __init__(self, base_img_path):
         # Load envirnoment vectorizer from .env in project root
         load_dotenv()
 
@@ -42,7 +42,7 @@ class Main:
 
         self.base_img_path = base_img_path
 
-        self.postgres = Postgres(db_name=db_name)
+        self.postgres = Postgres()
         self.s3 = S3(base_img_path=self.base_img_path)
         self.detectron = Detectron(
             base_img_path=self.base_img_path,
@@ -56,7 +56,7 @@ class Main:
             batch_size=config["VECTORIZER"]["BATCH_SIZE"]
         )
 
-    def process_image(self, session_id, image_name):
+    def process_image(self, arm_id, session_id, image_name):
         """
         This method runs object recognition on the passed image and saves the result to the database.
 
@@ -71,23 +71,25 @@ class Main:
 
         """
 
-        # Open postgres connection and create table for current session if it does not exist yet
-        self.postgres.open()
-        self.postgres.create_table(table_name=session_id)
+        try:
+            # Create table in Postgres for current session if it does not exist yet
+            self.postgres.create_table(schema_name=arm_id, table_name=session_id)
 
-        # Create folders for original and cropped images if they do not exist
-        Path(os.path.join(self.base_img_path, session_id, "original")).mkdir(parents=True, exist_ok=True)
-        Path(os.path.join(self.base_img_path, session_id, "cropped")).mkdir(parents=True, exist_ok=True)
+            # Create folders for original and cropped images if they do not exist
+            Path(os.path.join(self.base_img_path, session_id, "original")).mkdir(parents=True, exist_ok=True)
+            Path(os.path.join(self.base_img_path, session_id, "cropped")).mkdir(parents=True, exist_ok=True)
 
-        # Download image if needed
-        self.s3.download_image(session_id, image_name)
-        # Run detectron to get bounding boxes
-        results = self.detectron.predict(session_id=session_id, image_name=image_name)
+            # Download image if needed
+            self.s3.download_image(session_id, image_name)
+            # Run detectron to get bounding boxes
+            results = self.detectron.predict(session_id=session_id, image_name=image_name)
 
-        # Insert bounding box locations to postgres
-        self.postgres.insert_results(results)
+            # Insert bounding box locations to postgres
+            self.postgres.insert_results(schema_name=arm_id, table_name=session_id, results=results)
+        except Exception as error:
+            traceback.print_exc()
 
-    def vectorize_session_images(self, session_id):
+    def vectorize_session_images(self, arm_id, session_id):
         """
         This method is to be executed after the last image of a session is processed. It gets a list of unique
         images in the current session, retrieves all the objects that belong to each image and runs the vectorizer
@@ -103,58 +105,37 @@ class Main:
 
         """
 
-        self.postgres.open()
+        try:
+            # Get list of unique image names in current session
+            unique_images = self.postgres.get_unique_images(schema_name=arm_id, table_name=session_id)
 
-        # Get list of unique image names in current session
-        unique_images = self.postgres.get_unique_images()
+            # Create separate lists of items and containers and convert them to absolute polar coordinates
+            items = []
+            conts = []
+            for image_name in unique_images:
+                for obj in self.postgres.get_objects_of_image(schema_name=arm_id, table_name=session_id, image_name=image_name):
+                    (items if obj["class"] == 0 else conts).append(object_to_polar(image_name, obj))
 
-        # Get objects belonging to each unique image from postgres
-        # The nested structure here improves efficiency when images are cropped (no need to open and close an image multiple times)
-        images_with_objects = []
-        for image_name in unique_images:
-            objects_of_img = self.postgres.get_objects_of_image(image_name=image_name)
-            images_with_objects.append({
-                "image_name": image_name,
-                "objects": objects_of_img
-            })
+            # Filter out duplicates which are the same objects showing up on different images
+            filtered_items = filter_duplicates(items)
+            filtered_conts = filter_duplicates(conts)
 
-        def get_bbox_center(obj):
-            x = int((obj["bbox_dims"]["x1"] + obj["bbox_dims"]["x2"]) / 2)
-            y = int((obj["bbox_dims"]["y1"] + obj["bbox_dims"]["y2"]) / 2)
-            return (x, y,)
+            # Handle case if no containers were found
+            n_containers = len(filtered_conts)
+            if n_containers == 0:
+                raise Exception("No containers were found!")
 
-        # Create separate lists of items and containers
-        items = []
-        containers = []
-        for img in images_with_objects:
-            for obj in img["objects"]:
-                (items if obj["class"] == 0 else containers).append({
-                    "img_base_angle": int(Path(img["image_name"]).stem),
-                    "img_dims": obj["img_dims"],
-                    "obj_id": obj["id"],
-                    "bbox_center_point": get_bbox_center(obj)
-                })
+            # Run vectorizer to assign each object to a cluster
+            pairings = self.vectorizer.run(session_id=session_id, unique_images=unique_images, objects=filtered_items, n_containers=n_containers)
 
-        self.postgres.close()
+            def pairing_matches_item(pairing, item):
+                return pairing["image_id"] == item["img_base_angle"] and pairing["obj_id"] == item["obj_id"]
 
-        # Handle case if no containers were found
-        n_containers = len(containers)
-        if n_containers == 0:
-            raise Exception("No containers were found!")
+            commands = []
+            for item in filtered_items:
+                target_cont = next(filtered_conts[pairing["cluster"]] for pairing in pairings if pairing_matches_item(pairing, item))
+                commands.append((item["avg_polar_coords"], target_cont["avg_polar_coords"],))
 
-        # Run vectorizer to assign each object to a cluster
-        pairings = self.vectorizer.run(session_id=session_id, images=images_with_objects, n_containers=n_containers)
-
-        def pairing_matches_item(pairing, item):
-            return pairing["image_id"] == item["img_base_angle"] and pairing["obj_id"] == item["obj_id"]
-
-        commands = []
-        for item in items:
-            target_cont = next(containers[pairing["cluster"]] for pairing in pairings if pairing_matches_item(pairing, item))
-            commands.append({
-                "img_base_angle": item["img_base_angle"],
-                "img_dims": item["img_dims"],
-                "command": (item["bbox_center_point"], target_cont["bbox_center_point"])
-            })
-
-        return commands
+            return commands
+        except Exception:
+            traceback.print_exc()

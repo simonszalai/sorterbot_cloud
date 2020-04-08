@@ -73,8 +73,7 @@ class PreProcessor:
 
         logger.info(f"Cropping objects in {image_name}...")
         for obj in objects:
-            if obj["class"] == 0:  # Do not crop and cluster containers
-                self.crop_object(img_folder, img, obj["id"], obj["bbox_dims"])
+            self.crop_object(img_folder, img, obj["obj_id"], obj["bbox_dims"])
         logger.info(f"Cropping objects in {image_name} finished!")
 
         img.close()
