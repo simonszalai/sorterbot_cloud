@@ -86,10 +86,10 @@ class Main:
 
             # Insert bounding box locations to postgres
             self.postgres.insert_results(schema_name=arm_id, table_name=session_id, results=results)
-        except Exception as error:
+        except Exception:
             traceback.print_exc()
 
-    def vectorize_session_images(self, arm_id, session_id):
+    def vectorize_session_images(self, arm_constants, session_id):
         """
         This method is to be executed after the last image of a session is processed. It gets a list of unique
         images in the current session, retrieves all the objects that belong to each image and runs the vectorizer
@@ -105,37 +105,34 @@ class Main:
 
         """
 
-        try:
-            # Get list of unique image names in current session
-            unique_images = self.postgres.get_unique_images(schema_name=arm_id, table_name=session_id)
+        # Get list of unique image names in current session
+        unique_images = self.postgres.get_unique_images(schema_name=arm_constants["arm_id"], table_name=session_id)
 
-            # Create separate lists of items and containers and convert them to absolute polar coordinates
-            items = []
-            conts = []
-            for image_name in unique_images:
-                for obj in self.postgres.get_objects_of_image(schema_name=arm_id, table_name=session_id, image_name=image_name):
-                    (items if obj["class"] == 0 else conts).append(object_to_polar(image_name, obj))
+        # Create separate lists of items and containers and convert them to absolute polar coordinates
+        items = []
+        conts = []
+        for image_name in unique_images:
+            for obj in self.postgres.get_objects_of_image(schema_name=arm_constants["arm_id"], table_name=session_id, image_name=image_name):
+                (items if obj["class"] == 0 else conts).append(object_to_polar(arm_constants=arm_constants, image_name=image_name, obj=obj))
 
-            # Filter out duplicates which are the same objects showing up on different images
-            filtered_items = filter_duplicates(items)
-            filtered_conts = filter_duplicates(conts)
+        # Filter out duplicates which are the same objects showing up on different images
+        filtered_items = filter_duplicates(items)
+        filtered_conts = filter_duplicates(conts)
 
-            # Handle case if no containers were found
-            n_containers = len(filtered_conts)
-            if n_containers == 0:
-                raise Exception("No containers were found!")
+        # Handle case if no containers were found
+        n_containers = len(filtered_conts)
+        if n_containers == 0:
+            raise Exception("No containers were found!")
 
-            # Run vectorizer to assign each object to a cluster
-            pairings = self.vectorizer.run(session_id=session_id, unique_images=unique_images, objects=filtered_items, n_containers=n_containers)
+        # Run vectorizer to assign each object to a cluster
+        pairings = self.vectorizer.run(session_id=session_id, unique_images=unique_images, objects=filtered_items, n_containers=n_containers)
 
-            def pairing_matches_item(pairing, item):
-                return pairing["image_id"] == item["img_base_angle"] and pairing["obj_id"] == item["obj_id"]
+        def pairing_matches_item(pairing, item):
+            return pairing["image_id"] == item["img_base_angle"] and pairing["obj_id"] == item["obj_id"]
 
-            commands = []
-            for item in filtered_items:
-                target_cont = next(filtered_conts[pairing["cluster"]] for pairing in pairings if pairing_matches_item(pairing, item))
-                commands.append((item["avg_polar_coords"], target_cont["avg_polar_coords"],))
+        commands = []
+        for item in filtered_items:
+            target_cont = next(filtered_conts[pairing["cluster"]] for pairing in pairings if pairing_matches_item(pairing, item))
+            commands.append((item["avg_polar_coords"], target_cont["avg_polar_coords"],))
 
-            return commands
-        except Exception:
-            traceback.print_exc()
+        return commands

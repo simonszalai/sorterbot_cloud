@@ -2,18 +2,9 @@ import math
 import numpy as np
 from pathlib import Path
 
-from utils.logger import logger
 
-
-def object_to_polar(image_name, obj):
-    # Define arm specific contants
-    r = 1500
-    degree_angle_range = 130
-    pulse_width_angle_range = 2200 - 800
-    pulse_width_dist_min = 1100
-    pulse_width_dist_max = 2000
-
-    # Retrieve image center's base rotation as pulse width
+def object_to_polar(arm_constants, image_name, obj):
+    # Retrieve image center's base rotation (when the picture was taken) as pulse width from the filename
     img_base_angle = int(Path(image_name).stem)
 
     # Retrieve image dimensions
@@ -27,24 +18,24 @@ def object_to_polar(image_name, obj):
     a = abs(half_w - x)  # Location's x distance from middle of the image
     b = half_h - y  # Location's y distance from middle of the image
 
-    # Calculate target values as polar coordinates
-    gamma_rad = math.atan(a / (b + r))
+    # Calculate target values as polar coordinates (gamma is target's deviance from image base angle)
+    gamma_rad = math.atan(a / (b + arm_constants["arm_radius"]))
     gamma = math.degrees(gamma_rad)
     try:
         dist = a / math.sin(gamma_rad)
     except ZeroDivisionError:
-        dist = b + r
+        dist = b + arm_constants["arm_radius"]
 
-    # Convert rotation coordinate to servo position
-    delta_rot_pulse_width = pulse_width_angle_range * gamma / degree_angle_range
+    # Convert rotation coordinate to pulse width
+    delta_rotation_as_pw = arm_constants["rotation_range_as_pw"] * gamma / arm_constants["rotation_range_as_deg"]
     if x > half_w:
-        delta_rot_pulse_width *= -1  # Subtract delta_rot_pulse_width if x position is bigger than half_w
-    servo_0_pos = img_base_angle + delta_rot_pulse_width
+        delta_rotation_as_pw *= -1  # Subtract delta_rotation_as_pw if x position is bigger than half_w
+    servo_0_pos = img_base_angle + delta_rotation_as_pw
 
     # Convert distance target value to servo1 position
-    pw_range = pulse_width_dist_max - pulse_width_dist_min
-    r_at_bottom = r - half_h
-    servo_1_pos = (pw_range * (dist - r_at_bottom) / obj["img_dims"][1]) + pulse_width_dist_min
+    dist_range_as_pw = arm_constants["dist_max_as_pw"] - arm_constants["dist_min_as_pw"]
+    r_at_bottom = arm_constants["arm_radius"] - half_h
+    servo_1_pos = (dist_range_as_pw * (dist - r_at_bottom) / obj["img_dims"][1]) + arm_constants["dist_min_as_pw"]
 
     return {
         "img_base_angle": img_base_angle,
