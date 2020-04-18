@@ -60,7 +60,7 @@ class Postgres:
 
             # Create the database if it doesn't exist
             if not db_exists:
-                logger.info(f"Database '{db_name}' does not exists, creating...")
+                # logger.info(f"Database '{db_name}' does not exists, creating...")
                 cursor.execute(f"CREATE DATABASE {db_name}")
 
             # Close connection to default database
@@ -104,7 +104,7 @@ class Postgres:
             cursor.execute(check_table_query)
             table_exists = cursor.fetchone()[0]
             if table_exists:
-                logger.info(f"Table '{schema_name}.{table_name}' already exists, skipping table creation...")
+                # logger.info(f"Table '{schema_name}.{table_name}' already exists, skipping table creation...")
                 return
 
             create_table_query = f"""

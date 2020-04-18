@@ -54,17 +54,17 @@ class S3:
         os.makedirs(os.path.dirname(img_path), exist_ok=True)
 
         if not os.path.isfile(img_path):
-            logger.info(f"Original image '{image_name}' does not exist on disk, downloading from s3...")
+            # logger.info(f"Original image '{image_name}' does not exist on disk, downloading from s3...", {"arg1": "ASDASDASDASD"})
             self.s3.Bucket("sorterbot").download_file(f"{session_id}/{image_name}", img_path)
-            logger.info(f"Original image '{image_name}' is successfully downloaded!")
+            # logger.info(f"Original image '{image_name}' is successfully downloaded!")
         else:
             try:
                 im = Image.open(img_path)
                 im.verify()
                 im.close()
-                logger.info(f"Original image '{image_name}' already exists on disk and it is valid, skipping download.")
+                # logger.info(f"Original image '{image_name}' already exists on disk and it is valid, skipping download.")
             except Exception:
-                logger.warning(f"Original image '{image_name}' already exists on disk, but it is corrupted, downloading again from s3...")
+                # logger.warning(f"Original image '{image_name}' already exists on disk, but it is corrupted, downloading again from s3...")
                 self.s3.Bucket("sorterbot").download_file(f"{session_id}/{image_name}", img_path)
 
         return img_path

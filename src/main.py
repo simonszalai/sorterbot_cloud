@@ -72,6 +72,8 @@ class Main:
         """
 
         try:
+            step = Path(image_name).stem
+
             # Create table in Postgres for current session if it does not exist yet
             self.postgres.create_table(schema_name=arm_id, table_name=session_id)
 
@@ -80,12 +82,17 @@ class Main:
             Path(os.path.join(self.base_img_path, session_id, "cropped")).mkdir(parents=True, exist_ok=True)
 
             # Download image if needed
+            logger.info(f"Downloading image from AWS S3...", {"arm_id": arm_id, "session_id": session_id, "log_type": step})
             self.s3.download_image(session_id, image_name)
+
             # Run detectron to get bounding boxes
+            logger.info(f"Image downloaded, predicting bounding boxes...", {"arm_id": arm_id, "session_id": session_id, "log_type": step})
             results = self.detectron.predict(session_id=session_id, image_name=image_name)
 
             # Insert bounding box locations to postgres
+            logger.info(f"Bounding boxes predicted, saving results to Postgres...", {"arm_id": arm_id, "session_id": session_id, "log_type": step})
             self.postgres.insert_results(schema_name=arm_id, table_name=session_id, results=results)
+            logger.info(f"Results saved to Postgres!", {"arm_id": arm_id, "session_id": session_id, "log_type": step})
         except Exception:
             traceback.print_exc()
 

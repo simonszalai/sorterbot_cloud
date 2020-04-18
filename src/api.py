@@ -85,5 +85,15 @@ def get_commands_of_session():
         return Response(json.dumps({"result": e}), status=500, mimetype='application/json')
 
 
+@app.route("/arm_checkin", methods=["GET"])
+def arm_checkin():
+    """
+    Simple endpoint to validate connection with the arm.
+
+    """
+
+    return Response(json.dumps({"arm_checkin": 1}), status=200, mimetype='application/json')
+
+
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=6000, debug=True)

@@ -261,7 +261,7 @@ class Vectorizer:
             # Print time spent
             time_total = time.time() - start_time
             time_per_img_in_ms = time_total * 1000 / inputs.shape[0]
-            logger.info(f"{len(inputs)} image vectorized @ {time_per_img_in_ms:.2f}ms / image ({time_total:.2f}s total)")
+            # logger.info(f"{len(inputs)} image vectorized @ {time_per_img_in_ms:.2f}ms / image ({time_total:.2f}s total)")
 
             # Append batch filenames to global filenames list
             filenames += batch_filenames
