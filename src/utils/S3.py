@@ -4,9 +4,11 @@ This class provides methods to interact with AWS s3 storage bucket.
 """
 
 import os
-from utils.logger import logger
 import boto3
 from PIL import Image
+from pathlib import Path
+
+from utils.logger import logger
 
 
 class S3:
@@ -48,6 +50,8 @@ class S3:
 
         """
 
+        log_args = {"arm_id": arm_id, "session_id": session_id, "log_type": Path(image_name).stem}
+
         # Construct absolute path for current image
         img_path = os.path.join(self.base_img_path, session_id, "original", image_name)
 
@@ -55,18 +59,17 @@ class S3:
         os.makedirs(os.path.dirname(img_path), exist_ok=True)
 
         if not os.path.isfile(img_path):
-            # logger.info(f"Original image '{image_name}' does not exist on disk, downloading from s3...", {"arg1": "ASDASDASDASD"})
             self.s3.Bucket("sorterbot").download_file(f"{arm_id}/{session_id}/{image_name}", img_path)
-            # logger.info(f"Original image '{image_name}' is successfully downloaded!")
+            logger.info(f"Original image '{image_name}' is successfully downloaded!", log_args)
         else:
             try:
                 im = Image.open(img_path)
                 im.verify()
                 im.close()
-                # logger.info(f"Original image '{image_name}' already exists on disk and it is valid, skipping download.")
+                logger.info(f"Original image '{image_name}' already exists on disk and it is valid, skipping download.", log_args)
             except Exception:
-                # logger.warning(f"Original image '{image_name}' already exists on disk, but it is corrupted, downloading again from s3...")
-                self.s3.Bucket("sorterbot").download_file(f"{session_id}/{image_name}", img_path)
+                logger.warning(f"Original image '{image_name}' already exists on disk, but it is corrupted, downloading again from s3...", log_args)
+                self.s3.Bucket("sorterbot").download_file(f"{arm_id}/{session_id}/{image_name}", img_path)
 
         return img_path
 
