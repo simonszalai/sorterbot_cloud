@@ -1,12 +1,10 @@
-import os
 import shutil
-import pytest
 import hashlib
+import numpy as np
 from imutils import paths
 from pathlib import Path
 
 from main import Main
-from utils.postgres import Postgres
 from mock_data import expected_main_results, expected_stitched_md5
 
 
@@ -19,7 +17,6 @@ class TestMain:
         cls.base_img_path = Path(__file__).parent.parent.joinpath("images")
         cls.test_images_path = Path(__file__).parent.joinpath("test_images", "test_main")
         cls.tmp_path = cls.base_img_path.joinpath(cls.session_id)
-        # os.makedirs(cls.tmp_path.joinpath("original"), exist_ok=True)
 
         # Copy test images to temporary session directory to be processed
         shutil.copytree(cls.test_images_path, cls.tmp_path.joinpath("original"))
@@ -40,9 +37,27 @@ class TestMain:
             "rotation_range_as_pw": 1400
         }
 
-        # Assert commands
-        commands = self.main.vectorize_session_images(arm_constants=arm_constants, session_id=self.session_id)
-        assert commands == expected_main_results
+        # Assert pairings
+        commands, pairings = self.main.vectorize_session_images(arm_constants=arm_constants, session_id=self.session_id)
+
+        def get_clusters(items):
+            cluster_1 = []
+            cluster_2 = []
+
+            for item in items:
+                if item["cluster"] == 0:
+                    cluster_1.append(item["image_id"])
+                elif item["cluster"] == 1:
+                    cluster_2.append(item["image_id"])
+
+            return cluster_1, cluster_2
+        print(pairings)
+        pairings_1, pairings_2 = get_clusters(pairings)
+        expected_1, expected_2 = get_clusters(expected_main_results)
+
+        # Order of clusters in the list is not consistent (as returned by K-Means algorithm) so both cases below should pass test
+        # (The same elements are consistently in the same cluster, but sometimes cluster 0 is the previous run's cluster 1)
+        assert (pairings_1 == expected_1 and pairings_2 == expected_2) or (pairings_2 == expected_1 and pairings_1 == expected_2)
 
         # Assert stitched image
         stitched_path = Path(self.base_img_path).joinpath(self.session_id, "bboxes", "before_stitch.jpg").as_posix()

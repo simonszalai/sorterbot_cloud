@@ -178,7 +178,7 @@ class Main:
             commands.append((item["avg_polar_coords"], target_cont["avg_polar_coords"],))
         logger.info(f"Command generation finished.", log_args)
 
-        return commands
+        return commands, pairings
 
     def stitch_images(self, arm_id, session_id, stitch_type):
         """
