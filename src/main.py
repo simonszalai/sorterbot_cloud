@@ -4,7 +4,10 @@ Main module responsible for orchestrating image processing.
 """
 
 import os
+import cv2
 import traceback
+import concurrent.futures
+from imutils import paths
 from yaml import load, Loader, YAMLError
 from pathlib import Path
 from dotenv import load_dotenv
@@ -73,26 +76,32 @@ class Main:
 
         try:
             step = Path(image_name).stem
+            log_args = {"arm_id": arm_id, "session_id": session_id, "log_type": step}
 
             # Create table in Postgres for current session if it does not exist yet
-            self.postgres.create_table(schema_name=arm_id, table_name=session_id)
+            table_created = self.postgres.create_table(schema_name=arm_id, table_name=session_id)
+            if table_created:
+                logger.info(f"Postgres table created.", log_args)
+            else:
+                logger.info(f"Postgres table already exists.", log_args)
 
             # Create folders for original and cropped images if they do not exist
             Path(os.path.join(self.base_img_path, session_id, "original")).mkdir(parents=True, exist_ok=True)
             Path(os.path.join(self.base_img_path, session_id, "cropped")).mkdir(parents=True, exist_ok=True)
+            Path(os.path.join(self.base_img_path, session_id, "bboxes")).mkdir(parents=True, exist_ok=True)
+            logger.info(f"Session folders created.", log_args)
 
             # Download image if needed
-            logger.info(f"Downloading image from AWS S3...", {"arm_id": arm_id, "session_id": session_id, "log_type": step})
-            self.s3.download_image(session_id, image_name)
+            self.s3.download_image(arm_id, session_id, image_name)
+            logger.info(f"Image downloaded for processing.", log_args)
 
             # Run detectron to get bounding boxes
-            logger.info(f"Image downloaded, predicting bounding boxes...", {"arm_id": arm_id, "session_id": session_id, "log_type": step})
             results = self.detectron.predict(session_id=session_id, image_name=image_name)
+            logger.info(f"Bounding boxes predicted.", log_args)
 
             # Insert bounding box locations to postgres
-            logger.info(f"Bounding boxes predicted, saving results to Postgres...", {"arm_id": arm_id, "session_id": session_id, "log_type": step})
             self.postgres.insert_results(schema_name=arm_id, table_name=session_id, results=results)
-            logger.info(f"Results saved to Postgres!", {"arm_id": arm_id, "session_id": session_id, "log_type": step})
+            logger.info(f"Results saved to Postgres.", log_args)
         except Exception:
             traceback.print_exc()
 
@@ -112,27 +121,53 @@ class Main:
 
         """
 
+        arm_id = arm_constants["arm_id"]
+        log_args = {"arm_id": arm_id, "session_id": session_id, "log_type": "comm_gen"}
+
         # Get list of unique image names in current session
-        unique_images = self.postgres.get_unique_images(schema_name=arm_constants["arm_id"], table_name=session_id)
+        unique_images = self.postgres.get_unique_images(schema_name=arm_id, table_name=session_id)
 
         # Create separate lists of items and containers and convert them to absolute polar coordinates
         items = []
         conts = []
         for image_name in unique_images:
-            for obj in self.postgres.get_objects_of_image(schema_name=arm_constants["arm_id"], table_name=session_id, image_name=image_name):
+            # Retrieve bounding boxes from postgres
+            objects_of_image = self.postgres.get_objects_of_image(schema_name=arm_id, table_name=session_id, image_name=image_name)
+
+            # Open image for drawing and normalize it
+            img_path = os.path.join(self.base_img_path, session_id, "original", image_name)
+            img = cv2.imread(img_path)
+            cv2.normalize(img, img, 0, 255, cv2.NORM_MINMAX)
+
+            for obj in objects_of_image:
+                # Draw bounding boxes on image
+                cv2.rectangle(img, (obj["bbox_dims"]["x1"], obj["bbox_dims"]["y1"]), (obj["bbox_dims"]["x2"], obj["bbox_dims"]["y2"]), (255, 0, 0), 2)
+                # Transform coordinates to absolute polar coords
                 (items if obj["class"] == 0 else conts).append(object_to_polar(arm_constants=arm_constants, image_name=image_name, obj=obj))
+
+            # Save image with drawn bounding boxes
+            cv2.imwrite(os.path.join(self.base_img_path, session_id, "bboxes", image_name), img)
+            logger.info(f"Object bounding boxes for image '{image_name}' drawn and coordinates transformed.", log_args)
+
+        # Stitch together session images
+        self.stitch_images(arm_id=arm_id, session_id=session_id, stitch_type="before")
 
         # Filter out duplicates which are the same objects showing up on different images
         filtered_items = filter_duplicates(items)
         filtered_conts = filter_duplicates(conts)
+        logger.info(f"Duplicate items filtered out.", log_args)
 
         # Handle case if no containers were found
         n_containers = len(filtered_conts)
         if n_containers == 0:
-            raise Exception("No containers were found!")
+            logger.error(f"No containers were found!", log_args)
+            return []
+        else:
+            logger.info(f"{n_containers} containers were found.", log_args)
 
         # Run vectorizer to assign each object to a cluster
         pairings = self.vectorizer.run(session_id=session_id, unique_images=unique_images, objects=filtered_items, n_containers=n_containers)
+        logger.info(f"Vectorizer finished for all images.", log_args)
 
         def pairing_matches_item(pairing, item):
             return pairing["image_id"] == item["img_base_angle"] and pairing["obj_id"] == item["obj_id"]
@@ -141,5 +176,54 @@ class Main:
         for item in filtered_items:
             target_cont = next(filtered_conts[pairing["cluster"]] for pairing in pairings if pairing_matches_item(pairing, item))
             commands.append((item["avg_polar_coords"], target_cont["avg_polar_coords"],))
+        logger.info(f"Command generation finished.", log_args)
 
         return commands
+
+    def stitch_images(self, arm_id, session_id, stitch_type):
+        """
+        Stitches together overlapping images to provide an overview on the UI about the area of interest before and after the
+        arm's operation.
+
+        Parameters
+        ----------
+        arm_id : str
+            Unique identifier of the robot arm.
+        session_id : str
+            Datetime based unique identifier of the current session. It is generated by the Raspberry Pi and passed
+            with the POST request.
+        stitch_type : str
+            Type of stitch which will be prepended to the file name. Possible values: before and after
+
+        """
+
+        log_args = {"arm_id": arm_id, "session_id": session_id, "log_type": "comm_gen"}
+
+        # Open images for stitching
+        image_paths_with_bb = sorted(list(paths.list_images(os.path.join(self.base_img_path, session_id, "bboxes"))))
+        images_with_bb = []
+        for image_path_with_bb in image_paths_with_bb:
+            image_with_bb = cv2.imread(image_path_with_bb)
+            images_with_bb.append(image_with_bb)
+
+        # Stitch together images with bounding boxes
+        stitcher = cv2.Stitcher_create(mode=1)
+        (stitch_status, stitched_img) = stitcher.stitch(images_with_bb)
+
+        if stitch_status == 0:
+            # Save stitched image to disk
+            logger.info("Image stitching successful.", log_args)
+            stitched_path = os.path.join(self.base_img_path, session_id, "bboxes", f"{stitch_type}_stitch.jpg")
+            cv2.imwrite(stitched_path, stitched_img)
+
+            # Upload stitched image to s3 on a seprate thread
+            executor = concurrent.futures.ThreadPoolExecutor(max_workers=2)
+            executor.submit(self.s3.upload_file, "sorterbot", stitched_path, f'{arm_id}/{session_id}/{stitch_type}_stitch.jpg')
+            executor.shutdown(wait=True)
+
+            # Log stitched image
+            log_args_2 = log_args.copy()
+            log_args_2.update(log_type="before")
+            logger.info("Stitched image upload successful.", log_args_2)
+        else:
+            logger.error("Image stitching failed!", log_args)
