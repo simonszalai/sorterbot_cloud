@@ -89,6 +89,11 @@ class Postgres:
         table_name : str
             Name of the table to be created. Corresponds to session_id.
 
+        Returns
+        -------
+        table_created : bool
+            True if table was created, false if it already existed.
+
         """
 
         try:
@@ -104,8 +109,7 @@ class Postgres:
             cursor.execute(check_table_query)
             table_exists = cursor.fetchone()[0]
             if table_exists:
-                # logger.info(f"Table '{schema_name}.{table_name}' already exists, skipping table creation...")
-                return
+                return False
 
             create_table_query = f"""
                 CREATE TABLE {schema_name}.{table_name} (

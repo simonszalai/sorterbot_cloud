@@ -27,16 +27,17 @@ class S3:
         self.s3 = session.resource("s3")
         self.base_img_path = base_img_path
 
-    def download_image(self, session_id, image_name):
+    def download_image(self, arm_id, session_id, image_name):
         """
         This method downloads images from s3. To avoid unneccessary downloads, images are only
         downloaded if they are missing or corrupted.
 
         Parameters
         ----------
+        arm_id : str
+            Unique identifier of the arm.
         session_id : str
             Datetime based unique identifier of the current session.
-
         image_name : str
             Name of the image in the s3 bucket to be downloaded.
 
@@ -55,7 +56,7 @@ class S3:
 
         if not os.path.isfile(img_path):
             # logger.info(f"Original image '{image_name}' does not exist on disk, downloading from s3...", {"arg1": "ASDASDASDASD"})
-            self.s3.Bucket("sorterbot").download_file(f"{session_id}/{image_name}", img_path)
+            self.s3.Bucket("sorterbot").download_file(f"{arm_id}/{session_id}/{image_name}", img_path)
             # logger.info(f"Original image '{image_name}' is successfully downloaded!")
         else:
             try:
@@ -68,3 +69,20 @@ class S3:
                 self.s3.Bucket("sorterbot").download_file(f"{session_id}/{image_name}", img_path)
 
         return img_path
+
+    def upload_file(self, bucket_name, file_path, s3_path):
+        """
+        Uploads a file to s3.
+
+        Parameters
+        ----------
+        bucket_name : str
+            Name of the bucket to upload.
+        file_path : str
+            Path of the image to be uploaded.
+        s3_path : str
+            Path (including filename) where the file should be saved in s3.
+
+        """
+
+        self.s3.Bucket(bucket_name).upload_file(file_path, s3_path)

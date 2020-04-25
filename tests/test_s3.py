@@ -22,7 +22,7 @@ class TestS3:
 
     @pytest.mark.parametrize("image_name", ["valid_image.jpg", "corrupted_image.jpg", "missing_image.jpg"])
     def test_download_image(self, image_name):
-        self.s3.download_image("sorterbot_test_bucket", image_name)
+        self.s3.download_image("ARM001", "sorterbot_test_bucket", image_name)
 
         # Verify downloaded image
         im = Image.open(os.path.join(os.path.join(self.tmp_path, "original"), image_name))
