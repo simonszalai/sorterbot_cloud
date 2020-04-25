@@ -71,10 +71,8 @@ class PreProcessor:
         Path(img_folder).mkdir(parents=True, exist_ok=True)
         img = Image.open(img_path)
 
-        # logger.info(f"Cropping objects in {image_name}...")
         for obj in objects:
             self.crop_object(img_folder, img, obj["obj_id"], obj["bbox_dims"])
-        # logger.info(f"Cropping objects in {image_name} finished!")
 
         img.close()
 
@@ -107,5 +105,5 @@ class PreProcessor:
 
         # Save cropped image
         cropped_name = f"item_{id}.jpg"
+
         cropped_img.save(os.path.join(img_folder, cropped_name))
-        # logger.info(f"Cropped image '{cropped_name}' saved!")

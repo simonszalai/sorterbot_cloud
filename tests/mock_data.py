@@ -30,16 +30,16 @@ List of tuples, where:
 sample_preprocessor = [
     (
         "000000000139.jpg",
-        [{'id': 0, 'type': 1, 'bbox_dims': {'x1': '0', 'y1': '0', 'x2': '0.5', 'y2': '0.5'}}, {'id': 1, 'type': 1, 'bbox_dims': {'x1': '0.5', 'y1': '0.5', 'x2': '1', 'y2': '1'}}, {'id': 2, 'type': 'container'}],  # noqa: E501
-        ("6b9646dc57d44dfe50744bf880e26f9e", "42c756903069dc53b4aa90cece907519")
+        [{'obj_id': 0, 'type': 1, 'bbox_dims': {'x1': 0, 'y1': 0, 'x2': 320, 'y2': 320}}, {'obj_id': 1, 'type': 1, 'bbox_dims': {'x1': 320, 'y1': 320, 'x2': 400, 'y2': 400}}],  # noqa: E501
+        ("75eaf8c9b8b5b006bba492a3af45dbb1", "399a207c4548eabaab1cde0833503f2e")
     ), (
         "000000002153.jpg",
-        [{'id': 0, 'type': 1, 'bbox_dims': {'x1': '0', 'y1': '0', 'x2': '0.5', 'y2': '0.5'}}, {'id': 1, 'type': 1, 'bbox_dims': {'x1': '0.5', 'y1': '0.5', 'x2': '1', 'y2': '1'}}, {'id': 2, 'type': 'container'}],  # noqa: E501
-        ("9849c0663f46b49bcc6be7323d665ca0", "9203e8ed212f6ac38e072202ae6b851d")
+        [{'obj_id': 0, 'type': 1, 'bbox_dims': {'x1': 0, 'y1': 0, 'x2': 320, 'y2': 320}}, {'obj_id': 1, 'type': 1, 'bbox_dims': {'x1': 320, 'y1': 320, 'x2': 400, 'y2': 400}}],  # noqa: E501
+        ("6412d0b2ecf702156ecf62a2df9e1114", "25543590b91115971816fd79b06492dd")
     ), (
         "000000003156.jpg",
-        [{'id': 0, 'type': 1, 'bbox_dims': {'x1': '0', 'y1': '0', 'x2': '0.5', 'y2': '0.5'}}, {'id': 1, 'type': 1, 'bbox_dims': {'x1': '0.5', 'y1': '0.5', 'x2': '1', 'y2': '1'}}, {'id': 2, 'type': 'container'}],  # noqa: E501
-        ("d9559fc17c3838287e13650e2bb1b417", "13c942eba8ecf32b6ddc8d3b9b5590fd")
+        [{'obj_id': 0, 'type': 1, 'bbox_dims': {'x1': 0, 'y1': 0, 'x2': 320, 'y2': 320}}, {'obj_id': 1, 'type': 1, 'bbox_dims': {'x1': 320, 'y1': 320, 'x2': 400, 'y2': 400}}],  # noqa: E501
+        ("560d639f5e777cac5a202a9f38244cbe", "5142a935e63638dab461742c48ac2a15")
     ),
 ]
 
