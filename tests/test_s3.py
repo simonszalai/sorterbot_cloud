@@ -15,7 +15,7 @@ class TestS3:
         os.makedirs(cls.tmp_path, exist_ok=True)
 
         # Download 2 images (valid and corrupted) to temp dir for testing
-        shutil.copytree(os.path.join(cls.test_images_path, "test-s3"), os.path.join(cls.tmp_path, "original"))
+        shutil.copytree(os.path.join(cls.test_images_path, "test_s3"), os.path.join(cls.tmp_path, "original"))
 
         # Init S3 with temp path
         cls.s3 = S3(base_img_path=cls.tmp_path)

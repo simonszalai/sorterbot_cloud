@@ -16,7 +16,7 @@ class TestPreprocessor:
         os.makedirs(cls.tmp_path, exist_ok=True)
 
         # Copy files to temporary directory to be processed
-        shutil.copytree(os.path.join(cls.test_images_path, "test-detectron"), os.path.join(cls.tmp_path, "original"))
+        shutil.copytree(os.path.join(cls.test_images_path, "test_detectron"), os.path.join(cls.tmp_path, "original"))
 
         cls.preprocessor = PreProcessor(base_img_path=cls.tmp_path)
 

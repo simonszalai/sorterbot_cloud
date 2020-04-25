@@ -5,6 +5,8 @@ aws_credentials
 tests/test_images/cropped
 .coverage
 .pytest_cache
+src/locator/weights
+tests/pytest.ini
 
 docs/_build/
 *.pyc

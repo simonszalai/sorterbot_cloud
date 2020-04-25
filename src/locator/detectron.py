@@ -8,6 +8,7 @@ https://github.com/facebookresearch/detectron2
 
 import os
 import cv2
+from pathlib import Path
 from detectron2 import model_zoo
 from detectron2.engine import DefaultPredictor
 from detectron2.config import get_cfg
@@ -44,7 +45,7 @@ class Detectron:
         self.cfg.MODEL.ROI_HEADS.NUM_CLASSES = 2
 
         # Get pretrained weights
-        self.cfg.MODEL.WEIGHTS = "/detectron_custom_weights/model_final.pth"
+        self.cfg.MODEL.WEIGHTS = Path(__file__).joinpath("..", "weights", "model_final.pth").resolve().as_posix()
 
         # Create predictor
         self.predictor = DefaultPredictor(self.cfg)
@@ -84,10 +85,10 @@ class Detectron:
                 "image_width": img_width,
                 "image_height": img_height,
                 "class": int(cl),
-                "x1": box[0],
-                "y1": box[1],
-                "x2": box[2],
-                "y2": box[3]
+                "x1": int(box[0]),
+                "y1": int(box[1]),
+                "x2": int(box[2]),
+                "y2": int(box[3])
             }
 
         boxes = outputs["instances"].pred_boxes

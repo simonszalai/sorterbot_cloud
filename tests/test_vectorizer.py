@@ -8,7 +8,7 @@ from vectorizer.vectorizer import Vectorizer
 class TestVectorizer:
     @classmethod
     def setup_class(cls):
-        cls.base_img_path = os.path.abspath(os.path.join(os.path.abspath(__file__), "..", "test_images", "test-vectorizer"))
+        cls.base_img_path = os.path.abspath(os.path.join(os.path.abspath(__file__), "..", "test_images", "test_vectorizer"))
         cls.vectorizer = Vectorizer(base_img_path=cls.base_img_path, model_name="resnet18", input_dimensions=(224, 224), batch_size=512)
 
     def test_vectorize(self):

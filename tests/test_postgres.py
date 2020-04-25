@@ -1,4 +1,6 @@
-from mock_data import sample_data_for_postgres, exprected_unique_images, expected_objects_of_image_1
+import os
+from psycopg2 import pool
+from mock_data import sample_data_for_postgres, expected_unique_images, expected_objects_of_image_1
 
 from utils.postgres import Postgres
 
@@ -6,37 +8,32 @@ from utils.postgres import Postgres
 class TestPostgres:
     @classmethod
     def setup_class(cls):
-        cls.db_name = "sorterbot_test"
+        cls.db_name = "sorterbot"
+        cls.schema_name = "test_schema"
         cls.table_name = "test_table"
         cls.postgres = Postgres(db_name=cls.db_name)
-
-    def test_open(self):
-        self.postgres.open()
+        cls.postgres_pool = pool.SimpleConnectionPool(1, 100, f"{os.getenv('PG_CONN')}/{cls.db_name}")
 
     def test_create_table(self):
-        self.postgres.create_table(table_name=self.table_name)
+        self.postgres.create_table(schema_name=self.schema_name, table_name=self.table_name)
 
     def test_insert_results(self):
-        self.postgres.insert_results(sample_data_for_postgres)
+        self.postgres.insert_results(schema_name=self.schema_name, table_name=self.table_name, results=sample_data_for_postgres)
 
     def test_get_unique_images(self):
-        unique_images = self.postgres.get_unique_images()
-        assert unique_images == exprected_unique_images
+        unique_images = self.postgres.get_unique_images(schema_name=self.schema_name, table_name=self.table_name)
+        print(unique_images)
+        assert unique_images == expected_unique_images
 
     def test_get_objects_of_image(self):
-        objects_of_image = self.postgres.get_objects_of_image(image_name="sample_image_1.jpg")
+        objects_of_image = self.postgres.get_objects_of_image(schema_name=self.schema_name, table_name=self.table_name, image_name="sample_image_1.jpg")
+        print(objects_of_image)
         assert objects_of_image == expected_objects_of_image_1
 
     @classmethod
     def teardown_class(cls):
-        # Drop table to prevent subsequent test failures
-        cls.postgres.cursor.execute(f"DROP TABLE IF EXISTS {cls.table_name};")
-
-        # Close connection to test database
-        cls.postgres.close()
-
-        # Open another connection to maintenenace database so test database can be dropped
-        cls.postgres = Postgres(db_name="postgres")
-        cls.postgres.open()
-        cls.postgres.cursor.execute(f"DROP DATABASE IF EXISTS {cls.db_name};")
-        cls.postgres.close()
+        # Drop schema to prevent subsequent test failures
+        connection = cls.postgres.postgres_pool.getconn()
+        cursor = connection.cursor()
+        cursor.execute(f"DROP SCHEMA {cls.schema_name} CASCADE;")
+        cls.postgres.postgres_pool.putconn(connection)
