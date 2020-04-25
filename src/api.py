@@ -3,16 +3,16 @@ A Flask application to expose the `/process_image` REST API endpoint.
 
 """
 
-import os
 import json
 import traceback
+from pathlib import Path
 from flask import Flask, Response, request
 
 from main import Main
 from utils.logger import logger
 
 app = Flask(__name__)
-main = Main(base_img_path=os.path.abspath(os.path.join(os.path.abspath(__file__), "../../images")))
+main = Main(base_img_path=Path(__file__).parent.parent.joinpath("images"))
 
 
 @app.route("/process_image", methods=["POST"])
