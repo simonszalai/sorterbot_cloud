@@ -1,6 +1,5 @@
 import shutil
 import hashlib
-import numpy as np
 from imutils import paths
 from pathlib import Path
 

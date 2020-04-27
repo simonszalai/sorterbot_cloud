@@ -8,7 +8,6 @@ import psycopg2
 import traceback
 import functools
 from psycopg2 import pool
-from utils.logger import logger
 from psycopg2.extras import execute_values
 
 

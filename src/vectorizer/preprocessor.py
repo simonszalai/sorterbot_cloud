@@ -6,7 +6,6 @@ the recognized objects from the original images.
 
 
 import os
-from utils.logger import logger
 from PIL import Image
 from pathlib import Path
 
