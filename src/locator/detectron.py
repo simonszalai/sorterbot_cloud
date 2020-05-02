@@ -53,7 +53,7 @@ class Detectron:
 
         setup_logger()
 
-    def predict(self, session_id, image_name, img_bytes):
+    def predict(self, session_id, image_name, img):
         """
         This method predicts the locations of bounding boxes on the provided image.
 
@@ -64,8 +64,8 @@ class Detectron:
             with the POST request.
         image_name : str
             Name of the image saved in the `images/original` folder.
-        img_bytes : bytes
-            Image to be processed as raw bytes.
+        img : np.array
+            Image to be processed as Numpy array.
 
         Returns
         -------
@@ -74,9 +74,6 @@ class Detectron:
             as the original image name, dimensions and the predicted class.
 
         """
-
-        # Read OpenCV image from bytes
-        img = cv2.imdecode(np.fromstring(img_bytes, np.uint8), cv2.IMREAD_COLOR)
 
         # Use Detectron2 to predict bounding boxes
         outputs = self.predictor(img)

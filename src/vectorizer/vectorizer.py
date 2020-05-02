@@ -150,7 +150,7 @@ class Vectorizer:
 
         Returns
         -------
-        results : list
+        pairings : list
             List of dicts containing `filename` and `cluster` keys. The filename includes the original image's name
             and the recognized object's id, the cluster is the index of the cluster to which the particular object belongs.
 
@@ -171,7 +171,10 @@ class Vectorizer:
         self.preprocessor.run(session_id, images)
 
         # Create dataset for vectorization
-        self.load_data(Path(self.base_img_path).joinpath(session_id, "cropped"))
+        images_found = self.load_data(Path(self.base_img_path).joinpath(session_id, "cropped"))
+
+        if not images_found:
+            return []
 
         # Run vectorizer
         filenames, vectors = self.compute_vectors()
@@ -181,13 +184,13 @@ class Vectorizer:
 
         # Convert numpy int32 to int so they are JSON serializable
         clusters = [int(cluster) for cluster in clusters]
-        results = [{
+        pairings = [{
             "image_id": int(str(Path(result[0]).parent)),
             "obj_id": int(str(Path(result[0]).stem).split("_")[1]),
             "cluster": result[1]
         } for result in zip(filenames, clusters)]
 
-        return results
+        return pairings
 
     def load_data(self, data_path):
         """
@@ -203,6 +206,12 @@ class Vectorizer:
             Specifies the location of the images to be loaded. Given the way ImageFolder works,
             the images has to be in another folder inside the specified folder. The name of that
             folder would be the label for training, but in case of inference, it's irrelevant.
+
+        Returns
+        -------
+        found_images : bool
+            Boolean value representing if any images were found to be vectorized.
+
         """
 
         images_count = 0
@@ -211,10 +220,15 @@ class Vectorizer:
                 if fnmatch(name, "*.jpg"):
                     images_count += 1
 
-        self.dataset = ImageFolderWithPaths(data_path, self.data_transforms)
+        if images_count == 0:
+            return False
+
+        self.dataset = ImageFolderWithPaths(data_path.as_posix(), self.data_transforms)
         self.dataloader = torch.utils.data.DataLoader(
             self.dataset, batch_size=self.batch_size, shuffle=False, num_workers=self.num_workers
         )
+
+        return True
 
     def compute_vectors(self):
         """
