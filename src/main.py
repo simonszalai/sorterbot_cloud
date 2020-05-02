@@ -8,6 +8,7 @@ import cv2
 import traceback
 import concurrent.futures
 from imutils import paths
+from multiprocessing import Pool
 from yaml import load, Loader, YAMLError
 from pathlib import Path
 from dotenv import load_dotenv
@@ -59,7 +60,7 @@ class Main:
             batch_size=config["VECTORIZER"]["BATCH_SIZE"]
         )
 
-    def process_image(self, arm_id, session_id, image_name):
+    def process_image(self, arm_id, session_id, image_name, img_bytes):
         """
         This method runs object recognition on the passed image and saves the result to the database.
 
@@ -71,6 +72,13 @@ class Main:
         image_name : str
             Name of the image to be processed. The image has to be uploaded to the s3 bucket. Value is passed
             with the POST request.
+        img_bytes : bytes
+            Image to be processed as raw bytes.
+
+        Returns
+        -------
+        success : bool
+            Boolean indicating if processing was successful.
 
         """
 
@@ -89,21 +97,54 @@ class Main:
             Path(os.path.join(self.base_img_path, session_id, "original")).mkdir(parents=True, exist_ok=True)
             Path(os.path.join(self.base_img_path, session_id, "cropped")).mkdir(parents=True, exist_ok=True)
             Path(os.path.join(self.base_img_path, session_id, "bboxes")).mkdir(parents=True, exist_ok=True)
-            logger.info(f"Session folders created.", log_args)
-
-            # Download image if needed
-            self.s3.download_image(arm_id, session_id, image_name)
-            logger.info(f"Image downloaded for processing.", log_args)
 
             # Run detectron to get bounding boxes
-            results = self.detectron.predict(session_id=session_id, image_name=image_name)
+            results = self.detectron.predict(session_id=session_id, image_name=image_name, img_bytes=img_bytes)
             logger.info(f"Bounding boxes predicted.", log_args)
 
             # Insert bounding box locations to postgres
             self.postgres.insert_results(schema_name=arm_id, table_name=session_id, results=results)
             logger.info(f"Results saved to Postgres.", log_args)
+
+            # Generate image paths on disk and s3
+            img_disk_path = Path(self.base_img_path).joinpath(session_id, "original", image_name)
+            img_s3_path = f'{arm_id}/{session_id}/{image_name}'
+
+            # Write to disk and upload to s3 async
+            executor = concurrent.futures.ThreadPoolExecutor(max_workers=1)
+            executor.submit(self.save_and_upload_image, img_disk_path, img_s3_path, img_bytes)
+
+            return True
+
         except Exception:
             traceback.print_exc()
+            return False
+
+    def save_and_upload_image(self, img_path, s3_path, img_bytes):
+        """
+        Takes an iamge as bytes and writes it to disk, then uploads it to s3. This functionality is not essential
+        to generate the commands, so if this is executed on a separate thread, some speed-up can be gained.
+
+        Parameters
+        ----------
+        img_path : str
+            Path of the image where it should be saved to disk.
+        s3_path : str
+            Path of the image where it should be uploaded to s3.
+        img_bytes : bytes
+            The image as bytes.
+
+        """
+
+        try:
+            # Write image bytes to disk for later use
+            with open(img_path, "wb") as output_file:
+                output_file.write(img_bytes)
+
+            # Upload image to s3
+            self.s3.upload_file("sorterbot", img_path.as_posix(), s3_path)
+        except Exception as e:
+            logger.error(e)
 
     def vectorize_session_images(self, arm_constants, session_id):
         """
@@ -130,27 +171,25 @@ class Main:
         # Create separate lists of items and containers and convert them to absolute polar coordinates
         items = []
         conts = []
+        images_with_objects = []
         for image_name in unique_images:
             # Retrieve bounding boxes from postgres
             objects_of_image = self.postgres.get_objects_of_image(schema_name=arm_id, table_name=session_id, image_name=image_name)
 
-            # Open image for drawing and normalize it
-            img_path = os.path.join(self.base_img_path, session_id, "original", image_name)
-            img = cv2.imread(img_path)
-            cv2.normalize(img, img, 0, 255, cv2.NORM_MINMAX)
+            # Build list to stitch together images later
+            images_with_objects.append({'image_name': image_name, "objects": objects_of_image})
 
             for obj in objects_of_image:
-                # Draw bounding boxes on image
-                cv2.rectangle(img, (obj["bbox_dims"]["x1"], obj["bbox_dims"]["y1"]), (obj["bbox_dims"]["x2"], obj["bbox_dims"]["y2"]), (255, 0, 0), 2)
                 # Transform coordinates to absolute polar coords
                 (items if obj["class"] == 0 else conts).append(object_to_polar(arm_constants=arm_constants, image_name=image_name, obj=obj))
 
-            # Save image with drawn bounding boxes
-            cv2.imwrite(os.path.join(self.base_img_path, session_id, "bboxes", image_name), img)
-            # logger.info(f"Object bounding boxes for image '{image_name}' drawn and coordinates transformed.", log_args)
-
         # Stitch together session images
-        self.stitch_images(arm_id=arm_id, session_id=session_id, stitch_type="before")
+        # self.stitch_images(
+        #     arm_id=arm_id,
+        #     session_id=session_id,
+        #     stitch_type="before",
+        #     images_with_objects=images_with_objects
+        # )
 
         # Filter out duplicates which are the same objects showing up on different images
         filtered_items = filter_duplicates(items)
@@ -161,17 +200,23 @@ class Main:
         n_containers = len(filtered_conts)
         if n_containers == 0:
             logger.error(f"No containers were found!", log_args)
-            return []
+            return [], []
         else:
             logger.info(f"{n_containers} containers were found.", log_args)
 
         # Run vectorizer to assign each object to a cluster
-        pairings = self.vectorizer.run(session_id=session_id, unique_images=unique_images, objects=filtered_items, n_containers=n_containers)
+        pairings = self.vectorizer.run(
+            session_id=session_id,
+            unique_images=unique_images,
+            objects=filtered_items,
+            n_containers=n_containers
+        )
         logger.info(f"Vectorizer finished for all images.", log_args)
 
         def pairing_matches_item(pairing, item):
             return pairing["image_id"] == item["img_base_angle"] and pairing["obj_id"] == item["obj_id"]
 
+        # Generate commands
         commands = []
         for item in filtered_items:
             target_cont = next(filtered_conts[pairing["cluster"]] for pairing in pairings if pairing_matches_item(pairing, item))
@@ -180,7 +225,7 @@ class Main:
 
         return commands, pairings
 
-    def stitch_images(self, arm_id, session_id, stitch_type):
+    def stitch_images(self, arm_id, session_id, stitch_type, images_with_objects):
         """
         Stitches together overlapping images to provide an overview on the UI about the area of interest before and after the
         arm's operation.
@@ -194,10 +239,27 @@ class Main:
             with the POST request.
         stitch_type : str
             Type of stitch which will be prepended to the file name. Possible values: before and after.
+        images_with_objects : list of dicts
+            List of dicts, each dictionary containing 'image_name' and 'objects'. There is one entry for each unique
+            image in a session.
 
         """
 
         log_args = {"arm_id": arm_id, "session_id": session_id, "log_type": "comm_gen"}
+
+        # Open images, draw bounding boxes then save them to a new directory
+        for image in images_with_objects:
+            # Open image for drawing and normalize it
+            img_path = os.path.join(self.base_img_path, session_id, "original", image["image_name"])
+            img = cv2.imread(img_path)
+            cv2.normalize(img, img, 0, 255, cv2.NORM_MINMAX)
+
+            for obj in image["objects"]:
+                # Draw bounding boxes on image
+                cv2.rectangle(img, (obj["bbox_dims"]["x1"], obj["bbox_dims"]["y1"]), (obj["bbox_dims"]["x2"], obj["bbox_dims"]["y2"]), (255, 0, 0), 2)
+
+            # Save image with drawn bounding boxes
+            cv2.imwrite(os.path.join(self.base_img_path, session_id, "bboxes", image["image_name"]), img)
 
         # Open images for stitching
         image_paths_with_bb = sorted(list(paths.list_images(Path(self.base_img_path).joinpath(session_id, "bboxes"))))

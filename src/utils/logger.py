@@ -9,6 +9,7 @@ handler = logging.StreamHandler()
 handler.setFormatter(formatter)
 logger.addHandler(handler)
 
+# http_handler = logging.handlers.HTTPHandler('localhost:8000', '/log/', method='POST')
 http_handler = logging.handlers.HTTPHandler('docker.for.mac.host.internal:8000', '/log/', method='POST')
 handler.setFormatter(formatter)
 logger.addHandler(http_handler)

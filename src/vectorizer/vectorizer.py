@@ -171,7 +171,7 @@ class Vectorizer:
         self.preprocessor.run(session_id, images)
 
         # Create dataset for vectorization
-        self.load_data(os.path.join(self.base_img_path, session_id, "cropped"))
+        self.load_data(Path(self.base_img_path).joinpath(session_id, "cropped"))
 
         # Run vectorizer
         filenames, vectors = self.compute_vectors()
@@ -210,9 +210,6 @@ class Vectorizer:
             for name in files:
                 if fnmatch(name, "*.jpg"):
                     images_count += 1
-
-        if images_count == 0:
-            raise Exception("No recognized objects on the current image.")
 
         self.dataset = ImageFolderWithPaths(data_path, self.data_transforms)
         self.dataloader = torch.utils.data.DataLoader(

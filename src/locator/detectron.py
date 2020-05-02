@@ -8,6 +8,7 @@ https://github.com/facebookresearch/detectron2
 
 import os
 import cv2
+import numpy as np
 from pathlib import Path
 from detectron2 import model_zoo
 from detectron2.engine import DefaultPredictor
@@ -52,7 +53,7 @@ class Detectron:
 
         setup_logger()
 
-    def predict(self, session_id, image_name):
+    def predict(self, session_id, image_name, img_bytes):
         """
         This method predicts the locations of bounding boxes on the provided image.
 
@@ -63,6 +64,8 @@ class Detectron:
             with the POST request.
         image_name : str
             Name of the image saved in the `images/original` folder.
+        img_bytes : bytes
+            Image to be processed as raw bytes.
 
         Returns
         -------
@@ -72,8 +75,10 @@ class Detectron:
 
         """
 
-        img = cv2.imread(os.path.join(self.base_img_path, session_id, "original", image_name))
+        # Read OpenCV image from bytes
+        img = cv2.imdecode(np.fromstring(img_bytes, np.uint8), cv2.IMREAD_COLOR)
 
+        # Use Detectron2 to predict bounding boxes
         outputs = self.predictor(img)
 
         img_height = outputs["instances"].image_size[0]
