@@ -13,7 +13,7 @@ import multiprocessing as mp
 from yaml import load, Loader, YAMLError
 from pathlib import Path
 from dotenv import load_dotenv
-import torchvision.transforms as transforms
+# import torchvision.transforms as transforms
 
 from locator.detectron import Detectron
 from vectorizer.vectorizer import Vectorizer
@@ -87,6 +87,7 @@ class Main:
         try:
             step = Path(image_name).stem
             log_args = {"arm_id": arm_id, "session_id": session_id, "log_type": step}
+            logger.info(f"Image '{image_name} received, started processing.", dict(bm_id=2, **log_args))
 
             # Create table in Postgres for current session if it does not exist yet
             table_created = self.postgres.create_table(schema_name=arm_id, table_name=session_id)
@@ -100,21 +101,13 @@ class Main:
 
             # Convert image bytes to np.array and normalize it to ImageNet stats
             img = cv2.imdecode(np.fromstring(img_bytes, np.uint8), cv2.IMREAD_COLOR)
-            logger.warning(type(img))
-            # normalize = transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
-            normalize = transforms.Normalize(mean=[144., 142., 139.], std=[68., 69.7, 77.])
-            to_tensor = transforms.ToTensor()
-            logger.warning("tensor")
-            logger.warning(normalize(to_tensor(img)).size())
-            img = normalize(to_tensor(img)).permute(1, 2, 0).numpy().astype("uint8")
-            logger.warning("after")
-            logger.warning(type(img))
-            logger.warning(img.min())
-            logger.warning(img.max())
+            # normalize = transforms.Normalize(mean=[144., 142., 139.], std=[68., 69.7, 77.])
+            # to_tensor = transforms.ToTensor()
+            # img = normalize(to_tensor(img)).permute(1, 2, 0).numpy().astype("uint8")
 
             # Run detectron to get bounding boxes
             results = self.detectron.predict(session_id=session_id, image_name=image_name, img=img)
-            logger.info(f"Bounding boxes predicted.", log_args)
+            logger.info(f"Bounding boxes predicted.", dict(bm_id=3, **log_args))
 
             # Insert bounding box locations to postgres
             self.postgres.insert_results(schema_name=arm_id, table_name=session_id, results=results)
@@ -126,7 +119,9 @@ class Main:
 
             # Write to disk and upload to s3 async
             executor = concurrent.futures.ThreadPoolExecutor(max_workers=1)
-            executor.submit(self.save_and_upload_image, img_disk_path, img_s3_path, img_bytes)
+            executor.submit(self.save_and_upload_image, img_disk_path, img_s3_path, img_bytes, log_args)
+
+            logger.info(f"Processing image is successful.", dict(bm_id=7, **log_args))
 
             return True
 
@@ -134,7 +129,7 @@ class Main:
             traceback.print_exc()
             return False
 
-    def save_and_upload_image(self, img_path, s3_path, img_bytes):
+    def save_and_upload_image(self, img_path, s3_path, img_bytes, log_args):
         """
         Takes an iamge as bytes and writes it to disk, then uploads it to s3. This functionality is not essential
         to generate the commands, so if this is executed on a separate thread, some speed-up can be gained.
@@ -147,6 +142,8 @@ class Main:
             Path of the image where it should be uploaded to s3.
         img_bytes : bytes
             The image as bytes.
+        log_args : dict
+            Arguments to correctly place log entry on the control panel.
 
         Returns
         -------
@@ -156,12 +153,16 @@ class Main:
         """
 
         try:
+            logger.info(f"Starting to save and upload image on a separate thread...", dict(bm_id=4, **log_args))
+
             # Write image bytes to disk for later use
             with open(img_path, "wb") as output_file:
                 output_file.write(img_bytes)
+            logger.info(f"Image written to disk.", dict(bm_id=5, **log_args))
 
             # Upload image to s3
             self.s3.upload_file("sorterbot", img_path.as_posix(), s3_path)
+            logger.info(f"Image uploaded to s3.", dict(bm_id=6, **log_args))
 
             return True
         except Exception as e:
@@ -190,6 +191,8 @@ class Main:
         arm_id = arm_constants["arm_id"]
         log_args = {"arm_id": arm_id, "session_id": session_id, "log_type": "comm_gen"}
 
+        logger.info("Generating session commands started.", dict(bm_id=9, **log_args))
+
         # Get list of unique image names in current session
         unique_images = self.postgres.get_unique_images(schema_name=arm_id, table_name=session_id)
 
@@ -212,6 +215,8 @@ class Main:
         stitching_process = mp.Process(target=self.stitch_images, args=(arm_id, session_id, "before", images_with_objects))
         stitching_process.start()
 
+        logger.info("Bounding boxes retrieved from database.", dict(bm_id=10, **log_args))
+
         # Filter out duplicates which are the same objects showing up on different images
         filtered_items = filter_duplicates(items)
         filtered_conts = filter_duplicates(conts)
@@ -229,6 +234,8 @@ class Main:
             return [], [], stitching_process
         else:
             logger.info(f"{n_containers} containers were found.", log_args)
+
+        logger.info(f"Absolute coordinates calculated and duplicates filtered.", dict(bm_id=15, **log_args))
 
         # Run vectorizer to assign each object to a cluster
         pairings = self.vectorizer.run(
@@ -252,7 +259,7 @@ class Main:
         for item in filtered_items:
             target_cont = next(filtered_conts[pairing["cluster"]] for pairing in pairings if pairing_matches_item(pairing, item))
             commands.append((item["avg_polar_coords"], target_cont["avg_polar_coords"],))
-        logger.info(f"Command generation finished.", log_args)
+        logger.info(f"Command generation finished.", dict(bm_id=16, **log_args))
 
         return commands, pairings, stitching_process
 
@@ -280,6 +287,8 @@ class Main:
 
         log_args = {"arm_id": arm_id, "session_id": session_id, "log_type": "comm_gen"}
 
+        logger.info("Stitching images started.", dict(bm_id=11, **log_args))
+
         # Open images, draw bounding boxes then save them to a new directory
         for image in images_with_objects:
             # Open image for drawing and normalize it
@@ -290,9 +299,9 @@ class Main:
 
             # img = (img - img.mean(axis=(0, 1, 2), keepdims=True)) / img.std(axis=(0, 1, 2), keepdims=True)
 
-            normalize = transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
-            to_tensor = transforms.ToTensor()
-            img = normalize(to_tensor(img)).numpy()
+            # normalize = transforms.Normalize(mean=[144., 142., 139.], std=[68., 69.7, 77.])
+            # to_tensor = transforms.ToTensor()
+            # img = normalize(to_tensor(img)).numpy()
 
             for obj in image["objects"]:
                 # Draw bounding boxes on image
@@ -300,6 +309,8 @@ class Main:
 
             # Save image with drawn bounding boxes
             cv2.imwrite(Path(self.base_img_path).joinpath(session_id, tr_stitch_type, image["image_name"]).as_posix(), img)
+
+        logger.info("Bounding boxes drawn and new images saved.", dict(bm_id=12, **log_args))
 
         # Open images for stitching
         image_paths_with_bb = sorted(list(paths.list_images(Path(self.base_img_path).joinpath(session_id, tr_stitch_type))))
@@ -314,17 +325,14 @@ class Main:
 
         if stitch_status == 0:
             # Save stitched image to disk
-            logger.info("Image stitching successful.", log_args)
+            logger.info("Image stitching successful.", dict(bm_id=13, **log_args))
             stitched_path = Path(self.base_img_path).joinpath(session_id, tr_stitch_type, f"{stitch_type}_stitch.jpg").as_posix()
             cv2.imwrite(stitched_path, stitched_img)
 
             # Upload stitched image to s3
             self.s3.upload_file("sorterbot", stitched_path, f'{arm_id}/{session_id}/{stitch_type}_stitch.jpg')
 
-            # Log stitched image
-            log_args_2 = log_args.copy()
-            log_args_2.update(log_type=stitch_type)
-            logger.info("Stitched image upload successful.", log_args_2)
+            logger.info("Stitched image uploaded to s3.", dict(log_type=stitch_type, bm_id=14, **log_args))
 
         else:
             logger.error("Image stitching failed!", log_args)
