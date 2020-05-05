@@ -1,9 +1,11 @@
 import os
+# import ssl
 import json
 import asyncio
 import websockets
 from pathlib import Path
 from fnmatch import fnmatch
+import multiprocessing as mp
 
 from main import Main
 from utils.logger import logger
@@ -15,7 +17,11 @@ class WebSockets:
         self.main = Main(base_img_path=Path(__file__).parent.parent.joinpath("images"))
         self.img_meta = {}
 
-        start_server = websockets.serve(self.listen, "0.0.0.0", 7000, max_size=2048576)
+        # ssl_context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
+        # localhost_pem = Path(__file__).parent.parent.joinpath("ssl", "cert.pem")
+        # ssl_context.load_cert_chain(localhost_pem)
+
+        start_server = websockets.serve(self.listen, "0.0.0.0", 7000, max_size=2048576, max_queue=None)
         self.loop.run_until_complete(start_server)
         self.loop.run_forever()
 
@@ -45,7 +51,7 @@ class WebSockets:
                 message = json.loads(message)
                 if message["command"] == "get_commands_of_session":
                     # Process session images to get commands
-                    commands, _, stitching_process = self.main.vectorize_session_images(message["arm_constants"], message["session_id"])
+                    commands, _, _ = stitching_process = self.main.vectorize_session_images(message["arm_constants"], message["session_id"])
 
                     # Send back to calculated commands
                     await websocket.send(json.dumps(commands))
@@ -59,7 +65,11 @@ class WebSockets:
                         for name in files:
                             if fnmatch(name, "after_*.jpg"):
                                 after_images.append(name)
-                    self.main.stitch_images(message["arm_id"], message["session_id"], "after", after_images)
+
+                    stitching_process = mp.Process(target=self.main.stitch_images, args=(message["arm_id"], message["session_id"], "after", after_images))
+                    stitching_process.start()
+                    stitching_process.join()
+                    # self.main.stitch_images(message["arm_id"], message["session_id"], "after", after_images)
 
 
 if __name__ == "__main__":

@@ -7,6 +7,7 @@ tests/test_images/cropped
 .pytest_cache
 src/locator/weights
 tests/pytest.ini
+ssl
 
 docs/_build/
 *.pyc
