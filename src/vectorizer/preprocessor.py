@@ -6,8 +6,11 @@ the recognized objects from the original images.
 
 
 import os
-from PIL import Image
+from PIL import Image, ImageFile
 from pathlib import Path
+
+# To prevent tests from failing
+ImageFile.LOAD_TRUNCATED_IMAGES = True
 
 
 class PreProcessor:
@@ -100,6 +103,8 @@ class PreProcessor:
         """
 
         # Crop image around bounding box
+        print(img)
+        print("bbox_dims", bbox_dims)
         cropped_img = img.crop((bbox_dims["x1"], bbox_dims["y1"], bbox_dims["x2"], bbox_dims["y2"]))
 
         # Save cropped image

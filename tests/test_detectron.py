@@ -1,6 +1,8 @@
 import os
-import pytest
+import cv2
 import shutil
+import pytest
+import numpy as np
 from pathlib import Path
 from mock_data import exp_val_detectron
 
@@ -30,9 +32,13 @@ class TestDetectron:
 
     @pytest.mark.parametrize('image_name, expected_results', exp_val_detectron)
     def test_predict(self, image_name, expected_results):
-        results = self.detectron.predict("test_session", image_name)
-        # print(results)
-        assert results == expected_results
+
+        with open(self.tmp_path.joinpath("original", image_name), "rb") as image_file:
+            img_bytes = image_file.read()
+            img = cv2.imdecode(np.frombuffer(img_bytes, np.uint8), cv2.IMREAD_COLOR)
+            results = self.detectron.predict("test_session", image_name, img)
+            # print(results)
+            assert results == expected_results
 
     @classmethod
     def teardown_class(cls):

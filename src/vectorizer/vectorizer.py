@@ -17,7 +17,6 @@ import torchvision.transforms as transforms
 import torchvision.datasets as datasets
 from sklearn.cluster import KMeans
 
-from utils.logger import logger
 from vectorizer.preprocessor import PreProcessor
 
 
@@ -268,11 +267,6 @@ class Vectorizer:
             self.model(inputs)
 
             hook.remove()
-
-            # Print time spent
-            time_total = time.time() - start_time
-            time_per_img_in_ms = time_total * 1000 / inputs.shape[0]
-            # logger.info(f"{len(inputs)} image vectorized @ {time_per_img_in_ms:.2f}ms / image ({time_total:.2f}s total)")
 
             # Append batch filenames to global filenames list
             filenames += batch_filenames

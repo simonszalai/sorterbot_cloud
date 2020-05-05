@@ -5,6 +5,7 @@ from PIL import Image
 from pathlib import Path
 
 from utils.S3 import S3
+from utils.logger import logger
 
 
 class TestS3:
@@ -20,8 +21,11 @@ class TestS3:
         cls.tmp_path = cls.base_img_path.joinpath(cls.session_id)
         os.makedirs(cls.tmp_path.joinpath("original"), exist_ok=True)
 
+        # Disable HTTPHandler for logging
+        logger.handlers = []
+
         # Init S3 with base path
-        cls.s3 = S3(base_img_path=cls.base_img_path.as_posix())
+        cls.s3 = S3(base_img_path=cls.base_img_path.as_posix(), logger_instance=logger)
 
         # Copy 2 images (valid and corrupted) to temp dir for testing
         shutil.copy(cls.test_images_path.joinpath("corrupted_image.jpg"), Path(cls.tmp_path).joinpath("original", "corrupted_image.jpg"))

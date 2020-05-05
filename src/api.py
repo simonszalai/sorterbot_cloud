@@ -51,7 +51,7 @@ class WebSockets:
                 message = json.loads(message)
                 if message["command"] == "get_commands_of_session":
                     # Process session images to get commands
-                    commands, _, _ = stitching_process = self.main.vectorize_session_images(message["arm_constants"], message["session_id"])
+                    commands, _, stitching_process = self.main.vectorize_session_images(message["arm_constants"], message["session_id"])
 
                     # Send back to calculated commands
                     await websocket.send(json.dumps(commands))
