@@ -36,7 +36,7 @@ class Main:
     """
 
     def __init__(self, base_img_path):
-        # Load envirnoment vectorizer from .env in project root
+        # Load environment from .env in project root
         load_dotenv()
 
         # Assign logger to main (this way tests can disable HTTPHandler)
