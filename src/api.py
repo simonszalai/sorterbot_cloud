@@ -16,12 +16,14 @@ class WebSockets:
         self.loop = asyncio.get_event_loop()
         self.main = Main(base_img_path=Path(__file__).parent.parent.joinpath("images"))
         self.img_meta = {}
+        self.port = 6000
 
         # ssl_context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
         # localhost_pem = Path(__file__).parent.parent.joinpath("ssl", "cert.pem")
         # ssl_context.load_cert_chain(localhost_pem)
 
-        start_server = websockets.serve(self.listen, "0.0.0.0", 7000, max_size=2048576, max_queue=None)
+        start_server = websockets.serve(self.listen, "0.0.0.0", self.port, max_size=2048576, max_queue=None)
+        print(f"SorterBot Cloud WebSocket server starting on port {self.port}.")
         self.loop.run_until_complete(start_server)
         self.loop.run_forever()
 

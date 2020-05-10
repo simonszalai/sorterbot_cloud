@@ -39,35 +39,12 @@ class Postgres:
     connections every time a request comes in. It uses a single database which is created when starting the service if
     it does not exist already. Each arm's data is saved to a separate schema while each session gets its own table.
 
-    Parameters
-    ----------
-    db_name : str
-        Name of the database to be used (and created at startup if needed).
-
     """
 
-    def __init__(self, db_name="sorterbot"):
+    def __init__(self):
         try:
-            # First connect to the default maintenance database
-            connection = psycopg2.connect(os.getenv("PG_CONN"))
-            connection.autocommit = True
-            cursor = connection.cursor()
-
-            # Check if a database exists with the provided name
-            cursor.execute(f"SELECT 1 FROM pg_catalog.pg_database WHERE datname = '{db_name}'")
-            db_exists = cursor.fetchone()
-
-            # Create the database if it doesn't exist
-            if not db_exists:
-                # logger.info(f"Database '{db_name}' does not exists, creating...")
-                cursor.execute(f"CREATE DATABASE {db_name}")
-
-            # Close connection to default database
-            cursor.close()
-            connection.close()
-
             # Create connection pool
-            self.postgres_pool = pool.SimpleConnectionPool(1, 100, f"{os.getenv('PG_CONN')}/{db_name}")
+            self.postgres_pool = pool.SimpleConnectionPool(1, 100, f"{os.getenv('PG_CONN')}")
 
         except psycopg2.Error as error:
             traceback.print_exc()

@@ -8,11 +8,9 @@ from utils.postgres import Postgres
 class TestPostgres:
     @classmethod
     def setup_class(cls):
-        cls.db_name = "sorterbot"
         cls.schema_name = "test_schema"
         cls.table_name = "test_table"
-        cls.postgres = Postgres(db_name=cls.db_name)
-        cls.postgres_pool = pool.SimpleConnectionPool(1, 100, f"{os.getenv('PG_CONN')}/{cls.db_name}")
+        cls.postgres = Postgres()
 
     def test_create_table(self):
         self.postgres.create_table(schema_name=self.schema_name, table_name=self.table_name)
