@@ -9,7 +9,7 @@ python3 src/main.py
 
 ### Build Docker Image
 ```
-DOCKER_BUILDKIT=1 docker build -t sorterbot_cloud --secret id=aws_credentials,src=aws_credentials .
+DOCKER_BUILDKIT=1 docker build -t sorterbot_cloud --secret id=aws_config,src=/Users/simon/.aws/config --secret id=aws_credentials,src=/Users/simon/.aws/credentials .
 ```
 
 ### Run Docker Image

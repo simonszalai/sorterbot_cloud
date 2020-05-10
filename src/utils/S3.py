@@ -25,7 +25,7 @@ class S3:
     """
 
     def __init__(self, base_img_path, logger_instance):
-        session = boto3.Session(aws_access_key_id=os.getenv("AMAZON_ACCESS_KEY_ID"), aws_secret_access_key=os.getenv("AMAZON_SECRET_ACCESS_KEY"))
+        session = boto3.Session()
         self.s3 = session.resource("s3")
         self.base_img_path = base_img_path
         self.logger = logger_instance
