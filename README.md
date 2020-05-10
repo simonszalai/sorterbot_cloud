@@ -14,8 +14,8 @@ DOCKER_BUILDKIT=1 docker build -t sorterbot_cloud --secret id=aws_config,src=/Us
 
 ### Run Docker Image
 ```
-docker run -p 6000:6000 -v /Users/simon/dev/sorterbot_cloud:/sorterbot_cloud --shm-size 8G sorterbot_cloud:latest
-sudo docker run -p 6000:6000 -v /home/simon/dev/sorterbot_cloud:/sorterbot_cloud --shm-size 8G sorterbot_cloud:latest
+docker run -p 6000:6000 -v /Users/simon/dev/sorterbot_cloud:/sorterbot_cloud -v ~/.aws:/root/.aws--shm-size 8G sorterbot_cloud:latest
+sudo docker run -p 6000:6000 -v /home/simon/dev/sorterbot_cloud:/sorterbot_cloud -v ~/.aws:/root/.aws --shm-size 8G sorterbot_cloud:latest
 ```
 
 ### Run Tests
