@@ -25,7 +25,7 @@ class S3:
     """
 
     def __init__(self, base_img_path, logger_instance):
-        session = boto3.Session(profile_name="sorterbotcloud")
+        session = boto3.Session()  # profile_name="sorterbotcloud"
         self.s3 = session.resource("s3")
         self.base_img_path = base_img_path
         self.logger = logger_instance
