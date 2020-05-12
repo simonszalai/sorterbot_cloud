@@ -46,7 +46,7 @@ class Detectron:
         self.cfg.MODEL.ROI_HEADS.NUM_CLASSES = 2
 
         # Get pretrained weights
-        self.cfg.MODEL.WEIGHTS = Path(__file__).joinpath("..", "weights", "model_final.pth").resolve().as_posix()
+        self.cfg.MODEL.WEIGHTS = Path(__file__).parent.parent.parent.joinpath("weights", "model_final.pth").resolve().as_posix()
 
         # Create predictor
         self.predictor = DefaultPredictor(self.cfg)

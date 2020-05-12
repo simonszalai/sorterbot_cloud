@@ -36,7 +36,7 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r requirements.txt
         pip install 'git+https://github.com/cocodataset/cocoapi.git#subdirectory=PythonAPI'
-        pip install detectron2 -f https://dl.fbaipublicfiles.com/detectron2/wheels/cpu/index.html
+        pip install detectron2==0.1 -f https://dl.fbaipublicfiles.com/detectron2/wheels/cpu/index.html
         pip install -e src/
     - name: Unit tests with PyTest
       env:
