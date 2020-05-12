@@ -20,9 +20,11 @@ RUN unzip awscliv2.zip
 RUN ./aws/install
 RUN aws configure set region eu-central-1
 
+ARG DEVMODE
+
 # Download custom trained weights for Detectron from s3
-RUN --mount=type=secret,id=aws_credentials,dst=/root/.aws/credentials --mount=type=secret,id=aws_config,dst=/root/.aws/config aws s3 cp s3://sorterbot-weights/model_final3.pth /sorterbot_cloud/weights/model_final.pth
-# --profile sorterbotcloud
+RUN if [ "$DEVMODE != 1 "] ; then --mount=type=secret,id=aws_credentials,dst=/root/.aws/credentials --mount=type=secret,id=aws_config,dst=/root/.aws/config aws s3 cp s3://sorterbot-weights/model_final3.pth /sorterbot_cloud/weights/model_final.pth ; fi ;
+    # --profile sorterbotcloud
 
 # Copy source code
 COPY ./src /sorterbot_cloud/src
