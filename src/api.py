@@ -29,28 +29,33 @@ class WebSockets:
 
     async def listen(self, websocket, path):
         async for message in websocket:
-            if isinstance(message, bytes):
-                if websocket.request_headers["command"] == "recv_img_proc":
+            split_msg = message.split(b"___")
+
+            if len(split_msg) > 1:
+                headers = json.loads(split_msg[0])
+                content = split_msg[1]
+
+                # Handle case when message contains bytes asspended to JSON headers
+                if headers["command"] == "recv_img_proc":
                     # Detect objects on image and save bounding boxes to the database
                     success = self.main.process_image(
-                        arm_id=websocket.request_headers["arm_id"],
-                        session_id=websocket.request_headers["session_id"],
-                        image_name=websocket.request_headers["image_name"],
-                        img_bytes=message
+                        arm_id=headers["arm_id"],
+                        session_id=headers["session_id"],
+                        image_name=headers["image_name"],
+                        img_bytes=content
                     )
                     # Send back to Raspberry if processing was successful
                     await websocket.send(json.dumps(success))
-                elif websocket.request_headers["command"] == "recv_img_after":
-                    head = websocket.request_headers
-                    img_disk_path = Path(self.main.base_img_path).joinpath(head["session_id"], "after", head["image_name"])
-                    img_s3_path = f'{head["arm_id"]}/{head["session_id"]}/after_{head["image_name"]}'
-                    success = self.main.save_and_upload_image(img_disk_path, img_s3_path, message)
+                elif headers["command"] == "recv_img_after":
+                    img_disk_path = Path(self.main.base_img_path).joinpath(headers["session_id"], "after", headers["image_name"])
+                    img_s3_path = f'{headers["arm_id"]}/{headers["session_id"]}/after_{headers["image_name"]}'
+                    success = self.main.save_and_upload_image(img_disk_path, img_s3_path, content, {})
                     # Send back to Raspberry if processing was successful
                     await websocket.send(json.dumps(success))
-                else:
-                    print("A message arrived with a payload that was not JSON parsable and there was no handler for it.")
+
             else:
-                message = json.loads(message)
+                # Handle case with only JSON data
+                message = json.loads(split_msg[0])
                 if message["command"] == "get_commands_of_session":
                     # Process session images to get commands
                     commands, _, stitching_process = self.main.vectorize_session_images(message["arm_constants"], message["session_id"])
@@ -72,6 +77,8 @@ class WebSockets:
                     stitching_process.start()
                     stitching_process.join()
                     # self.main.stitch_images(message["arm_id"], message["session_id"], "after", after_images)
+                else:
+                    print("A message arrived with a payload that was not JSON parsable and there was no handler for it.")
 
 
 if __name__ == "__main__":
