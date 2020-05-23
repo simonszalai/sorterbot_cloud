@@ -75,7 +75,7 @@ class Postgres:
         try:
             # Since postgres converts table names to lowercase, this is needed to avoid unexpected behavior
             schema_name = schema_name.lower()
-            table_name = table_name.lower()
+            table_name = str(table_name).lower()
 
             # Create schema if doesn't exist
             cursor.execute(f"CREATE SCHEMA IF NOT EXISTS {schema_name};")
