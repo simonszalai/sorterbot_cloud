@@ -4,6 +4,7 @@ opencv-python==4.2.0.32
 imutils==0.5.3
 psycopg2-binary==2.8.4
 python-dotenv==0.10.5
+pytest-dotenv==0.4.0
 pyyaml==5.1
 scikit-learn==0.22.1
 torch==1.4.0
