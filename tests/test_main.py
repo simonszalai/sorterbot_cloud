@@ -42,8 +42,8 @@ class TestMain:
         }
 
         # Assert pairings
-        commands, pairings, stitching_process = self.main.vectorize_session_images(arm_constants=arm_constants, session_id=self.session_id)
-        stitching_process.join()
+        commands, pairings, stitching_process = self.main.vectorize_session_images(arm_constants=arm_constants, session_id=self.session_id, should_stitch=False)
+        # stitching_process.join()
 
         def get_clusters(items):
             cluster_1 = []
