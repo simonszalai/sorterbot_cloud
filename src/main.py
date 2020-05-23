@@ -51,9 +51,11 @@ class Main:
 
         self.base_img_path = base_img_path
 
+        if os.getenv("DISABLE_S3"):
+            self.s3 = S3(base_img_path=self.base_img_path, logger_instance=self.logger)
+            self.bucket_name = "sorterbot"
+
         self.postgres = Postgres()
-        self.s3 = S3(base_img_path=self.base_img_path, logger_instance=self.logger)
-        self.bucket_name = "sorterbot"
         self.detectron = Detectron(
             base_img_path=self.base_img_path,
             model_config=config["DETECTRON"]["MODEL_CONFIG"],
@@ -167,15 +169,16 @@ class Main:
             self.logger.info(f"Image written to disk.", dict(bm_id=5, **log_args))
 
             # Upload image to s3
-            self.s3.upload_file(self.bucket_name, img_path.as_posix(), s3_path)
-            self.logger.info(f"Image uploaded to s3.", dict(bm_id=6, **log_args))
+            if os.getenv("DISABLE_S3"):
+                self.s3.upload_file(self.bucket_name, img_path.as_posix(), s3_path)
+                self.logger.info(f"Image uploaded to s3.", dict(bm_id=6, **log_args))
 
             return True
         except Exception as e:
             self.logger.error(e)
             return False
 
-    def vectorize_session_images(self, arm_constants, session_id):
+    def vectorize_session_images(self, arm_constants, session_id, should_stitch=True):
         """
         This method is to be executed after the last image of a session is processed. It gets a list of unique
         images in the current session, retrieves all the objects that belong to each image and runs the vectorizer
@@ -218,8 +221,10 @@ class Main:
                 (items if obj["class"] == 0 else conts).append(object_to_polar(arm_constants=arm_constants, image_name=image_name, obj=obj))
 
         # Stitch together session images
-        stitching_process = mp.Process(target=self.stitch_images, args=(arm_id, session_id, "original", images_with_objects))
-        stitching_process.start()
+        stitching_process = None
+        if should_stitch:
+            stitching_process = mp.Process(target=self.stitch_images, args=(arm_id, session_id, "original", images_with_objects))
+            stitching_process.start()
 
         self.logger.info("Bounding boxes retrieved from database.", dict(bm_id=10, **log_args))
 
@@ -333,7 +338,8 @@ class Main:
             cv2.imwrite(stitched_path, stitched_img)
 
             # Upload stitched image to s3
-            self.s3.upload_file(self.bucket_name, stitched_path, f'{arm_id}/{session_id}/{stitch_type}_stitch.jpg')
+            if os.getenv("DISABLE_S3"):
+                self.s3.upload_file(self.bucket_name, stitched_path, f'{arm_id}/{session_id}/{stitch_type}_stitch.jpg')
 
             self.logger.info("Stitched image uploaded to s3.", dict(log_type=stitch_type, bm_id=14, **log_args))
 
