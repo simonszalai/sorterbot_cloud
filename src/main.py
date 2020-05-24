@@ -218,20 +218,21 @@ class Main:
         items = []
         conts = []
         images_with_objects = []
+        unique_images = sorted(unique_images, key=lambda img: int(img.split(".")[0]))
+        print("unique_images", unique_images)
         for image_name in unique_images:
             # Retrieve bounding boxes from postgres
             objects_of_image = self.postgres.get_objects_of_image(schema_name=arm_id, table_name=session_id, image_name=image_name)
 
             # Build list to stitch together images later
             images_with_objects.append({'image_name': image_name, "objects": objects_of_image})
-
+            objects_of_image = sorted(objects_of_image, key=lambda obj: obj["id"])
+            print("objects_of_image", objects_of_image)
             for obj in objects_of_image:
                 # Transform coordinates to absolute polar coords
                 (items if obj["class"] == 0 else conts).append(object_to_polar(arm_constants=arm_constants, image_name=image_name, obj=obj))
 
         print("items", items)
-        print("conts", conts)
-        print("images_with_objects", images_with_objects)
         # Stitch together session images
         stitching_process = None
         if should_stitch:
@@ -241,11 +242,9 @@ class Main:
         self.logger.info("Bounding boxes retrieved from database.", dict(bm_id=10, **log_args))
 
         # Filter out duplicates which are the same objects showing up on different images
-        filtered_items = filter_duplicates(sorted(items, key=lambda item: item["obj_id"]))
-        filtered_conts = filter_duplicates(sorted(conts, key=lambda cont: cont["obj_id"]))
+        filtered_items = filter_duplicates(items)
+        filtered_conts = filter_duplicates(conts)
         self.logger.info(f"Duplicate items filtered out.", log_args)
-        print("filtered_items", filtered_items)
-        print("filtered_conts", filtered_conts)
 
         # Handle case where there are more containers than objects
         if len(filtered_conts) > len(filtered_items):
