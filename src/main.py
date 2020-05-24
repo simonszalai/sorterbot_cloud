@@ -51,7 +51,7 @@ class Main:
 
         self.base_img_path = base_img_path
 
-        if os.getenv("DISABLE_S3"):
+        if os.getenv("DISABLE_AWS"):
             self.s3 = S3(base_img_path=self.base_img_path, logger_instance=self.logger)
             self.bucket_name = "sorterbot"
 
@@ -169,7 +169,7 @@ class Main:
             self.logger.info(f"Image written to disk.", dict(bm_id=5, **log_args))
 
             # Upload image to s3
-            if os.getenv("DISABLE_S3"):
+            if os.getenv("DISABLE_AWS"):
                 self.s3.upload_file(self.bucket_name, img_path.as_posix(), s3_path)
                 self.logger.info(f"Image uploaded to s3.", dict(bm_id=6, **log_args))
 
@@ -351,7 +351,7 @@ class Main:
             cv2.imwrite(stitched_path, stitched_img)
 
             # Upload stitched image to s3
-            if os.getenv("DISABLE_S3"):
+            if os.getenv("DISABLE_AWS"):
                 self.s3.upload_file(self.bucket_name, stitched_path, f'{arm_id}/{session_id}/{stitch_type}_stitch.jpg')
 
             self.logger.info("Stitched image uploaded to s3.", dict(log_type=stitch_type, bm_id=14, **log_args))
