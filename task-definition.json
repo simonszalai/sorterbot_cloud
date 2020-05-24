@@ -29,7 +29,8 @@
       "mountPoints": [],
       "volumesFrom": [],
       "essential": true,
-      "links": []
+      "links": [],
+      "name": "sorterbot-cloud-container"
     }
   ],
   "placementConstraints": [],
