@@ -60,6 +60,6 @@ expected_unique_images = ['sample_image_2.jpg', 'sample_image_3.jpg', 'sample_im
 
 expected_objects_of_image_1 = [{'id': 1, 'class': 0, 'img_dims': (640, 480), 'bbox_dims': {'x1': 1256, 'y1': 854, 'x2': 741, 'y2': 125}}]  # noqa: E501
 
-expected_main_results = [{'image_id': 1250, 'obj_id': 25, 'cluster': 0}, {'image_id': 1450, 'obj_id': 36, 'cluster': 1}, {'image_id': 1450, 'obj_id': 37, 'cluster': 0}, {'image_id': 1450, 'obj_id': 38, 'cluster': 0}, {'image_id': 1450, 'obj_id': 39, 'cluster': 0}, {'image_id': 1750, 'obj_id': 12, 'cluster': 0}, {'image_id': 1750, 'obj_id': 15, 'cluster': 0}]  # noqa: E501
+expected_main_results = [{'image_id': 1000, 'obj_id': 60, 'cluster': 1}, {'image_id': 1050, 'obj_id': 70, 'cluster': 1}, {'image_id': 1100, 'obj_id': 42, 'cluster': 0}, {'image_id': 1250, 'obj_id': 75, 'cluster': 0}, {'image_id': 1300, 'obj_id': 87, 'cluster': 0}, {'image_id': 1450, 'obj_id': 10, 'cluster': 0}, {'image_id': 1600, 'obj_id': 34, 'cluster': 0}]  # noqa: E501
 
 expected_stitched_md5 = "30683891f6ec175a822c584a60c16b62"
