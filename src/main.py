@@ -184,6 +184,15 @@ class Main:
         images in the current session, retrieves all the objects that belong to each image and runs the vectorizer
         on them.
 
+        Parameters
+        ----------
+        arm_contants : dict
+            Constants specific to the arm, defined in the arm's config file.
+        session_id : str
+            Unique identifier of the session.
+        should_stitch : bool
+            Boolean value that enables or disables stitching a panorama image.
+
         Returns
         -------
         pairings : list

@@ -23,6 +23,8 @@ class TestMain:
         shutil.copytree(cls.test_images_path, cls.tmp_path.joinpath("original"))
 
         cls.main = Main(base_img_path=cls.base_img_path)
+
+        # Disable sending logs over HTTP for testing
         cls.main.logger.handlers = []
 
     def test_process_image(self):
@@ -41,9 +43,11 @@ class TestMain:
             "rotation_range_as_pw": 1400
         }
 
-        # Assert pairings
+        # Create pairings
         commands, pairings, stitching_process = self.main.vectorize_session_images(arm_constants=arm_constants, session_id=self.session_id, should_stitch=False)
         # stitching_process.join()
+        print(commands)
+        print(pairings)
 
         def get_clusters(items):
             cluster_1 = []
@@ -59,10 +63,13 @@ class TestMain:
 
         pairings_1, pairings_2 = get_clusters(pairings)
         expected_1, expected_2 = get_clusters(expected_main_results)
-
+        print(pairings_1)
+        print(pairings_2)
+        print(expected_1)
+        print(expected_2)
         # Order of clusters in the list is not consistent (as returned by K-Means algorithm) so both cases below should pass test
         # (The same elements are consistently in the same cluster, but sometimes cluster 0 is the previous run's cluster 1)
-        assert (pairings_1 == expected_1 and pairings_2 == expected_2) or (pairings_2 == expected_1 and pairings_1 == expected_2)
+        assert False # (pairings_1 == expected_1 and pairings_2 == expected_2) or (pairings_2 == expected_1 and pairings_1 == expected_2)
 
         # Assert stitched image TEMP: fails because of segmentation fault
         # stitched_path = Path(self.base_img_path).joinpath(self.session_id, "bboxes_original", "original_stitch.jpg").as_posix()
