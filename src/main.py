@@ -229,6 +229,9 @@ class Main:
                 # Transform coordinates to absolute polar coords
                 (items if obj["class"] == 0 else conts).append(object_to_polar(arm_constants=arm_constants, image_name=image_name, obj=obj))
 
+        print("items", items)
+        print("conts", conts)
+        print("images_with_objects", images_with_objects)
         # Stitch together session images
         stitching_process = None
         if should_stitch:
@@ -241,6 +244,8 @@ class Main:
         filtered_items = filter_duplicates(items)
         filtered_conts = filter_duplicates(conts)
         self.logger.info(f"Duplicate items filtered out.", log_args)
+        print("filtered_items", filtered_items)
+        print("filtered_conts", filtered_conts)
 
         # Handle case where there are more containers than objects
         if len(filtered_conts) > len(filtered_items):
