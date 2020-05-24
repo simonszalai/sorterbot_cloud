@@ -93,6 +93,6 @@ jobs:
       uses: aws-actions/amazon-ecs-deploy-task-definition@v1
       with:
         task-definition: ${{ steps.task-def.outputs.task-definition }}
-        service: SorterBotService
-        cluster: SorterBotCluster
+        service: sorterbot-ecs-service
+        cluster: sorterbot-ecs-cluster
         wait-for-service-stability: true
