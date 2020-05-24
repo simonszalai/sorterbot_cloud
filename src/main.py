@@ -241,8 +241,8 @@ class Main:
         self.logger.info("Bounding boxes retrieved from database.", dict(bm_id=10, **log_args))
 
         # Filter out duplicates which are the same objects showing up on different images
-        filtered_items = filter_duplicates(items)
-        filtered_conts = filter_duplicates(conts)
+        filtered_items = filter_duplicates(sorted(items, key=lambda item: item["obj_id"]))
+        filtered_conts = filter_duplicates(sorted(conts, key=lambda cont: cont["obj_id"]))
         self.logger.info(f"Duplicate items filtered out.", log_args)
         print("filtered_items", filtered_items)
         print("filtered_conts", filtered_conts)
