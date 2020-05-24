@@ -48,7 +48,7 @@ jobs:
       run: |
         pip install pytest pytest-cov
         export PYTHONPATH=$PYTHONPATH:$(pwd)/src
-        pytest tests -v --cov=vectorizer.vectorizer --cov=vectorizer.preprocessor --cov=locator.detectron
+        pytest tests -vvv --cov=vectorizer.vectorizer --cov=vectorizer.preprocessor --cov=locator.detectron
 
   deploy:
     name: Deploy
