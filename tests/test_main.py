@@ -69,7 +69,7 @@ class TestMain:
         print(expected_2)
         # Order of clusters in the list is not consistent (as returned by K-Means algorithm) so both cases below should pass test
         # (The same elements are consistently in the same cluster, but sometimes cluster 0 is the previous run's cluster 1)
-        assert False # (pairings_1 == expected_1 and pairings_2 == expected_2) or (pairings_2 == expected_1 and pairings_1 == expected_2)
+        assert (pairings_1 == expected_1 and pairings_2 == expected_2) or (pairings_2 == expected_1 and pairings_1 == expected_2)
 
         # Assert stitched image TEMP: fails because of segmentation fault
         # stitched_path = Path(self.base_img_path).joinpath(self.session_id, "bboxes_original", "original_stitch.jpg").as_posix()
