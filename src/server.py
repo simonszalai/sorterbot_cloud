@@ -14,7 +14,7 @@ from utils.logger import logger
 class WebSockets:
     def __init__(self):
         self.loop = asyncio.get_event_loop()
-        self.main = Main(base_img_path=Path(__file__).parent.parent.joinpath("images"))
+        self.main = Main(base_img_path=Path(__file__).resolve().parents[1].joinpath("images"))
         self.img_meta = {}
         self.port = 6000
 
@@ -29,12 +29,11 @@ class WebSockets:
 
     async def listen(self, websocket, path):
         async for message in websocket:
-            split_msg = message.split(b"___")
-
-            if len(split_msg) > 1:
+            if isinstance(message, bytes):
+                print("img_bytes", len(message))
+                split_msg = message.split(b"___SPLIT___")
                 headers = json.loads(split_msg[0])
                 content = split_msg[1]
-
                 # Handle case when message contains bytes asspended to JSON headers
                 if headers["command"] == "recv_img_proc":
                     # Detect objects on image and save bounding boxes to the database
@@ -55,7 +54,8 @@ class WebSockets:
 
             else:
                 # Handle case with only JSON data
-                message = json.loads(split_msg[0])
+                message = json.loads(message)
+
                 if message["command"] == "get_commands_of_session":
                     # Process session images to get commands
                     commands, _, stitching_process = self.main.vectorize_session_images(message["arm_constants"], message["session_id"])
@@ -66,20 +66,37 @@ class WebSockets:
                     # Join to process used for stitching here to avoid unneccesary waiting
                     # stitching_process.join()
                 elif message["command"] == "stitch_after_image":
-                    img_disk_path = Path(self.main.base_img_path).joinpath(message["session_id"], "after")
-                    after_images = []
-                    for path, subdirs, files in os.walk(img_disk_path):
-                        for name in files:
-                            if fnmatch(name, "after_*.jpg"):
-                                after_images.append(name)
+                    try:
+                        img_disk_path = Path(self.main.base_img_path).joinpath(message["session_id"], "after")
+                        after_images = []
+                        for path, subdirs, files in os.walk(img_disk_path):
+                            for name in files:
+                                if fnmatch(name, "*.jpg"):
+                                    after_images.append(name)
 
-                    stitching_process = mp.Process(target=self.main.stitch_images, args=(message["arm_id"], message["session_id"], "after", after_images))
-                    stitching_process.start()
-                    stitching_process.join()
-                    # self.main.stitch_images(message["arm_id"], message["session_id"], "after", after_images)
+                        # stitching_process = mp.Process(target=self.main.stitch_images, args=(message["arm_id"], message["session_id"], "after", after_images))
+                        # stitching_process.start()
+                        # stitching_process.join()
+                        self.main.stitch_images(message["arm_id"], message["session_id"], "after", after_images)
+                    except Exception as e:
+                        print("stitch_after_image", e)
                 else:
                     print("A message arrived with a payload that was not JSON parsable and there was no handler for it.")
 
 
 if __name__ == "__main__":
     WebSockets()
+
+    # main = Main(base_img_path=Path(__file__).resolve().parents[1].joinpath("images"))
+    # # img_disk_path = "/Users/simon/dev/sorterbot_cloud/images/S91/after"
+    # img_disk_path = Path(main.base_img_path).joinpath("S92", "after")
+    # after_images = []
+    # for path, subdirs, files in os.walk(img_disk_path):
+    #     for name in files:
+    #         if fnmatch(name, "*.jpg"):
+    #             after_images.append(name)
+
+    # # stitching_process = mp.Process(target=main.stitch_images, args=("ARM001", "S91", "after", after_images))
+    # # stitching_process.start()
+    # # stitching_process.join()
+    # main.stitch_images("ARM001", "S91", "after", after_images)
