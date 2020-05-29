@@ -13,7 +13,7 @@ import multiprocessing as mp
 from yaml import load, Loader, YAMLError
 from pathlib import Path
 from dotenv import load_dotenv
-# import torchvision.transforms as transforms
+import torchvision.transforms as transforms
 
 from locator.detectron import Detectron
 from vectorizer.vectorizer import Vectorizer
@@ -51,7 +51,7 @@ class Main:
 
         self.base_img_path = base_img_path
 
-        if os.getenv("DISABLE_AWS"):
+        if os.getenv("MODE") != "local":
             self.s3 = S3(base_img_path=self.base_img_path, logger_instance=self.logger)
             self.bucket_name = "sorterbot"
 
@@ -169,7 +169,7 @@ class Main:
             self.logger.info(f"Image written to disk.", dict(bm_id=5, **log_args))
 
             # Upload image to s3
-            if os.getenv("DISABLE_AWS"):
+            if os.getenv("MODE") != "local":
                 self.s3.upload_file(self.bucket_name, img_path.as_posix(), s3_path)
                 self.logger.info(f"Image uploaded to s3.", dict(bm_id=6, **log_args))
 
@@ -219,7 +219,7 @@ class Main:
         conts = []
         images_with_objects = []
         unique_images = sorted(unique_images, key=lambda img: int(img.split(".")[0]))
-        print("unique_images", unique_images)
+
         for image_name in unique_images:
             # Retrieve bounding boxes from postgres
             objects_of_image = self.postgres.get_objects_of_image(schema_name=arm_id, table_name=session_id, image_name=image_name)
@@ -227,17 +227,21 @@ class Main:
             # Build list to stitch together images later
             images_with_objects.append({'image_name': image_name, "objects": objects_of_image})
             objects_of_image = sorted(objects_of_image, key=lambda obj: obj["id"])
-            print("objects_of_image", objects_of_image)
+
             for obj in objects_of_image:
                 # Transform coordinates to absolute polar coords
                 (items if obj["class"] == 0 else conts).append(object_to_polar(arm_constants=arm_constants, image_name=image_name, obj=obj))
 
-        print("items", items)
         # Stitch together session images
         stitching_process = None
+
         if should_stitch:
-            stitching_process = mp.Process(target=self.stitch_images, args=(arm_id, session_id, "original", images_with_objects))
-            stitching_process.start()
+            try:
+                self.stitch_images(arm_id, session_id, "original", images_with_objects)
+            except Exception as e:
+                print("stitch error", e)
+            # stitching_process = mp.Process(target=self.stitch_images, args=(arm_id, session_id, "original", images_with_objects))
+            # stitching_process.start()
 
         self.logger.info("Bounding boxes retrieved from database.", dict(bm_id=10, **log_args))
 
@@ -314,8 +318,12 @@ class Main:
         # Open images, draw bounding boxes then save them to a new directory
         for image in images_with_objects:
             # Open image for drawing and normalize it
-            img_path = os.path.join(self.base_img_path, session_id, stitch_type, image["image_name"])
-            img = cv2.imread(img_path)
+            if stitch_type == "original":
+                image_name = image["image_name"]
+            else:
+                image_name = image
+            img_path = Path(self.base_img_path).joinpath(session_id, stitch_type, image_name)
+            img = cv2.imread(img_path.as_posix())
             # cv2.normalize(img, img, 0, 255, cv2.NORM_MINMAX)
 
             # img = (img - img.mean(axis=(0, 1, 2), keepdims=True)) / img.std(axis=(0, 1, 2), keepdims=True)
@@ -324,24 +332,41 @@ class Main:
             # to_tensor = transforms.ToTensor()
             # img = normalize(to_tensor(img)).numpy()
 
-            for obj in image["objects"]:
-                # Draw bounding boxes on image
-                cv2.rectangle(img, (obj["bbox_dims"]["x1"], obj["bbox_dims"]["y1"]), (obj["bbox_dims"]["x2"], obj["bbox_dims"]["y2"]), (255, 0, 0), 2)
+            if stitch_type == "original":
+                for obj in image["objects"]:
+                    # Draw bounding boxes on image
+                    cv2.rectangle(img, (obj["bbox_dims"]["x1"], obj["bbox_dims"]["y1"]), (obj["bbox_dims"]["x2"], obj["bbox_dims"]["y2"]), (255, 0, 0), 2)
 
-            # Save image with drawn bounding boxes
-            cv2.imwrite(Path(self.base_img_path).joinpath(session_id, f"bboxes_{stitch_type}", image["image_name"]).as_posix(), img)
+            # Save image (with drawn bounding boxes in case of original stitch type)
+            cv2.imwrite(Path(self.base_img_path).joinpath(session_id, f"bboxes_{stitch_type}", image_name).as_posix(), img)
 
-        self.logger.info("Bounding boxes drawn and new images saved.", dict(bm_id=12, **log_args))
+        if stitch_type == "original":
+            self.logger.info("Bounding boxes drawn and new images saved.", dict(bm_id=12, **log_args))
+        else:
+            self.logger.info("New images saved.", dict(bm_id=12, **log_args))
+
+        image_paths_with_bb = sorted(list(paths.list_images(Path(self.base_img_path).joinpath(session_id, f"bboxes_{stitch_type}"))))
+        basenames_with_bb = [Path(image_path).name for image_path in image_paths_with_bb]
+
+        original_images = sorted(list(paths.list_images(Path(self.base_img_path).joinpath(session_id, "original"))))
+
+        all_paths = []
+        for orig_image in original_images:
+            if Path(orig_image).name in basenames_with_bb:
+                image_with_bb = next((path_with_bb for path_with_bb in image_paths_with_bb if Path(orig_image).name == Path(path_with_bb).name))
+                all_paths.append(image_with_bb)
+            else:
+                all_paths.append(orig_image)
 
         # Open images for stitching
-        image_paths_with_bb = sorted(list(paths.list_images(Path(self.base_img_path).joinpath(session_id, f"bboxes_{stitch_type}"))))
         images_with_bb = []
-        for image_path_with_bb in image_paths_with_bb:
+        for image_path_with_bb in all_paths:
             image_with_bb = cv2.imread(image_path_with_bb)
             images_with_bb.append(image_with_bb)
 
         # Stitch together images with bounding boxes
         stitcher = cv2.Stitcher_create(mode=1)
+
         (stitch_status, stitched_img) = stitcher.stitch(images_with_bb)
 
         if stitch_status == 0:
@@ -349,12 +374,20 @@ class Main:
             self.logger.info("Image stitching successful.", dict(bm_id=13, **log_args))
             stitched_path = Path(self.base_img_path).joinpath(session_id, f"bboxes_{stitch_type}", f"{stitch_type}_stitch.jpg").as_posix()
             cv2.imwrite(stitched_path, stitched_img)
+            log_args["log_type"] = "before" if stitch_type == "original" else "after"
+            self.logger.info("Stitched image saved to disk.", dict(bm_id=14, **log_args))
 
             # Upload stitched image to s3
-            if os.getenv("DISABLE_AWS"):
-                self.s3.upload_file(self.bucket_name, stitched_path, f'{arm_id}/{session_id}/{stitch_type}_stitch.jpg')
+            if os.getenv("MODE") != "local":
+                # Make uploaded stitch public only in development mode, so the yarn app can access it and display it on the UI
+                # (In production, the EC2 instance that runs the Control Panel has appropriate permission to retrieve it)
+                if os.getenv("MODE") == "development":
+                    extra_args = {'ACL': 'public-read'}
+                else:
+                    extra_args = {}
 
-            self.logger.info("Stitched image uploaded to s3.", dict(log_type=stitch_type, bm_id=14, **log_args))
+                self.s3.upload_file(self.bucket_name, stitched_path, f'{arm_id}/{session_id}/{stitch_type}_stitch.jpg', ExtraArgs=extra_args)
+                self.logger.info("Stitched image uploaded to s3.", dict(bm_id=15, **log_args))
 
         else:
             self.logger.error("Image stitching failed!", log_args)
