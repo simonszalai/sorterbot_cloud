@@ -25,8 +25,8 @@ class S3:
     """
 
     def __init__(self, base_img_path, logger_instance):
-        # session = boto3.Session()  # profile_name="sorterbotcloud"
         self.s3 = boto3.resource("s3")
+        self.ssm = boto3.client("ssm")
         self.base_img_path = base_img_path
         self.logger = logger_instance
 
@@ -51,6 +51,8 @@ class S3:
 
         """
 
+        sorterbot_bucket_name = self.ssm.get_parameter(Name="SORTERBOT_BUCKET_NAME")["Parameter"]["Value"]
+
         log_args = {"arm_id": arm_id, "session_id": session_id, "log_type": Path(image_name).stem}
 
         # Construct absolute path for current image
@@ -60,7 +62,7 @@ class S3:
         os.makedirs(os.path.dirname(img_path), exist_ok=True)
 
         if not os.path.isfile(img_path):
-            self.s3.Bucket("sorterbot").download_file(f"{arm_id}/{session_id}/{image_name}", img_path)
+            self.s3.Bucket(sorterbot_bucket_name).download_file(f"{arm_id}/{session_id}/{image_name}", img_path)
             self.logger.info(f"Original image '{image_name}' is successfully downloaded!", log_args)
         else:
             try:
@@ -70,7 +72,7 @@ class S3:
                 self.logger.info(f"Original image '{image_name}' already exists on disk and it is valid, skipping download.", log_args)
             except Exception:
                 self.logger.warning(f"Original image '{image_name}' already exists on disk, but it is corrupted, downloading again from s3...", log_args)
-                self.s3.Bucket("sorterbot").download_file(f"{arm_id}/{session_id}/{image_name}", img_path)
+                self.s3.Bucket(sorterbot_bucket_name).download_file(f"{arm_id}/{session_id}/{image_name}", img_path)
 
         return img_path
 

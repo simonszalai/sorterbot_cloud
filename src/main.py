@@ -5,6 +5,7 @@ Main module responsible for orchestrating image processing.
 
 import os
 import cv2
+import boto3
 import traceback
 import numpy as np
 import concurrent.futures
@@ -53,7 +54,8 @@ class Main:
 
         if os.getenv("MODE") != "local":
             self.s3 = S3(base_img_path=self.base_img_path, logger_instance=self.logger)
-            self.bucket_name = "sorterbot"
+            self.ssm = boto3.client("ssm")
+            self.bucket_name = self.ssm.get_parameter(Name="SORTERBOT_BUCKET_NAME")["Parameter"]["Value"]
 
         self.postgres = Postgres()
         self.detectron = Detectron(
@@ -379,14 +381,7 @@ class Main:
 
             # Upload stitched image to s3
             if os.getenv("MODE") != "local":
-                # Make uploaded stitch public only in development mode, so the yarn app can access it and display it on the UI
-                # (In production, the EC2 instance that runs the Control Panel has appropriate permission to retrieve it)
-                if os.getenv("MODE") == "development":
-                    extra_args = {'ACL': 'public-read'}
-                else:
-                    extra_args = {}
-
-                self.s3.upload_file(self.bucket_name, stitched_path, f'{arm_id}/{session_id}/{stitch_type}_stitch.jpg', ExtraArgs=extra_args)
+                self.s3.upload_file(self.bucket_name, stitched_path, f'{arm_id}/{session_id}/{stitch_type}_stitch.jpg')
                 self.logger.info("Stitched image uploaded to s3.", dict(bm_id=15, **log_args))
 
         else:

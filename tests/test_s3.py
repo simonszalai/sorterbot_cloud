@@ -1,4 +1,5 @@
 import os
+import boto3
 import pytest
 import shutil
 from PIL import Image
@@ -11,7 +12,8 @@ from utils.logger import logger
 class TestS3:
     @classmethod
     def setup_class(cls):
-        cls.bucket_name = "sorterbot"
+        cls.ssm = boto3.client("ssm")
+        cls.bucket_name = cls.ssm.get_parameter(Name="SORTERBOT_BUCKET_NAME")["Parameter"]["Value"]
         cls.arm_id = "TEST_ARM"
         cls.session_id = "test_session_s3"
 
