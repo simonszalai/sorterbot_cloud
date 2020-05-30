@@ -48,11 +48,20 @@ Cloud service for the SorterBot project, which contains the neural networks and 
     ```
     You need to set `--shm-size` to a relatively big value, like 8G to avoid the Docker image running out of memory.
 
+    #### *local* mode
+
     For development, it is useful to specify a volume, so you don't have to rebuild your docker container to pick up changes. You can do that by the `-v` flag, as seen in the example below.
 
     Full example:
     ```
     docker run -p 6000:6000 -v ${PWD}:/sorterbot_cloud --env-file .env --shm-size 8G sorterbot_cloud:latest
+    ```
+
+    #### *aws-dev* mode
+  
+    If you are running the container in *aws-dev* mode, you need to make available your `.aws` folder within the container. To do that, specify another volume: `-v ~/.aws:/root/.aws`. That makes the full example the following:
+    ```
+    docker run -p 6000:6000 -v ${PWD}:/sorterbot_cloud -v ~/.aws:/root/.aws --env-file .env --shm-size 8G sorterbot_cloud:latest
     ```
 
 ### Deploy to AWS
