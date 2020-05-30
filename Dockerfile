@@ -15,19 +15,22 @@ RUN pip3 install detectron2==0.1 -f https://dl.fbaipublicfiles.com/detectron2/wh
 RUN curl https://download.pytorch.org/models/resnet18-5c106cde.pth --output /root/.cache/torch/checkpoints/resnet18-5c106cde.pth --create-dirs
 
 ARG AWS_PROFILE=default
-ARG aws_region=eu-central-1
 ARG WEIGHTS_URL
 ENV CUSTOM_WEIGHTS=$WEIGHTS_URL
 ENV MODE=local
 
-# Install AWS CLI
-RUN curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-RUN unzip awscliv2.zip
-RUN ./aws/install
-RUN aws configure set region $aws_region
-
 # Download custom trained weights for Detectron from s3
-RUN if [ "$WEIGHTS_URL" != "" ] ; then --mount=type=secret,id=aws_credentials,dst=/root/.aws/credentials --profile ${AWS_PROFILE} --mount=type=secret,id=aws_config,dst=/root/.aws/config aws s3 cp ${WEIGHTS_URL} /sorterbot_cloud/weights/model_final.pth ; fi ;
+RUN if [ "$WEIGHTS_URL" != "" ] ; then \
+  # Install AWS CLI
+  curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip" \
+  unzip awscliv2.zip \
+  ./aws/install \
+  # Download weights from S3
+  --profile ${AWS_PROFILE} \
+  --mount=type=secret,id=aws_credentials,dst=/root/.aws/credentials \
+  --mount=type=secret,id=aws_config,dst=/root/.aws/config \
+  aws s3 cp ${WEIGHTS_URL} /sorterbot_cloud/weights/model_final.pth ; \
+fi ;
 
 # Copy source code
 COPY ./src /sorterbot_cloud/src
@@ -37,4 +40,4 @@ COPY ./config.yaml /sorterbot_cloud/config.yaml
 WORKDIR /sorterbot_cloud
 ENV PYTHONUNBUFFERED 1
 
-CMD ["python3", "/sorterbot_cloud/src/api.py"]
+CMD ["python3", "/sorterbot_cloud/src/server.py"]
