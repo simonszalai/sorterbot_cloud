@@ -13,7 +13,7 @@ class TestS3:
     @classmethod
     def setup_class(cls):
         cls.ssm = boto3.client("ssm")
-        cls.bucket_name = cls.ssm.get_parameter(Name="SORTERBOT_BUCKET_NAME")["Parameter"]["Value"]
+        cls.bucket_name = f'sorterbot-{cls.ssm.get_parameter(Name="RESOURCE_SUFFIX")["Parameter"]["Value"]}'
         cls.arm_id = "TEST_ARM"
         cls.session_id = "test_session_s3"
 

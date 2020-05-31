@@ -4,6 +4,7 @@ Utility class to provide methods to interact with the PostgreSQL database.
 """
 
 import os
+import boto3
 import psycopg2
 import traceback
 import functools
@@ -44,7 +45,11 @@ class Postgres:
     def __init__(self):
         try:
             # Create connection pool
-            self.postgres_pool = pool.SimpleConnectionPool(1, 100, f"{os.getenv('PG_CONN')}")
+            PG_CONN = os.getenv('PG_CONN') if os.getenv("MODE") == "local" else boto3.client("ssm").get_parameter(
+                Name="PG_CONN",
+                WithDecryption=True
+            )["Parameter"]["Value"]
+            self.postgres_pool = pool.SimpleConnectionPool(1, 100, PG_CONN)
 
         except psycopg2.Error as error:
             traceback.print_exc()

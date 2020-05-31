@@ -19,6 +19,9 @@ class TestMain:
         cls.test_images_path = Path(__file__).parent.joinpath("test_images", "test_main")
         cls.tmp_path = cls.base_img_path.joinpath(cls.session_id)
 
+        # Clean up local files that might cause conflict
+        shutil.rmtree(cls.tmp_path)
+
         # Copy test images to temporary session directory to be processed
         shutil.copytree(cls.test_images_path, cls.tmp_path.joinpath("original"))
 
