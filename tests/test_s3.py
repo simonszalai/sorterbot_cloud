@@ -12,7 +12,7 @@ from utils.logger import logger
 class TestS3:
     @classmethod
     def setup_class(cls):
-        session = boto3.Session(region_name=os.getenv("DEPLOY_REGION"))
+        session = boto3.Session(region_name="eu-central-1")
         cls.ssm = session.client('ssm')
         cls.bucket_name = f'sorterbot-{cls.ssm.get_parameter(Name="RESOURCE_SUFFIX")["Parameter"]["Value"]}'
         cls.arm_id = "TEST_ARM"
