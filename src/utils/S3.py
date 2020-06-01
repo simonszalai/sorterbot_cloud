@@ -25,8 +25,9 @@ class S3:
     """
 
     def __init__(self, base_img_path, logger_instance):
+        session = boto3.Session(region_name=os.getenv("DEPLOY_REGION"))
+        self.ssm = session.client('ssm')
         self.s3 = boto3.resource("s3")
-        self.ssm = boto3.client("ssm")
         self.base_img_path = base_img_path
         self.logger = logger_instance
 

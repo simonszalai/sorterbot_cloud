@@ -15,9 +15,12 @@ RUN pip3 install detectron2==0.1 -f https://dl.fbaipublicfiles.com/detectron2/wh
 RUN curl https://download.pytorch.org/models/resnet18-5c106cde.pth --output /root/.cache/torch/checkpoints/resnet18-5c106cde.pth --create-dirs
 
 ARG AWS_PROFILE=default
-ARG WEIGHTS_URL
-ENV CUSTOM_WEIGHTS=$WEIGHTS_URL
-ENV MODE=local
+ARG WEIGHTS_URL_ARG
+ARG DEPLOY_REGION_ARG
+
+ENV MODE=$MODE_ARG
+ENV DEPLOY_REGION=$DEPLOY_REGION_ARG
+ENV WEIGHTS_URL=$WEIGHTS_URL_ARG
 
 # Download custom trained weights for Detectron from s3
 RUN if [ "$WEIGHTS_URL" != "" ] ; then \

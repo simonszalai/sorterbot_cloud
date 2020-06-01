@@ -53,8 +53,9 @@ class Main:
         self.base_img_path = base_img_path
 
         if os.getenv("MODE") != "local":
+            session = boto3.Session(region_name=os.getenv("DEPLOY_REGION"))
+            self.ssm = session.client('ssm')
             self.s3 = S3(base_img_path=self.base_img_path, logger_instance=self.logger)
-            self.ssm = boto3.client("ssm")
             self.bucket_name = f'sorterbot-{self.ssm.get_parameter(Name="RESOURCE_SUFFIX")["Parameter"]["Value"]}'
 
         self.postgres = Postgres()

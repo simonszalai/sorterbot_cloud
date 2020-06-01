@@ -47,7 +47,7 @@ class Detectron:
 
         # Get pretrained weights
         self.cfg.MODEL.WEIGHTS = Path(__file__).parent.parent.parent.joinpath(
-            "weights", "model_final.pth" if os.getenv("CUSTOM_WEIGHTS") else "model_sample.pth"
+            "weights", "model_final.pth" if os.getenv("WEIGHTS_URL") else "model_sample.pth"
         ).resolve().as_posix()
 
         # Create predictor
