@@ -1,3 +1,4 @@
+import os
 import cv2
 import shutil
 import hashlib
@@ -15,12 +16,12 @@ class TestMain:
         cls.arm_id = "TEST_ARM"
         cls.schema_name = "test_main_schema"
         cls.session_id = "test_main_session"
-        cls.base_img_path = Path(__file__).parent.parent.joinpath("images")
+        cls.base_img_path = Path(__file__).parents[1].joinpath("images")
         cls.test_images_path = Path(__file__).parent.joinpath("test_images", "test_main")
         cls.tmp_path = cls.base_img_path.joinpath(cls.session_id)
 
         # Clean up local files that might cause conflict
-        shutil.rmtree(cls.tmp_path)
+        shutil.rmtree(cls.tmp_path, ignore_errors=True)
 
         # Copy test images to temporary session directory to be processed
         shutil.copytree(cls.test_images_path, cls.tmp_path.joinpath("original"))
