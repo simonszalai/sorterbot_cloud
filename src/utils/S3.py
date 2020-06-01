@@ -25,6 +25,7 @@ class S3:
     """
 
     def __init__(self, base_img_path, logger_instance):
+        print("REGIONNNNNN", os.getenv("DEPLOY_REGION"))
         session = boto3.Session(region_name=os.getenv("DEPLOY_REGION"))
         self.ssm = session.client('ssm')
         self.s3 = boto3.resource("s3")
