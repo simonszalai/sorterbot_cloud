@@ -45,7 +45,8 @@ class Postgres:
     def __init__(self):
         try:
             # Create connection pool
-            PG_CONN = os.getenv('PG_CONN') if os.getenv("MODE") == "local" else boto3.client("ssm").get_parameter(
+            session = boto3.Session(region_name=os.getenv("DEPLOY_REGION"))
+            PG_CONN = os.getenv('PG_CONN') if os.getenv("MODE") == "local" else session.client("ssm").get_parameter(
                 Name="PG_CONN",
                 WithDecryption=True
             )["Parameter"]["Value"]
