@@ -1,5 +1,5 @@
 {
-  "executionRoleArn": "sorterbotCloudRole",
+  "executionRoleArn": "SorterBotCloudRole",
   "containerDefinitions": [
     {
       "entryPoint": [],
@@ -35,7 +35,7 @@
   ],
   "placementConstraints": [],
   "memory": "4096",
-  "taskRoleArn": "sorterbotCloudRole",
+  "taskRoleArn": "SorterBotCloudRole",
   "family": "SorterBotTask",
   "requiresCompatibilities": [
     "FARGATE"
