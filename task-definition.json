@@ -23,12 +23,12 @@
       "cpu": 0,
       "secrets": [
         {
-          "name": "AMAZON_ACCESS_KEY_ID",
-          "valueFrom": "AMAZON_ACCESS_KEY_ID"
+          "name": "AMS_ACCESS_KEY_ID",
+          "valueFrom": "AWS_ACCESS_KEY_ID"
         },
         {
-          "name": "AMAZON_SECRET_ACCESS_KEY",
-          "valueFrom": "AMAZON_SECRET_ACCESS_KEY"
+          "name": "AWS_SECRET_ACCESS_KEY",
+          "valueFrom": "AWS_SECRET_ACCESS_KEY"
         },
         {
           "name": "PG_CONN",
