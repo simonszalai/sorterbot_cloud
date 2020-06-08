@@ -1,4 +1,6 @@
 # SorterBot Cloud
+*Note: This repository is still work in progress!*
+
 Cloud service for the SorterBot project, which contains the neural networks and other compute-heavy tasks needed for image processing. It can be run locally as a Docker container, and can be easily deployed to AWS ECS by using the provided GitHub Action.
 
 ### Run SorterBot Cloud locally
