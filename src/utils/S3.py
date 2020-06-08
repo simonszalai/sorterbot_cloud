@@ -52,7 +52,7 @@ class S3:
 
         """
 
-        sorterbot_bucket_name = f'sorterbot-{self.ssm.get_parameter(Name="RESOURCE_SUFFIX")["Parameter"]["Value"]}'
+        sorterbot_bucket_name = f'sorterbot-{self.ssm.get_parameters(Names=["RESOURCE_SUFFIX"])["Parameters"][0]["Value"]}'
 
         log_args = {"arm_id": arm_id, "session_id": session_id, "log_type": Path(image_name).stem}
 

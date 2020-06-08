@@ -46,10 +46,10 @@ class Postgres:
         try:
             # Create connection pool
             session = boto3.Session(region_name=os.getenv("DEPLOY_REGION"))
-            PG_CONN = os.getenv('PG_CONN') if os.getenv("MODE") == "local" else session.client("ssm").get_parameter(
-                Name="PG_CONN",
+            PG_CONN = os.getenv('PG_CONN') if os.getenv("MODE") == "local" else session.client("ssm").get_parameters(
+                Names=["PG_CONN"],
                 WithDecryption=True
-            )["Parameter"]["Value"]
+            )["Parameters"][0]["Value"]
             self.postgres_pool = pool.SimpleConnectionPool(1, 100, PG_CONN)
 
         except psycopg2.Error as error:
