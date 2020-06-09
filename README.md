@@ -69,7 +69,7 @@ Inference engine for the SorterBot project, which contains the neural networks a
     ```
 
 ### Deploy to AWS
-You can deploy SorterBot Cloud to AWS as part of the SorterBot service. Please refer to the 'Production' section of the [README in the SorterBot Installer](https://github.com/simonszalai/sorterbot_installer#production) repository.
+You can deploy SorterBot Cloud to AWS as part of the SorterBot service. Please refer to the [Production section of the SorterBot Installer](https://github.com/simonszalai/sorterbot_installer#production) repository's README.
 
 ### Run Tests locally
 From root folder
