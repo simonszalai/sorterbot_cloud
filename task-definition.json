@@ -25,6 +25,10 @@
         {
           "name": "PG_CONN",
           "valueFrom": "PG_CONN"
+        },
+        {
+          "name": "DEPLOY_REGION",
+          "valueFrom": "DEPLOY_REGION"
         }
       ],
       "mountPoints": [],
