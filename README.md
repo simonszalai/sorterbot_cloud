@@ -20,7 +20,7 @@ The image vectors and the number of containers are used as the inputs of the K-M
 Lastly, based on the pairings computed above, commands are generated which are directly executable by the robotic arm.
 
 ![Alt SorterBot Cloud Vectorizer Diagram](./media/vectorizer_diagram.svg)
-*<p align="center">Figure 1: Diagram of the Vectorizer</p>*
+*<p align="center">Figure 2: Diagram of the Vectorizer</p>*
 
 ### Development Locally
 
