@@ -25,10 +25,6 @@
         {
           "name": "PG_CONN",
           "valueFrom": "PG_CONN"
-        },
-        {
-          "name": "RESOURCE_SUFFIX",
-          "valueFrom": "RESOURCE_SUFFIX"
         }
       ],
       "mountPoints": [],
