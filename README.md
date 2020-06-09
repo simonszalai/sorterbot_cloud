@@ -3,6 +3,8 @@
 
 Inference engine for the SorterBot project, which contains the neural networks and other compute-heavy tasks needed for image processing. It can be run locally as a Docker container, and can be easily deployed to AWS ECS by using the provided GitHub Action.
 
+![Alt SorterBot Cloud Diagram](./media/cloud_diagram.svg)
+
 ### Development Locally
 
 1. Build Docker Image
