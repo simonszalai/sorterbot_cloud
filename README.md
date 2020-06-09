@@ -8,7 +8,6 @@ Inference engine for the SorterBot project, which contains the neural networks a
 This part of the Inference engine is called once for every image taken by the camera. After the image is taken, it is sent directly to the Inference engine as raw bytes. The image then is used as the input of the [Detectron2](https://github.com/facebookresearch/detectron2) object recognition network, which outputs the coordinates of the recognized objects. Finally the coordinates are saved to the PostgreSQL database. After all the images in a session have been processed, a trigger is sent to activate the Vectorizer network, which is explained in the next paragraph.
 
 ![Alt SorterBot Cloud Objet Recognition Diagram](./media/object_recognition_diagram.svg)
-<p class="image-caption">caption</p>
 
 #### Part 2: Vectorizer
 After the above mentioned trigger is received, all the objects are loaded from the database that belong to the current session. First, the coordinates relative to the frames of their respective images are converted to absolute polar coordinates, relative to the robotic arm. Since one object often shows up on multiple images, duplicates needs to be filtered. Coordinates of objects that show up multiple times are replaced with the averages of the positions. 
