@@ -25,8 +25,8 @@ class S3:
     """
 
     def __init__(self, base_img_path, logger_instance):
-        # session = boto3.Session(region_name=os.getenv("DEPLOY_REGION"))
-        # self.ssm = session.client('ssm')
+        session = boto3.Session(region_name=os.getenv("DEPLOY_REGION"))
+        self.ssm = session.client('ssm')
         self.s3 = boto3.resource("s3")
         self.base_img_path = base_img_path
         self.logger = logger_instance
@@ -52,7 +52,7 @@ class S3:
 
         """
 
-        sorterbot_bucket_name = f'sorterbot-{os.getenv("RESOURCE_SUFFIX")}'
+        sorterbot_bucket_name = f'sorterbot-{self.ssm.get_parameters(Names=["RESOURCE_SUFFIX"])["Parameters"][0]["Value"]}'
 
         log_args = {"arm_id": arm_id, "session_id": session_id, "log_type": Path(image_name).stem}
 
