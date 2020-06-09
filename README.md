@@ -1,6 +1,8 @@
 # SorterBot Cloud
 *Note: This repository is still work in progress!*
 
+<iframe style="border: 1px solid rgba(0, 0, 0, 0.1);" width="800" height="450" src="https://www.figma.com/embed?embed_host=share&url=https%3A%2F%2Fwww.figma.com%2Ffile%2FOWlAFKX1pEIHMfKRnWXOpQ%2FSorterBot%3Fnode-id%3D0%253A1&chrome=DOCUMENTATION" allowfullscreen></iframe>
+
 Inference engine for the SorterBot project, which contains the neural networks and other compute-heavy tasks needed for image processing. It can be run locally as a Docker container, and can be easily deployed to AWS ECS by using the provided GitHub Action.
 
 ### Architecture
