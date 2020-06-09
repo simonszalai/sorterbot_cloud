@@ -1,8 +1,6 @@
 # SorterBot Cloud
 *Note: This repository is still work in progress!*
 
-<iframe style="border: 1px solid rgba(0, 0, 0, 0.1);" width="800" height="450" src="https://www.figma.com/embed?embed_host=share&url=https%3A%2F%2Fwww.figma.com%2Ffile%2FOWlAFKX1pEIHMfKRnWXOpQ%2FSorterBot%3Fnode-id%3D0%253A1&chrome=DOCUMENTATION" allowfullscreen></iframe>
-
 Inference engine for the SorterBot project, which contains the neural networks and other compute-heavy tasks needed for image processing. It can be run locally as a Docker container, and can be easily deployed to AWS ECS by using the provided GitHub Action.
 
 ### Architecture
@@ -10,7 +8,7 @@ Inference engine for the SorterBot project, which contains the neural networks a
 This part of the Inference engine is called once for every image taken by the camera. After the image is taken, it is sent directly to the Inference engine as raw bytes. The image then is used as the input of the [Detectron2](https://github.com/facebookresearch/detectron2) object recognition network, which outputs the coordinates of the recognized objects. Finally the coordinates are saved to the PostgreSQL database. After all the images in a session have been processed, a trigger is sent to activate the Vectorizer network, which is explained in the next paragraph.
 
 ![Alt SorterBot Cloud Object Recognition Diagram](./media/object_recognition_diagram.svg)
-*<p align="center">Figure 1: Diagram of the Object Recognizer</p>*
+*<p align="center">Figure 1: Diagram of the Object Recognizer ([Full Diagram](https://www.figma.com/file/OWlAFKX1pEIHMfKRnWXOpQ/SorterBot?node-id=0%3A1))</p>*
 
 #### Part 2: Vectorizer
 After the above mentioned trigger is received, all the objects are loaded from the database that belong to the current session. First, the coordinates relative to the frames of their respective images are converted to absolute polar coordinates, relative to the robotic arm. Since one object often shows up on multiple images, duplicates needs to be filtered. Coordinates of objects that show up multiple times are replaced with the averages of the positions. 
@@ -22,7 +20,7 @@ The image vectors and the number of containers are used as the inputs of the K-M
 Lastly, based on the pairings computed above, commands are generated which are directly executable by the robotic arm.
 
 ![Alt SorterBot Cloud Vectorizer Diagram](./media/vectorizer_diagram.svg)
-*<p align="center">Figure 2: Diagram of the Vectorizer</p>*
+*<p align="center">Figure 2: Diagram of the Vectorizer ([Full Diagram](https://www.figma.com/file/OWlAFKX1pEIHMfKRnWXOpQ/SorterBot?node-id=0%3A1))</p>*
 
 ### Development Locally
 
