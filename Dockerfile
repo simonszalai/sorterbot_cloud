@@ -22,7 +22,9 @@ ENV MODE=$MODE_ARG
 ENV DEPLOY_REGION=$DEPLOY_REGION_ARG
 ENV WEIGHTS_URL=$WEIGHTS_URL_ARG
 
-# Download custom trained weights for Detectron from s3
+
+# Copy sample weigths, then overwrite them if WEIGHTS_URL is provided
+COPY ./weights/model_sample.pth /sorterbot_cloud/weights/model_final.pth
 RUN if [ "$WEIGHTS_URL" != "" ] ; then \
   # Install AWS CLI
   curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip" \
