@@ -114,3 +114,13 @@ To do that:
 3. Uncomment the line that prints results in function `test_predict` in file `test_detectron.py` located in the tests folder.
 4. Run the tests, and after they failed, copy the list of dicts under "Captured stdout call" for each test and paste the result as the second element of the tuples.
 5. Rerun the tests and check if they pass.
+
+### Generate Documentation
+1. Install Sphinx and the RTD theme using pip:
+    ```
+    pip install sphinx sphinx-rtd-theme
+    ```
+1. In the docs folder run:
+    ```
+    make html
+    ```
