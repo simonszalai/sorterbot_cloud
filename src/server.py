@@ -1,3 +1,8 @@
+"""
+WebSockets server that listens to messages from the Raspberry Pis and calls the appropriate functions.
+
+"""
+
 import os
 # import ssl
 import json
@@ -28,9 +33,21 @@ class WebSockets:
         self.loop.run_forever()
 
     async def listen(self, websocket, path):
+        """
+        Function that listens to new WebSocket messages. It can handle bytes and JSON messages.
+        Supported message types: recv_img_proc, recv_img_after, get_commands_of_session, stitch_after_image.
+
+        Parameters
+        ----------
+        websocket : WebSocket
+            WebSocket instance provided by websockets.serve
+        path : str
+            Unused.
+        """
+
         async for message in websocket:
             if isinstance(message, bytes):
-                print("img_bytes", len(message))
+                # Split headers from the image
                 split_msg = message.split(b"___SPLIT___")
                 headers = json.loads(split_msg[0])
                 content = split_msg[1]
@@ -86,17 +103,3 @@ class WebSockets:
 
 if __name__ == "__main__":
     WebSockets()
-
-    # main = Main(base_img_path=Path(__file__).resolve().parents[1].joinpath("images"))
-    # # img_disk_path = "/Users/simon/dev/sorterbot_cloud/images/S91/after"
-    # img_disk_path = Path(main.base_img_path).joinpath("S92", "after")
-    # after_images = []
-    # for path, subdirs, files in os.walk(img_disk_path):
-    #     for name in files:
-    #         if fnmatch(name, "*.jpg"):
-    #             after_images.append(name)
-
-    # # stitching_process = mp.Process(target=main.stitch_images, args=("ARM001", "S91", "after", after_images))
-    # # stitching_process.start()
-    # # stitching_process.join()
-    # main.stitch_images("ARM001", "S91", "after", after_images)

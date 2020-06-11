@@ -1,0 +1,778 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>SorterBot Cloud Documentation &mdash; SorterBot Inference Engine  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="#" class="icon icon-home"> SorterBot Inference Engine
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <!-- Local TOC -->
+              <div class="local-toc"><ul>
+<li><a class="reference internal" href="#">SorterBot Cloud Documentation</a></li>
+<li><a class="reference internal" href="#locator-module">Locator Module</a><ul>
+<li><a class="reference internal" href="#module-locator.detectron">locator.detectron class</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-main">Main Module</a></li>
+<li><a class="reference internal" href="#module-server">Server Module</a></li>
+<li><a class="reference internal" href="#utils-module">Utils Module</a><ul>
+<li><a class="reference internal" href="#module-utils.S3">utils.S3 class</a></li>
+<li><a class="reference internal" href="#module-utils.coord_conversion">utils.coord_conversion class</a></li>
+<li><a class="reference internal" href="#module-utils.logger">utils.logger class</a></li>
+<li><a class="reference internal" href="#module-utils.postgres">utils.postgres class</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#vectorizer-module">Vectorizer Module</a><ul>
+<li><a class="reference internal" href="#module-vectorizer.preprocessor">vectorizer.preprocessor class</a></li>
+<li><a class="reference internal" href="#module-vectorizer.vectorizer">vectorizer.vectorizer class</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#indices-and-tables">Indices and tables</a></li>
+</ul>
+</div>
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="#">SorterBot Inference Engine</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="#">Docs</a> &raquo;</li>
+        
+      <li>SorterBot Cloud Documentation</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/index.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="sorterbot-cloud-documentation">
+<h1>SorterBot Cloud Documentation<a class="headerlink" href="#sorterbot-cloud-documentation" title="Permalink to this headline">¶</a></h1>
+<div class="toctree-wrapper compound">
+</div>
+</div>
+<div class="section" id="locator-module">
+<h1>Locator Module<a class="headerlink" href="#locator-module" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="module-locator.detectron">
+<span id="locator-detectron-class"></span><h2>locator.detectron class<a class="headerlink" href="#module-locator.detectron" title="Permalink to this headline">¶</a></h2>
+<p>This class uses Facebook Reserach’s Detectron2 platform to localize and classify objects
+on the provided image.</p>
+<p><a class="reference external" href="https://github.com/facebookresearch/detectron2">https://github.com/facebookresearch/detectron2</a></p>
+<dl class="py class">
+<dt id="locator.detectron.Detectron">
+<em class="property">class </em><code class="sig-prename descclassname">locator.detectron.</code><code class="sig-name descname">Detectron</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">base_img_path</span></em>, <em class="sig-param"><span class="n">model_config</span></em>, <em class="sig-param"><span class="n">threshold</span><span class="o">=</span><span class="default_value">0.7</span></em><span class="sig-paren">)</span><a class="headerlink" href="#locator.detectron.Detectron" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>This class sets up Detectron2 and provides a method to predict objects on a provided image.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>base_img_path</strong> (<em>str</em>) – Root directory for saved images. Inside the provided folder, the image to be
+processed should be saved inside the <cite>original</cite> directory.</p></li>
+<li><p><strong>model_config</strong> (<em>str</em>) – Location of the Detectron config (.yaml) file inside the detectron2 repository’s <cite>config</cite> folder.
+The value should contain any subfolders and the extension as well.</p></li>
+<li><p><strong>threshold</strong> (<em>float</em>) – Object detection threshold for Detectron2.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt id="locator.detectron.Detectron.predict">
+<code class="sig-name descname">predict</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">session_id</span></em>, <em class="sig-param"><span class="n">image_name</span></em>, <em class="sig-param"><span class="n">img</span></em><span class="sig-paren">)</span><a class="headerlink" href="#locator.detectron.Detectron.predict" title="Permalink to this definition">¶</a></dt>
+<dd><p>This method predicts the locations of bounding boxes on the provided image.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>session_id</strong> (<em>str</em>) – Datetime based unique identifier of the current session. It is generated by the Raspberry Pi and passed
+with the POST request.</p></li>
+<li><p><strong>image_name</strong> (<em>str</em>) – Name of the image saved in the <cite>images/original</cite> folder.</p></li>
+<li><p><strong>img</strong> (<em>np.array</em>) – Image to be processed as Numpy array.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>results</strong> – List of dicts containing the results of the object detection as absolute pixel values as well
+as the original image name, dimensions and the predicted class.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>list</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+<div class="section" id="module-main">
+<span id="main-module"></span><h1>Main Module<a class="headerlink" href="#module-main" title="Permalink to this headline">¶</a></h1>
+<p>Main module responsible for orchestrating image processing.</p>
+<dl class="py class">
+<dt id="main.Main">
+<em class="property">class </em><code class="sig-prename descclassname">main.</code><code class="sig-name descname">Main</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">base_img_path</span></em><span class="sig-paren">)</span><a class="headerlink" href="#main.Main" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Main class for controlling image processing. When instantiated, it loads all neccessary environment
+variables and config files and instantiates all needed modules.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>base_img_path</strong> (<em>str</em>) – Location where the downloaded images should be stored.</p>
+</dd>
+</dl>
+<dl class="py method">
+<dt id="main.Main.process_image">
+<code class="sig-name descname">process_image</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">arm_id</span></em>, <em class="sig-param"><span class="n">session_id</span></em>, <em class="sig-param"><span class="n">image_name</span></em>, <em class="sig-param"><span class="n">img_bytes</span></em><span class="sig-paren">)</span><a class="headerlink" href="#main.Main.process_image" title="Permalink to this definition">¶</a></dt>
+<dd><p>This method runs object recognition on the passed image and saves the result to the database.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>session_id</strong> (<em>str</em>) – Datetime based unique identifier of the current session. It is generated by the Raspberry Pi and passed
+with the POST request.</p></li>
+<li><p><strong>image_name</strong> (<em>str</em>) – Name of the image to be processed. The image has to be uploaded to the s3 bucket. Value is passed
+with the POST request.</p></li>
+<li><p><strong>img_bytes</strong> (<em>bytes</em>) – Image to be processed as raw bytes.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>success</strong> – Boolean indicating if processing was successful.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="main.Main.save_and_upload_image">
+<code class="sig-name descname">save_and_upload_image</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">img_path</span></em>, <em class="sig-param"><span class="n">s3_path</span></em>, <em class="sig-param"><span class="n">img_bytes</span></em>, <em class="sig-param"><span class="n">log_args</span></em><span class="sig-paren">)</span><a class="headerlink" href="#main.Main.save_and_upload_image" title="Permalink to this definition">¶</a></dt>
+<dd><p>Takes an iamge as bytes and writes it to disk, then uploads it to s3. This functionality is not essential
+to generate the commands, so if this is executed on a separate thread, some speed-up can be gained.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>img_path</strong> (<em>str</em>) – Path of the image where it should be saved to disk.</p></li>
+<li><p><strong>s3_path</strong> (<em>str</em>) – Path of the image where it should be uploaded to s3.</p></li>
+<li><p><strong>img_bytes</strong> (<em>bytes</em>) – The image as bytes.</p></li>
+<li><p><strong>log_args</strong> (<em>dict</em>) – Arguments to correctly place log entry on the control panel.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>success</strong> – Boolean representing if saving to disk and uploading to s3 was successful.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="main.Main.stitch_images">
+<code class="sig-name descname">stitch_images</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">arm_id</span></em>, <em class="sig-param"><span class="n">session_id</span></em>, <em class="sig-param"><span class="n">stitch_type</span></em>, <em class="sig-param"><span class="n">images_with_objects</span></em><span class="sig-paren">)</span><a class="headerlink" href="#main.Main.stitch_images" title="Permalink to this definition">¶</a></dt>
+<dd><p>Stitches together overlapping images to provide an overview on the UI about the area of interest before and after the
+arm’s operation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>arm_id</strong> (<em>str</em>) – Unique identifier of the robot arm.</p></li>
+<li><p><strong>session_id</strong> (<em>str</em>) – Datetime based unique identifier of the current session. It is generated by the Raspberry Pi and passed
+with the POST request.</p></li>
+<li><p><strong>stitch_type</strong> (<em>str</em>) – Type of stitch which will be prepended to the file name. Possible values: original and after.</p></li>
+<li><p><strong>images_with_objects</strong> (<em>list of dicts</em>) – List of dicts, each dictionary containing ‘image_name’ and ‘objects’. There is one entry for each unique
+image in a session.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="main.Main.vectorize_session_images">
+<code class="sig-name descname">vectorize_session_images</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">arm_constants</span></em>, <em class="sig-param"><span class="n">session_id</span></em>, <em class="sig-param"><span class="n">should_stitch</span><span class="o">=</span><span class="default_value">True</span></em><span class="sig-paren">)</span><a class="headerlink" href="#main.Main.vectorize_session_images" title="Permalink to this definition">¶</a></dt>
+<dd><p>This method is to be executed after the last image of a session is processed. It gets a list of unique
+images in the current session, retrieves all the objects that belong to each image and runs the vectorizer
+on them.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>arm_contants</strong> (<em>dict</em>) – Constants specific to the arm, defined in the arm’s config file.</p></li>
+<li><p><strong>session_id</strong> (<em>str</em>) – Unique identifier of the session.</p></li>
+<li><p><strong>should_stitch</strong> (<em>bool</em>) – Boolean value that enables or disables stitching a panorama image.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>pairings</strong> (<em>list</em>) – List of dicts containing pairs of objects and clusters.</p></li>
+<li><p><strong>session_id</strong> (<em>str</em>) – Datetime based unique identifier of the current session. It is generated by the Raspberry Pi and passed
+with the POST request.</p></li>
+<li><p><strong>stitching_process</strong> (<em>process</em>) – Process which is used for stitching. Should be joined after the commands are sent back to Raspberry Pi,
+this way the Pi is not waiting for it unneccessarily and also the process doesn’t become zombie.</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-server">
+<span id="server-module"></span><h1>Server Module<a class="headerlink" href="#module-server" title="Permalink to this headline">¶</a></h1>
+<p>WebSockets server that listens to messages from the Raspberry Pis and calls the appropriate functions.</p>
+<dl class="py class">
+<dt id="server.WebSockets">
+<em class="property">class </em><code class="sig-prename descclassname">server.</code><code class="sig-name descname">WebSockets</code><a class="headerlink" href="#server.WebSockets" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py method">
+<dt id="server.WebSockets.listen">
+<em class="property">async </em><code class="sig-name descname">listen</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">websocket</span></em>, <em class="sig-param"><span class="n">path</span></em><span class="sig-paren">)</span><a class="headerlink" href="#server.WebSockets.listen" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function that listens to new WebSocket messages. It can handle bytes and JSON messages.
+Supported message types: recv_img_proc, recv_img_after, get_commands_of_session, stitch_after_image.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>websocket</strong> (<em>WebSocket</em>) – WebSocket instance provided by websockets.serve</p></li>
+<li><p><strong>path</strong> (<em>str</em>) – Unused.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="utils-module">
+<h1>Utils Module<a class="headerlink" href="#utils-module" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="module-utils.S3">
+<span id="utils-s3-class"></span><h2>utils.S3 class<a class="headerlink" href="#module-utils.S3" title="Permalink to this headline">¶</a></h2>
+<p>This class provides methods to interact with AWS s3 storage bucket.</p>
+<dl class="py class">
+<dt id="utils.S3.S3">
+<em class="property">class </em><code class="sig-prename descclassname">utils.S3.</code><code class="sig-name descname">S3</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">base_img_path</span></em>, <em class="sig-param"><span class="n">logger_instance</span></em><span class="sig-paren">)</span><a class="headerlink" href="#utils.S3.S3" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>This class sets up the s3 client (boto3).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>base_img_path</strong> (<em>str</em>) – Absolute path where the downloaded images should be stored. Inside this folder, appropriate
+subfolders will be automatically created for the original images (named “original”) and the
+cropped images (named “cropped”).</p></li>
+<li><p><strong>logger_instance</strong> (<em>logger</em>) – Logger instance passed from main.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt id="utils.S3.S3.download_image">
+<code class="sig-name descname">download_image</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">arm_id</span></em>, <em class="sig-param"><span class="n">session_id</span></em>, <em class="sig-param"><span class="n">image_name</span></em><span class="sig-paren">)</span><a class="headerlink" href="#utils.S3.S3.download_image" title="Permalink to this definition">¶</a></dt>
+<dd><p>This method downloads images from s3. To avoid unneccessary downloads, images are only
+downloaded if they are missing or corrupted.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>arm_id</strong> (<em>str</em>) – Unique identifier of the arm.</p></li>
+<li><p><strong>session_id</strong> (<em>str</em>) – Datetime based unique identifier of the current session.</p></li>
+<li><p><strong>image_name</strong> (<em>str</em>) – Name of the image in the s3 bucket to be downloaded.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>img_path</strong> – Absolute path of the downloaded image.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="utils.S3.S3.upload_file">
+<code class="sig-name descname">upload_file</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">bucket_name</span></em>, <em class="sig-param"><span class="n">file_path</span></em>, <em class="sig-param"><span class="n">s3_path</span></em><span class="sig-paren">)</span><a class="headerlink" href="#utils.S3.S3.upload_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Uploads a file to s3.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>bucket_name</strong> (<em>str</em>) – Name of the bucket to upload.</p></li>
+<li><p><strong>file_path</strong> (<em>str</em>) – Path of the image to be uploaded.</p></li>
+<li><p><strong>s3_path</strong> (<em>str</em>) – Path (including filename) where the file should be saved in s3.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-utils.coord_conversion">
+<span id="utils-coord-conversion-class"></span><h2>utils.coord_conversion class<a class="headerlink" href="#module-utils.coord_conversion" title="Permalink to this headline">¶</a></h2>
+<dl class="py function">
+<dt id="utils.coord_conversion.filter_duplicates">
+<code class="sig-prename descclassname">utils.coord_conversion.</code><code class="sig-name descname">filter_duplicates</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">objects</span></em>, <em class="sig-param"><span class="n">threshold</span><span class="o">=</span><span class="default_value">150</span></em><span class="sig-paren">)</span><a class="headerlink" href="#utils.coord_conversion.filter_duplicates" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt id="utils.coord_conversion.object_to_polar">
+<code class="sig-prename descclassname">utils.coord_conversion.</code><code class="sig-name descname">object_to_polar</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">arm_constants</span></em>, <em class="sig-param"><span class="n">image_name</span></em>, <em class="sig-param"><span class="n">obj</span></em><span class="sig-paren">)</span><a class="headerlink" href="#utils.coord_conversion.object_to_polar" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-utils.logger">
+<span id="utils-logger-class"></span><h2>utils.logger class<a class="headerlink" href="#module-utils.logger" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-utils.postgres">
+<span id="utils-postgres-class"></span><h2>utils.postgres class<a class="headerlink" href="#module-utils.postgres" title="Permalink to this headline">¶</a></h2>
+<p>Utility class to provide methods to interact with the PostgreSQL database.</p>
+<dl class="py class">
+<dt id="utils.postgres.Postgres">
+<em class="property">class </em><code class="sig-prename descclassname">utils.postgres.</code><code class="sig-name descname">Postgres</code><a class="headerlink" href="#utils.postgres.Postgres" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Class to provide method to interact with PostgreSQL database. Uses connection pooling to avoid opening and closing
+connections every time a request comes in. It uses a single database which is created when starting the service if
+it does not exist already. Each arm’s data is saved to a separate schema while each session gets its own table.</p>
+<dl class="py method">
+<dt id="utils.postgres.Postgres.create_table">
+<code class="sig-name descname">create_table</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#utils.postgres.Postgres.create_table" title="Permalink to this definition">¶</a></dt>
+<dd><p>This method creates a new table with a given name in the database if it does not exist yet. A separate
+table should be created for each session.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>cursor</strong> (<em>psycopg2.cursor</em>) – Cursor to be used for SQL execution. Provided by <cite>add_connection</cite> decorator.</p></li>
+<li><p><strong>schema_name</strong> (<em>str</em>) – Name of the schema to be created. Corresponds to arm_id.</p></li>
+<li><p><strong>table_name</strong> (<em>str</em>) – Name of the table to be created. Corresponds to session_id.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>table_created</strong> – True if table was created, false if it already existed.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="utils.postgres.Postgres.get_objects_of_image">
+<code class="sig-name descname">get_objects_of_image</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#utils.postgres.Postgres.get_objects_of_image" title="Permalink to this definition">¶</a></dt>
+<dd><p>This method retrieves the recognized objects from the database belonging to the provided image.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>cursor</strong> (<em>psycopg2.cursor</em>) – Cursor to be used for SQL execution. Provided by <cite>add_connection</cite> decorator.</p></li>
+<li><p><strong>schema_name</strong> (<em>str</em>) – Name of the schema to be used. Corresponds to arm_id.</p></li>
+<li><p><strong>table_name</strong> (<em>str</em>) – Name of the table to be used. Corresponds to session_id.</p></li>
+<li><p><strong>image_name</strong> (<em>str</em>) – Name of the image of which the objects should be retrieved.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>objects_of_image</strong> – List of dicts containing the follwing keys: <cite>id</cite>, <cite>type</cite>, <cite>bbox_dims</cite>. <cite>bbox_dims</cite> contains the relative coordinates
+of the top left and bottom right corners of the bounding box.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="utils.postgres.Postgres.get_unique_images">
+<code class="sig-name descname">get_unique_images</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#utils.postgres.Postgres.get_unique_images" title="Permalink to this definition">¶</a></dt>
+<dd><p>This method retrieves a list of unique images in the current session.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>cursor</strong> (<em>psycopg2.cursor</em>) – Cursor to be used for SQL execution. Provided by <cite>add_connection</cite> decorator.</p></li>
+<li><p><strong>schema_name</strong> (<em>str</em>) – Name of the schema to be used. Corresponds to arm_id.</p></li>
+<li><p><strong>table_name</strong> (<em>str</em>) – Name of the table to be used. Corresponds to session_id.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>unique_images</strong> – List of strings containing unique image names.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="utils.postgres.Postgres.insert_results">
+<code class="sig-name descname">insert_results</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#utils.postgres.Postgres.insert_results" title="Permalink to this definition">¶</a></dt>
+<dd><p>This method inserts the result from the object recognition to the database.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>cursor</strong> (<em>psycopg2.cursor</em>) – Cursor to be used for SQL execution. Provided by <cite>add_connection</cite> decorator.</p></li>
+<li><p><strong>schema_name</strong> (<em>str</em>) – Name of the schema to be used. Corresponds to arm_id.</p></li>
+<li><p><strong>table_name</strong> (<em>str</em>) – Name of the table to be used. Corresponds to session_id.</p></li>
+<li><p><strong>results</strong> (<em>list</em>) – List of dict’s containing the following keys: <cite>image_name</cite>, <cite>image_width</cite>, <cite>image_height</cite>, <cite>class</cite>, <cite>x1</cite>, <cite>y1</cite>, <cite>x2</cite>, <cite>y2</cite>.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt id="utils.postgres.add_connection">
+<code class="sig-prename descclassname">utils.postgres.</code><code class="sig-name descname">add_connection</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">func</span></em><span class="sig-paren">)</span><a class="headerlink" href="#utils.postgres.add_connection" title="Permalink to this definition">¶</a></dt>
+<dd><p>Decorator function to retrieve a connection from the connection pool, pass it to the decorated function,
+then put it back to the pool.</p>
+</dd></dl>
+
+</div>
+</div>
+<div class="section" id="vectorizer-module">
+<h1>Vectorizer Module<a class="headerlink" href="#vectorizer-module" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="module-vectorizer.preprocessor">
+<span id="vectorizer-preprocessor-class"></span><h2>vectorizer.preprocessor class<a class="headerlink" href="#module-vectorizer.preprocessor" title="Permalink to this headline">¶</a></h2>
+<p>The PreProcessor module is responsible for fetching images from the AWS s3 bucket and cropping
+the recognized objects from the original images.</p>
+<dl class="py class">
+<dt id="vectorizer.preprocessor.PreProcessor">
+<em class="property">class </em><code class="sig-prename descclassname">vectorizer.preprocessor.</code><code class="sig-name descname">PreProcessor</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">base_img_path</span></em><span class="sig-paren">)</span><a class="headerlink" href="#vectorizer.preprocessor.PreProcessor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>This class provides methods to crop images.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>base_img_path</strong> (<em>str</em>) – Absolute path where the downloaded images are stored. Inside this folder, appropriate
+subfolder will be automatically created for the cropped images (named “cropped”).</p>
+</dd>
+</dl>
+<dl class="py method">
+<dt id="vectorizer.preprocessor.PreProcessor.crop_all_objects">
+<code class="sig-name descname">crop_all_objects</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">session_id</span></em>, <em class="sig-param"><span class="n">image_name</span></em>, <em class="sig-param"><span class="n">objects</span></em><span class="sig-paren">)</span><a class="headerlink" href="#vectorizer.preprocessor.PreProcessor.crop_all_objects" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function crops all recognized items from an original image. It has been separated from
+<cite>crop_object</cite> for performance reasons (<cite>Image.open()</cite> is executed only once per image not once per object).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>session_id</strong> (<em>str</em>) – Unique identifier of the current session. It is generated by the Raspberry Pi and passed
+with the POST request.</p></li>
+<li><p><strong>image_name</strong> (<em>str</em>) – Name of the image on disk to be loaded.</p></li>
+<li><p><strong>objects</strong> (<em>list</em>) – List of dicts containing information about the recognized items. <cite>bbox_dims</cite> will be used here for cropping.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="vectorizer.preprocessor.PreProcessor.crop_object">
+<code class="sig-name descname">crop_object</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">img_folder</span></em>, <em class="sig-param"><span class="n">img</span></em>, <em class="sig-param"><span class="n">id</span></em>, <em class="sig-param"><span class="n">bbox_dims</span></em><span class="sig-paren">)</span><a class="headerlink" href="#vectorizer.preprocessor.PreProcessor.crop_object" title="Permalink to this definition">¶</a></dt>
+<dd><p>This method should be called on each item (not containers) recognized on an image. It will
+crop the image around the provided bounding box coordinates and save the portion of the image
+inside the bounding box as a separate file. The cropped image will be placed in a folder
+corresponding to the name of the original image. The name of the new (cropped) image will
+contain <cite>id</cite>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>img_folder</strong> (<em>str</em>) – Absolute path of the folder where the current image’s cropped pictures should be saved.</p></li>
+<li><p><strong>img</strong> (<em>Image</em>) – Already opened image as PIL <cite>Image</cite> object, returned by <cite>Image.open()</cite>.</p></li>
+<li><p><strong>id</strong> (<em>int</em>) – Object id (unique within an original image) of the recognized object.
+The cropped image will be saved with a name like the following: item_&lt;id&gt;.ext</p></li>
+<li><p><strong>bbox_dims</strong> (<em>dict</em>) – Bounding box dimensions to be used for cropping. The dict should contain the following keys: <cite>x1</cite> and <cite>y1</cite>
+representing the coordinates of the top left, while <cite>x2</cite> and <cite>y2</cite> representing the coordinates of the
+bottom right corner of the bounding box. All values are floats between 0 and 1, representing relative distances.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="vectorizer.preprocessor.PreProcessor.run">
+<code class="sig-name descname">run</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">session_id</span></em>, <em class="sig-param"><span class="n">images</span></em><span class="sig-paren">)</span><a class="headerlink" href="#vectorizer.preprocessor.PreProcessor.run" title="Permalink to this definition">¶</a></dt>
+<dd><p>This method coordinates the preprocessing. It loops though the provided list of images and
+crops all recognized objects from the image.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>session_id</strong> (<em>str</em>) – Unique identifier of the current session. It is generated by the Raspberry Pi and passed
+with the POST request.</p></li>
+<li><p><strong>images</strong> (<em>list</em>) – List of dicts containing <cite>image_name</cite> and <cite>objects</cite> keys. The <cite>objects</cite> value contains the bounding boxes
+to be cropped.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-vectorizer.vectorizer">
+<span id="vectorizer-vectorizer-class"></span><h2>vectorizer.vectorizer class<a class="headerlink" href="#module-vectorizer.vectorizer" title="Permalink to this headline">¶</a></h2>
+<p>Vectorizer module is intended to load files from disk and calculate feature vectors from them.
+These feature vectors are used later for clustering. Vectorizer is built on PyTorch/Torchvision.
+Any model from torchvision.models can be used for vectorization.</p>
+<dl class="py class">
+<dt id="vectorizer.vectorizer.ImageFolderWithPaths">
+<em class="property">class </em><code class="sig-prename descclassname">vectorizer.vectorizer.</code><code class="sig-name descname">ImageFolderWithPaths</code><span class="sig-paren">(</span><em class="sig-param">root</em>, <em class="sig-param">transform=None</em>, <em class="sig-param">target_transform=None</em>, <em class="sig-param">loader=&lt;function default_loader&gt;</em>, <em class="sig-param">is_valid_file=None</em><span class="sig-paren">)</span><a class="headerlink" href="#vectorizer.vectorizer.ImageFolderWithPaths" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">torchvision.datasets.folder.ImageFolder</span></code></p>
+<p>Extends torchvision.datasets.ImageFolder to add image paths to the dataset.
+Implements an override for the __getitem__ method, which is called when the
+<cite>dataloader</cite> accesses an item from the <cite>dataset</cite></p>
+</dd></dl>
+
+<dl class="py class">
+<dt id="vectorizer.vectorizer.Vectorizer">
+<em class="property">class </em><code class="sig-prename descclassname">vectorizer.vectorizer.</code><code class="sig-name descname">Vectorizer</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">base_img_path</span></em>, <em class="sig-param"><span class="n">model_name</span></em>, <em class="sig-param"><span class="n">input_dimensions</span></em>, <em class="sig-param"><span class="n">output_layer</span><span class="o">=</span><span class="default_value">'avgpool'</span></em>, <em class="sig-param"><span class="n">output_length</span><span class="o">=</span><span class="default_value">512</span></em>, <em class="sig-param"><span class="n">stats</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">batch_size</span><span class="o">=</span><span class="default_value">1024</span></em>, <em class="sig-param"><span class="n">num_workers</span><span class="o">=</span><span class="default_value">4</span></em><span class="sig-paren">)</span><a class="headerlink" href="#vectorizer.vectorizer.Vectorizer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>This class initiates the chosen neural network, loads the specified images,
+and computes feature vectors from them. The computation is executed in batches
+to increase efficiency.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>base_img_path</strong> (<em>str</em>) – Absolute path where the downloaded images should be stored. Inside this folder, appropriate
+subfolders will be automatically created for the original images (named “original”) and the
+cropped images (named “cropped”).</p></li>
+<li><p><strong>model_name</strong> (<em>str</em>) – Name of the neural network architecture to be used for vectorization.
+Has to be one of the available models of
+<a class="reference external" href="https://pytorch.org/docs/stable/torchvision/models.html">torchvision.models</a>.</p></li>
+<li><p><strong>input_dimensions</strong> (<em>tuple</em>) – Dimensions of the input tensor required by the network architecture.
+The processed images will be resized to these dimensions. Networks
+usually require square-shaped images.</p></li>
+<li><p><strong>output_layer</strong> (<em>str</em><em>, </em><em>optional</em>) – The layer of interest’s name in the neural net. The specified layer’s outputs
+are the vectors, which will be copied from the network and returned as results.
+To get a model summary with names, simply print the model, like: <code class="docutils literal notranslate"><span class="pre">print(model)</span></code></p></li>
+<li><p><strong>output_length</strong> (<em>int</em><em>, </em><em>optional</em>) – The length of the output vector.</p></li>
+<li><p><strong>stats</strong> (<em>dict</em><em>, </em><em>optional</em>) – Dict with 2 keys: <code class="docutils literal notranslate"><span class="pre">mean</span></code> and <code class="docutils literal notranslate"><span class="pre">std</span></code>. The corresponding values are both lists
+of 3 elements representing the 3 color channels of images. Specify here the
+means and standard deviations of the training set on which the used model was trained.
+Defaults to ImageNet stats.</p></li>
+<li><p><strong>batch_size</strong> (<em>int</em><em>, </em><em>optional</em>) – Specifies how many images a batch should contain. Use a higher number, preferably a
+power of 2 for faster processing. Keep in mind that one batch has to fit in memory
+at once.</p></li>
+<li><p><strong>num_workers</strong> (<em>int</em><em>, </em><em>optional</em>) – User by PyTorch’s DataLoader to determine how many subprocesses to use for data
+loading. Use 0 to load everything on the main process, use a higher number for
+parallel loading.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt id="vectorizer.vectorizer.Vectorizer.compute_vectors">
+<code class="sig-name descname">compute_vectors</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#vectorizer.vectorizer.Vectorizer.compute_vectors" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function runs the inference on the loaded pictures using the previously selected model.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><ul class="simple">
+<li><p><strong>filenames</strong> (<em>list</em>) – List of filenames of cropped images. Also contains the name of the original image and corresponds
+to the location of the image in the ‘cropped’ folder.</p></li>
+<li><p><strong>vectors</strong> (<em>list</em>) – List of resulting vectors.</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="vectorizer.vectorizer.Vectorizer.load_data">
+<code class="sig-name descname">load_data</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">data_path</span></em><span class="sig-paren">)</span><a class="headerlink" href="#vectorizer.vectorizer.Vectorizer.load_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Loads images from disk.</p>
+<p>This function first creates a dataset using ImageFolderWithPaths, which is an
+extension of PyTorch’s <a class="reference external" href="https://pytorch.org/docs/stable/torchvision/datasets.html#imagefolder">ImageFolder</a>,
+then it creates a dataloader.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>data_path</strong> (<em>str</em>) – Specifies the location of the images to be loaded. Given the way ImageFolder works,
+the images has to be in another folder inside the specified folder. The name of that
+folder would be the label for training, but in case of inference, it’s irrelevant.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>found_images</strong> – Boolean value representing if any images were found to be vectorized.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="vectorizer.vectorizer.Vectorizer.run">
+<code class="sig-name descname">run</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">session_id</span></em>, <em class="sig-param"><span class="n">unique_images</span></em>, <em class="sig-param"><span class="n">objects</span></em>, <em class="sig-param"><span class="n">n_containers</span></em><span class="sig-paren">)</span><a class="headerlink" href="#vectorizer.vectorizer.Vectorizer.run" title="Permalink to this definition">¶</a></dt>
+<dd><p>This method coordinates the process of vectorization. First, it run’s the preprocessor
+to crop the bounding boxes from the original images, then runs the vectorizer on the cropped
+images and finally clusters the resulting vectors.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>session_id</strong> (<em>str</em>) – Datetime based unique identifier of the current session. It is generated by the Raspberry Pi and passed
+with the POST request.</p></li>
+<li><p><strong>objects</strong> (<em>list</em>) – List of dicts containing information describing the recognized objects. <cite>image_name</cite> and <cite>bbox_dims</cite> are
+needed here for cropping the items.</p></li>
+<li><p><strong>n_containers</strong> (<em>int</em>) – Number of recognized containers on the current image. Will be used in K-Means as the number of clusters to be created.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>pairings</strong> – List of dicts containing <cite>filename</cite> and <cite>cluster</cite> keys. The filename includes the original image’s name
+and the recognized object’s id, the cluster is the index of the cluster to which the particular object belongs.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>list</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+<div class="section" id="indices-and-tables">
+<h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this headline">¶</a></h1>
+<ul class="simple">
+<li><p><a class="reference internal" href="genindex.html"><span class="std std-ref">Index</span></a></p></li>
+<li><p><a class="reference internal" href="py-modindex.html"><span class="std std-ref">Module Index</span></a></p></li>
+</ul>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2020, Simon Szalai
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

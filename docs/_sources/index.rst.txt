@@ -4,10 +4,10 @@ SorterBot Cloud Documentation
 .. toctree::
    :maxdepth: 4
 
-Locator
-=======
+Locator Module
+==============
 
-locator.detectron module
+locator.detectron class
 ------------------------
 
 .. automodule:: locator.detectron
@@ -15,16 +15,16 @@ locator.detectron module
     :undoc-members:
     :show-inheritance:
 
-Main
-====
+Main Module
+===========
 
 .. automodule:: main
     :members:
     :undoc-members:
     :show-inheritance:
 
-Server
-======
+Server Module
+=============
 
 .. automodule:: server
     :members:
@@ -32,54 +32,54 @@ Server
     :show-inheritance:
 
 
-Utils
-=====
+Utils Module
+============
 
-utils.S3 module
----------------
+utils.S3 class
+--------------
 
 .. automodule:: utils.S3
     :members:
     :undoc-members:
     :show-inheritance:
 
-utils.coord\_conversion module
-------------------------------
+utils.coord\_conversion class
+-----------------------------
 
 .. automodule:: utils.coord_conversion
     :members:
     :undoc-members:
     :show-inheritance:
 
-utils.logger module
--------------------
+utils.logger class
+------------------
 
 .. automodule:: utils.logger
     :members:
     :undoc-members:
     :show-inheritance:
 
-utils.postgres module
----------------------
+utils.postgres class
+--------------------
 
 .. automodule:: utils.postgres
     :members:
     :undoc-members:
     :show-inheritance:
 
-Vectorizer
-==========
+Vectorizer Module
+=================
 
-vectorizer.preprocessor module
-------------------------------
+vectorizer.preprocessor class
+-----------------------------
 
 .. automodule:: vectorizer.preprocessor
     :members:
     :undoc-members:
     :show-inheritance:
 
-vectorizer.vectorizer module
-----------------------------
+vectorizer.vectorizer class
+---------------------------
 
 .. automodule:: vectorizer.vectorizer
     :members:
@@ -92,4 +92,3 @@ Indices and tables
 
 * :ref:`genindex`
 * :ref:`modindex`
-* :ref:`search`
