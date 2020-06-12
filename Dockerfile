@@ -39,9 +39,9 @@ ENV WEIGHTS_URL=$WEIGHTS_URL_ARG
 
 RUN \
   # Install AWS CLI
-  curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip" \
-  unzip awscliv2.zip \
-  ./aws/install \
+  curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip" ; \
+  unzip awscliv2.zip ; \
+  ./aws/install ; \
   # Download weights from S3
   # --profile ${AWS_PROFILE} \
   # --mount=type=secret,id=aws_credentials,dst=/root/.aws/credentials \
