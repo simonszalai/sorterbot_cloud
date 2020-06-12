@@ -24,7 +24,7 @@ ENV WEIGHTS_URL=$WEIGHTS_URL_ARG
 
 
 # Copy sample weigths, then overwrite them if WEIGHTS_URL is provided
-COPY ./weights/model_sample.pth /sorterbot_cloud/weights/model_final.pth
+COPY ./weights/model_final.pth /sorterbot_cloud/weights/model_final.pth
 RUN if [ "$WEIGHTS_URL" != "" ] ; then \
   # Install AWS CLI
   curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip" \
