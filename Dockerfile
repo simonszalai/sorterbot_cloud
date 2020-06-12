@@ -47,7 +47,7 @@ RUN ./aws/install
   # --mount=type=secret,id=aws_credentials,dst=/root/.aws/credentials \
   # --mount=type=secret,id=aws_config,dst=/root/.aws/config \
 RUN echo $WEIGHTS_URL
-RUN aws s3 cp $WEIGHTS_URL /sorterbot_cloud/weights/model_final.pth
+RUN aws s3 cp s3://sorterbot-weights-fbcggris/model_final.pth /sorterbot_cloud/weights/model_final.pth
 
 # Copy source code
 COPY ./src /sorterbot_cloud/src
