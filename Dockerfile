@@ -23,9 +23,21 @@ ENV DEPLOY_REGION=$DEPLOY_REGION_ARG
 ENV WEIGHTS_URL=$WEIGHTS_URL_ARG
 
 
-# Copy sample weigths, then overwrite them if WEIGHTS_URL is provided
-COPY ./weights/model_final.pth /sorterbot_cloud/weights/model_final.pth
-RUN if [ "$WEIGHTS_URL" != "" ] ; then \
+# # Copy sample weigths, then overwrite them if WEIGHTS_URL is provided
+# COPY ./weights/model_final.pth /sorterbot_cloud/weights/model_final.pth
+# RUN if [ "$WEIGHTS_URL" != "" ] ; then \
+#   # Install AWS CLI
+#   curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip" \
+#   unzip awscliv2.zip \
+#   ./aws/install \
+#   # Download weights from S3
+#   --profile ${AWS_PROFILE} \
+#   --mount=type=secret,id=aws_credentials,dst=/root/.aws/credentials \
+#   --mount=type=secret,id=aws_config,dst=/root/.aws/config \
+#   aws s3 cp ${WEIGHTS_URL} /sorterbot_cloud/weights/model_final.pth ; \
+# fi ;
+
+RUN \
   # Install AWS CLI
   curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip" \
   unzip awscliv2.zip \
@@ -34,8 +46,7 @@ RUN if [ "$WEIGHTS_URL" != "" ] ; then \
   --profile ${AWS_PROFILE} \
   --mount=type=secret,id=aws_credentials,dst=/root/.aws/credentials \
   --mount=type=secret,id=aws_config,dst=/root/.aws/config \
-  aws s3 cp ${WEIGHTS_URL} /sorterbot_cloud/weights/model_final.pth ; \
-fi ;
+  aws s3 cp ${WEIGHTS_URL} /sorterbot_cloud/weights/model_final.pth ;
 
 # Copy source code
 COPY ./src /sorterbot_cloud/src
