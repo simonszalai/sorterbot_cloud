@@ -37,16 +37,17 @@ ENV WEIGHTS_URL=$WEIGHTS_URL_ARG
 #   aws s3 cp ${WEIGHTS_URL} /sorterbot_cloud/weights/model_final.pth ; \
 # fi ;
 
-RUN \
+# RUN \
   # Install AWS CLI
-  curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip" ; \
-  unzip awscliv2.zip ; \
-  ./aws/install ; \
+RUN curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+RUN unzip awscliv2.zip
+RUN ./aws/install
   # Download weights from S3
   # --profile ${AWS_PROFILE} \
   # --mount=type=secret,id=aws_credentials,dst=/root/.aws/credentials \
   # --mount=type=secret,id=aws_config,dst=/root/.aws/config \
-  aws s3 cp ${WEIGHTS_URL} /sorterbot_cloud/weights/model_final.pth ;
+RUN echo $WEIGHTS_URL
+RUN aws s3 cp $WEIGHTS_URL /sorterbot_cloud/weights/model_final.pth
 
 # Copy source code
 COPY ./src /sorterbot_cloud/src
