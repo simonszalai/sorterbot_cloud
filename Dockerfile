@@ -43,7 +43,7 @@ RUN \
   unzip awscliv2.zip \
   ./aws/install \
   # Download weights from S3
-  --profile ${AWS_PROFILE} \
+  # --profile ${AWS_PROFILE} \
   --mount=type=secret,id=aws_credentials,dst=/root/.aws/credentials \
   --mount=type=secret,id=aws_config,dst=/root/.aws/config \
   aws s3 cp ${WEIGHTS_URL} /sorterbot_cloud/weights/model_final.pth ;
