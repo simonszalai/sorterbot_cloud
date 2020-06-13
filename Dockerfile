@@ -39,25 +39,25 @@ ENV WEIGHTS_URL=$WEIGHTS_URL_ARG
 
 # RUN \
   # Install AWS CLI
-RUN curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-RUN unzip awscliv2.zip
-RUN ./aws/install
-RUN aws s3 cp s3://sorterbot-weights-fbcggris/model_final.pth /sorterbot_cloud/weights/model_final.pth --region ${DEPLOY_REGION_ARG}
-RUN echo ls
-RUN ls /sorterbot_cloud/weights
-RUN stat -f%z /sorterbot_cloud/weights/model_final.pth
-  # Download weights from S3
-  # --profile ${AWS_PROFILE} \
-  # --mount=type=secret,id=aws_credentials,dst=/root/.aws/credentials \
-  # --mount=type=secret,id=aws_config,dst=/root/.aws/config \
-RUN echo WEIGHTS_URL: $WEIGHTS_URL
-RUN echo WEIGHTS_URL_ARG: $WEIGHTS_URL_ARG
+# RUN curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+# RUN unzip awscliv2.zip
+# RUN ./aws/install
+# RUN aws s3 cp --region eu-central-1 s3://sorterbot-weights-fbcggris/model_final.pth /sorterbot_cloud/weights/model_final.pth
+# RUN echo ls
+# RUN ls /sorterbot_cloud/weights
+# RUN stat -f%z /sorterbot_cloud/weights/model_final.pth
+#   # Download weights from S3
+#   # --profile ${AWS_PROFILE} \
+#   # --mount=type=secret,id=aws_credentials,dst=/root/.aws/credentials \
+#   # --mount=type=secret,id=aws_config,dst=/root/.aws/config \
+# RUN echo WEIGHTS_URL: $WEIGHTS_URL
+# RUN echo WEIGHTS_URL_ARG: $WEIGHTS_URL_ARG
 
 # Copy source code
 COPY ./src /sorterbot_cloud/src
 COPY ./tests /sorterbot_cloud/tests
 COPY ./config.yaml /sorterbot_cloud/config.yaml
-# COPY ./weights/model_final.pth /sorterbot_cloud/weights/model_final.pth
+COPY ./weights/model_final.pth /sorterbot_cloud/weights/model_final.pth
 
 WORKDIR /sorterbot_cloud
 ENV PYTHONUNBUFFERED 1
