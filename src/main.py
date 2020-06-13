@@ -142,7 +142,7 @@ class Main:
 
     def save_and_upload_image(self, img_path, s3_path, img_bytes, log_args):
         """
-        Takes an iamge as bytes and writes it to disk, then uploads it to s3. This functionality is not essential
+        Takes an image as bytes and writes it to disk, then uploads it to s3. This functionality is not essential
         to generate the commands, so if this is executed on a separate thread, some speed-up can be gained.
 
         Parameters

@@ -1,9 +1,33 @@
+"""
+Functions to convert bounding box coordinates from relative to absolute.
+
+"""
+
 import math
 import numpy as np
 from pathlib import Path
 
 
 def object_to_polar(arm_constants, image_name, obj):
+    """
+    Converts bounding box coordinates relative to the image frame to absolute polar coordinates, relative to the robotic arm.
+
+    Parameters
+    ----------
+    arm_constants : dict
+        Dictionary containing the arm's constants that are saved in the arm's config file and sent with the request.
+    image_name : str
+        Name of the image, which also corresponds to the robot arm's rotation, expressed in pulse width.
+    obj : dict
+        Dictionary contining the relative coordinates of the bounding box.
+
+    Returns
+    -------
+    abs_coords : dict
+        Dictionary contining the computed absolute coordinates, the rotation as pulse width, the object ID and the bounding box dimensions.
+
+    """
+
     # Retrieve image center's base rotation (when the picture was taken) as pulse width from the filename
     img_base_angle = int(Path(image_name).stem)
 
@@ -46,10 +70,25 @@ def object_to_polar(arm_constants, image_name, obj):
 
 
 def filter_duplicates(objects, threshold=150):
+    """
+    Filters out the bounding boxes that belong to the same object, but showed up on a different image.
+
+    Parameters
+    ----------
+    objects : list
+        List of dicts, containing the absolute coordinates of the objects.
+    threshold: int
+        Distance within that objects are considered the same.
+
+    Returns
+    -------
+    filtered_objs : list
+        List of the absolute coordinates of the unique objects.
+
+    """
+
     def in_range(loc, loc_in, idx):
         return (loc[idx] - threshold) < loc_in[idx] and loc_in[idx] < (loc[idx] + threshold)
-
-    # locations = [obj["polar_coords"] for obj in objects]
 
     filtered_objs = []
     for obj in objects:
