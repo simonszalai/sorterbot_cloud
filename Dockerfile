@@ -42,7 +42,7 @@ ENV WEIGHTS_URL=$WEIGHTS_URL_ARG
 RUN curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
 RUN unzip awscliv2.zip
 RUN ./aws/install
-RUN aws s3 cp s3://sorterbot-weights-fbcggris/model_final.pth /sorterbot_cloud/weights/model_final.pth
+RUN aws s3 cp s3://sorterbot-weights-fbcggris/model_final.pth /sorterbot_cloud/weights/model_final.pth --region ${DEPLOY_REGION_ARG}
 RUN echo ls
 RUN ls /sorterbot_cloud/weights
 RUN stat -f%z /sorterbot_cloud/weights/model_final.pth
