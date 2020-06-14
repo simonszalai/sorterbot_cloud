@@ -259,7 +259,7 @@ with the POST request.</p></li>
 <dl class="py method">
 <dt id="main.Main.save_and_upload_image">
 <code class="sig-name descname">save_and_upload_image</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">img_path</span></em>, <em class="sig-param"><span class="n">s3_path</span></em>, <em class="sig-param"><span class="n">img_bytes</span></em>, <em class="sig-param"><span class="n">log_args</span></em><span class="sig-paren">)</span><a class="headerlink" href="#main.Main.save_and_upload_image" title="Permalink to this definition">¶</a></dt>
-<dd><p>Takes an iamge as bytes and writes it to disk, then uploads it to s3. This functionality is not essential
+<dd><p>Takes an image as bytes and writes it to disk, then uploads it to s3. This functionality is not essential
 to generate the commands, so if this is executed on a separate thread, some speed-up can be gained.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -415,15 +415,47 @@ downloaded if they are missing or corrupted.</p>
 </div>
 <div class="section" id="module-utils.coord_conversion">
 <span id="utils-coord-conversion-class"></span><h2>utils.coord_conversion class<a class="headerlink" href="#module-utils.coord_conversion" title="Permalink to this headline">¶</a></h2>
+<p>Functions to convert bounding box coordinates from relative to absolute.</p>
 <dl class="py function">
 <dt id="utils.coord_conversion.filter_duplicates">
 <code class="sig-prename descclassname">utils.coord_conversion.</code><code class="sig-name descname">filter_duplicates</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">objects</span></em>, <em class="sig-param"><span class="n">threshold</span><span class="o">=</span><span class="default_value">150</span></em><span class="sig-paren">)</span><a class="headerlink" href="#utils.coord_conversion.filter_duplicates" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Filters out the bounding boxes that belong to the same object, but showed up on a different image.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>objects</strong> (<em>list</em>) – List of dicts, containing the absolute coordinates of the objects.</p></li>
+<li><p><strong>threshold</strong> (<em>int</em>) – Distance within that objects are considered the same.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>filtered_objs</strong> – List of the absolute coordinates of the unique objects.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>list</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt id="utils.coord_conversion.object_to_polar">
 <code class="sig-prename descclassname">utils.coord_conversion.</code><code class="sig-name descname">object_to_polar</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">arm_constants</span></em>, <em class="sig-param"><span class="n">image_name</span></em>, <em class="sig-param"><span class="n">obj</span></em><span class="sig-paren">)</span><a class="headerlink" href="#utils.coord_conversion.object_to_polar" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Converts bounding box coordinates relative to the image frame to absolute polar coordinates, relative to the robotic arm.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>arm_constants</strong> (<em>dict</em>) – Dictionary containing the arm’s constants that are saved in the arm’s config file and sent with the request.</p></li>
+<li><p><strong>image_name</strong> (<em>str</em>) – Name of the image, which also corresponds to the robot arm’s rotation, expressed in pulse width.</p></li>
+<li><p><strong>obj</strong> (<em>dict</em>) – Dictionary contining the relative coordinates of the bounding box.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>abs_coords</strong> – Dictionary contining the computed absolute coordinates, the rotation as pulse width, the object ID and the bounding box dimensions.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
 
 </div>
 <div class="section" id="module-utils.logger">
