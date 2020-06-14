@@ -124,7 +124,7 @@ To do that:
     ```
     ./build_docs.sh
     ```
-1. The built HTML page will be saved in the `docs` folder, where GitHub Pages can automatically serve it. Commit the built files, push them, and you can access the documentation page at https://[GITHUB_USER_NAME].github.io/sorterbot_cloud
+1. The built HTML page will be saved in the `docs` folder, where GitHub Pages can automatically serve it. Commit the built files, push them, and you can access the documentation page at `https://[GITHUB_USER_NAME].github.io/sorterbot_cloud`
 1. In case you want to clear the built files, you can do that by running the following command in the `docs` folder:
     ```
     ./clear_docs.sh
