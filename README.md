@@ -120,6 +120,11 @@ To do that:
     ```
     pip install sphinx sphinx-rtd-theme
     ```
+1. To automatically collect all the docstrings, run the following command:
+    ```
+    sphinx-apidoc -o [OUTPUT_FOLDER] [SOURCE_CODE_PATH]
+    ```
+    The above command will generate .rst files, and their content should be moved to `index.rst` to structure the documentation. After that, the original files can be deleted.
 1. Run the bash script to build the documentation HTML (from `docs` folder):
     ```
     ./build_docs.sh
