@@ -1,5 +1,5 @@
 # SorterBot Cloud
-*Note: This repository is still work in progress!*
+Medium articles about the project: [Part 1](https://medium.com/swlh/web-application-to-control-a-swarm-of-raspberry-pis-with-an-ai-enabled-inference-engine-b3cb4b4c9fd), [Part 2](https://medium.com/@simon.szalai/web-application-to-control-a-swarm-of-raspberry-pis-with-an-ai-enabled-inference-engine-part-2-73804121c98a), [Part 3](https://medium.com/@simon.szalai/web-application-to-control-a-swarm-of-raspberry-pis-with-an-ai-enabled-inference-engine-part-3-77836f9fc4c2)
 
 Inference engine for the SorterBot project, which contains the neural networks and other compute-heavy tasks needed for image processing. It can be run locally as a Docker container, and can be easily deployed to AWS ECS by using the provided GitHub Action.
 
